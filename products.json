@@ -1,0 +1,382 @@
+﻿[
+    {
+        "slug":  "rakovyna-na-pidlohu-odri",
+        "sku":  "Odri",
+        "name":  "ODRI",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  15150,
+        "photo":  "https://odudlab.com/content/images/13/rakovyna-na-pidlohu-odri-19463401125597_+c68e6ab0a7.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "odri-z-kaneliuramy",
+        "sku":  "Odri k",
+        "name":  "ODRI з канелюрами",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  18150,
+        "photo":  "https://odudlab.com/content/images/15/50025451969450_+3536cebeda.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "monro",
+        "sku":  "Monro",
+        "name":  "MONRO",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  17900,
+        "photo":  "https://odudlab.com/content/images/17/89637982303461_+733ea91a64.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "copy-monro",
+        "sku":  "Monro k",
+        "name":  "MONRO з канелюрами",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  19600,
+        "photo":  "https://odudlab.com/content/images/19/copy_monro-44493868458124_+44e8b06b82.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "tower",
+        "sku":  "Tower",
+        "name":  "TOWER",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  15150,
+        "photo":  "https://odudlab.com/content/images/21/54172910313898_+d0605f5d38.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "nori",
+        "sku":  "Nori",
+        "name":  "NORI",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  15150,
+        "photo":  "https://odudlab.com/content/images/23/copy_tower-53757230856866_+e9ea6773a6.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "square",
+        "sku":  "Square",
+        "name":  "SQUARE",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  15150,
+        "photo":  "https://odudlab.com/content/images/25/88118705597303_+632553082e.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "odri-nakladna",
+        "sku":  "Odri n",
+        "name":  "ODRI накладна",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  9050,
+        "photo":  "https://odudlab.com/content/images/27/59397426049462_+6b8a40b9be.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "copy-odri-nakladna",
+        "sku":  "Monro n",
+        "name":  "MONRO накладна",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  8420,
+        "photo":  "https://odudlab.com/content/images/29/copy_odri-nakladna-28230497902433_+d982e90f55.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "copy-odri-nakladna-530",
+        "sku":  "SOLO",
+        "name":  "SOLO",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  5950,
+        "photo":  "https://odudlab.com/content/images/31/copy_odri-nakladna530-78411713968521_+e73df14315.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "low",
+        "sku":  "Low",
+        "name":  "LOW",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  6750,
+        "photo":  "https://odudlab.com/content/images/33/41797855965796_+61ada88991.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "ava",
+        "sku":  "ava",
+        "name":  "AVA",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  5950,
+        "photo":  "https://odudlab.com/content/images/35/90415806479269_+04592ad35e.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "semi-nakladna",
+        "sku":  "Semi",
+        "name":  "SEMI накладна",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  7550,
+        "photo":  "https://odudlab.com/content/images/37/copy_ava-17250781745364_+b4b3202520.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "little-semi-nakladna",
+        "sku":  "copy_Semi",
+        "name":  "LITTLE SEMI накладна",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  2500,
+        "photo":  "https://odudlab.com/content/images/39/27086105457749_+1d3e6bcf1f.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "square-nakladna",
+        "sku":  "SQUARE n",
+        "name":  "SQUARE накладна",
+        "category":  "Раковини/Накладні",
+        "topCategory":  "Раковини",
+        "price":  7900,
+        "photo":  "https://odudlab.com/content/images/41/39257899449559_+9ba9991781.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "skolot",
+        "sku":  "Skolot basin",
+        "name":  "Skolot",
+        "category":  "Раковини/Підлогові",
+        "topCategory":  "Раковини",
+        "price":  19850,
+        "photo":  "https://odudlab.com/content/images/24/vira-19702310264366_+ebb06a348b.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "horshchyk-z-betonu-tsylindr-33",
+        "sku":  "33",
+        "name":  "Горщик з бетону «Циліндр 33»",
+        "category":  "Вазони/До дому",
+        "topCategory":  "Вазони",
+        "price":  1900,
+        "photo":  "https://odudlab.com/content/images/43/horshchyk-z-betonu-tsylindr-33-20360992963663_+66d4762924.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "flute",
+        "sku":  "FLUTE",
+        "name":  "FLUTE",
+        "category":  "Вазони/Вуличні",
+        "topCategory":  "Вазони",
+        "price":  7900,
+        "photo":  "https://odudlab.com/content/images/45/52872518970222_+73eb132549.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "vazon-z-betonu-tsylindr-4060",
+        "sku":  "4060",
+        "name":  "Вазон з бетону «Циліндр 4060»",
+        "category":  "Вазони/До дому",
+        "topCategory":  "Вазони",
+        "price":  4200,
+        "photo":  "https://odudlab.com/content/images/5/vazon-z-betonu-tsylindr-4060-28626266009153_+7a17875f5f.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "vazon-z-betonu-elips-linea-60",
+        "sku":  "elips",
+        "name":  "Вазон з бетону «Еліпс linea 60»",
+        "category":  "Вазони/До дому",
+        "topCategory":  "Вазони",
+        "price":  2350,
+        "photo":  "https://odudlab.com/content/images/7/vazon-z-betonu-elips-linea-60-28465741053657_+9580bbc23f.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "vazon-z-betonu-pivsfera-50",
+        "sku":  "pivsfera-50",
+        "name":  "Вазон з бетону «Півсфера 50»",
+        "category":  "Вазони/До дому",
+        "topCategory":  "Вазони",
+        "price":  2000,
+        "photo":  "https://odudlab.com/content/images/9/vazon-z-betonu-pivsfera-50-44692887900442_+30c8bffe08.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "horshchyk-z-betonu-tsylindr-20",
+        "sku":  "20",
+        "name":  "Горщик з бетону «Циліндр 20»",
+        "category":  "Вазони/До дому",
+        "topCategory":  "Вазони",
+        "price":  850,
+        "photo":  "https://odudlab.com/content/images/11/horshchyk-z-betonu-tsylindr-20-66726295492007_+7e524a1c23.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "plyn",
+        "sku":  "Plyn",
+        "name":  "Plyn",
+        "category":  "Вазони/Вуличні",
+        "topCategory":  "Вазони",
+        "price":  8700,
+        "photo":  "https://odudlab.com/content/images/26/plyn-46183812006728_+d7cdb42553.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "vazon-z-betonu-tsylindr-4040",
+        "sku":  "4040",
+        "name":  "Вазон з бетону «Циліндр 4040»",
+        "category":  "Вазони/До дому",
+        "topCategory":  "Вазони",
+        "price":  3900,
+        "photo":  "https://odudlab.com/content/images/28/vazon-z-betonu-tsylindr-4040-70555764870954_+3f99f35b1f.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "priamyi",
+        "sku":  "pryamyi",
+        "name":  "“Прямий 1000×300×500”",
+        "category":  "Вазони/Вуличні",
+        "topCategory":  "Вазони",
+        "price":  7800,
+        "photo":  "https://odudlab.com/content/images/30/priamyi-51661561281212_+19df5ca99d.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "circle",
+        "sku":  "Circle",
+        "name":  "CIRCLE",
+        "category":  "Столики/Журнальні",
+        "topCategory":  "Столики",
+        "price":  7920,
+        "photo":  "https://odudlab.com/content/images/47/circle-84644998123015_+ccf3af97e6.jpg",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "zhurnalnyi-stolyk-z-betonu-caiman",
+        "sku":  "Caiman",
+        "name":  "Журнальний столик з бетону Caiman",
+        "category":  "Столики/Журнальні",
+        "topCategory":  "Столики",
+        "price":  8450,
+        "photo":  "https://odudlab.com/content/images/13/zhurnalnyi-stolyk-z-betonu-caiman-17656321316420_+58159f84b5.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "zhurnalnyi-stolyk-z-betonu-korop",
+        "sku":  "Korop",
+        "name":  "Журнальний столик з бетону Korop",
+        "category":  "Столики/Журнальні",
+        "topCategory":  "Столики",
+        "price":  8450,
+        "photo":  "https://odudlab.com/content/images/15/zhurnalnyi-stolyk-z-betonu-korop-65722226801906_+fa642003ac.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "komplekt-zhurnalnykh-stolykiv-z-betonu",
+        "sku":  "Komplekt",
+        "name":  "Комплект журнальних столиків з бетону",
+        "category":  "Столики/Журнальні",
+        "topCategory":  "Столики",
+        "price":  12400,
+        "photo":  "https://odudlab.com/content/images/17/17728895118708_+4762271d56.png",
+        "hasColorVariant":  true
+    },
+    {
+        "slug":  "urban-n",
+        "sku":  "Urban N",
+        "name":  "Urban N",
+        "category":  "Вуличні меблі",
+        "topCategory":  "Вуличні меблі",
+        "price":  16500,
+        "photo":  "https://odudlab.com/content/images/49/urban-n-32597779977778_+3432f5caf0.jpg",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "hampy",
+        "sku":  "Hampy",
+        "name":  "Hampy",
+        "category":  "Вуличні меблі",
+        "topCategory":  "Вуличні меблі",
+        "price":  730,
+        "photo":  "https://odudlab.com/content/images/50/17022591263272_+b84469649d.jpg",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "rock",
+        "sku":  "Rock",
+        "name":  "Rock",
+        "category":  "Вуличні меблі",
+        "topCategory":  "Вуличні меблі",
+        "price":  15640,
+        "photo":  "https://odudlab.com/content/images/1/20903796561717_+fc0a06522e.jpg",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "urban-b",
+        "sku":  "Urban B",
+        "name":  "Urban B",
+        "category":  "Вуличні меблі",
+        "topCategory":  "Вуличні меблі",
+        "price":  26400,
+        "photo":  "https://odudlab.com/content/images/2/urban-b-39543528084960_+f68eb2f9c9.jpg",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "volcano",
+        "sku":  "Volcano",
+        "name":  "Volcano",
+        "category":  "Вуличні меблі",
+        "topCategory":  "Вуличні меблі",
+        "price":  18000,
+        "photo":  "https://odudlab.com/content/images/3/volcano-49230830823421_+14b2e67d51.jpg",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "town-b",
+        "sku":  "Town B",
+        "name":  "Town B",
+        "category":  "Вуличні меблі",
+        "topCategory":  "Вуличні меблі",
+        "price":  19800,
+        "photo":  "https://odudlab.com/content/images/4/town-b-37568381841917_+45e323d957.jpg",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "panno-z-betonu-skolot",
+        "sku":  "Skolot",
+        "name":  "Панно з бетону \"SKOLOT\"",
+        "category":  "Панно на стіну",
+        "topCategory":  "Панно",
+        "price":  9450,
+        "photo":  "https://odudlab.com/content/images/22/panno-z-betonu-skolot-68245103592666_+57cb8a0f09.jpg",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "panno-z-betonu-buddha",
+        "sku":  "buddha",
+        "name":  "Панно з бетону \"BUDDHA\"",
+        "category":  "Панно на стіну",
+        "topCategory":  "Панно",
+        "price":  9450,
+        "photo":  "https://odudlab.com/content/images/23/panno-z-betonu-buddha-42174288049725_+dca0e4e65b.png",
+        "hasColorVariant":  false
+    },
+    {
+        "slug":  "riflo",
+        "sku":  "RIFLO",
+        "name":  "RIFLO",
+        "category":  "Панелі",
+        "topCategory":  "Панно",
+        "price":  1900,
+        "photo":  "https://odudlab.com/content/images/32/riflo-35691396749621_+faf2ad77d4.jpeg",
+        "hasColorVariant":  false
+    }
+]
