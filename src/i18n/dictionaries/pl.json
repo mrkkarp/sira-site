@@ -1,0 +1,83 @@
+{
+  "site": {
+    "name": "ODUDLAB",
+    "tagline": "Beton architektoniczny do wnętrz i przestrzeni miejskiej"
+  },
+  "nav": {
+    "shop": "Sklep",
+    "colours": "Kolory",
+    "samples": "Próbki",
+    "projects": "Projekty",
+    "about": "O nas",
+    "designers": "Dla projektantów",
+    "resources": "Materiały",
+    "stockists": "Punkty sprzedaży",
+    "contact": "Kontakt"
+  },
+  "shopCategories": {
+    "sinks": "Umywalki",
+    "planters": "Donice",
+    "tables": "Stoły",
+    "wallModules": "Moduły ścienne",
+    "wallPanels": "Panele ścienne",
+    "wallArt": "Płaskorzeźby",
+    "outdoor": "Meble zewnętrzne"
+  },
+  "header": {
+    "searchPlaceholder": "Szukaj produktów",
+    "wishlist": "Lista życzeń",
+    "cart": "Koszyk",
+    "callToOrder": "Zamów rozmowę",
+    "menu": "Menu"
+  },
+  "footer": {
+    "shopHeading": "Sklep",
+    "infoHeading": "Informacje",
+    "companyHeading": "Firma",
+    "newsletterHeading": "Nowości pracowni",
+    "newsletterBody": "Nowe produkty, kolory i zrealizowane projekty.",
+    "newsletterCta": "Subskrybuj",
+    "copyright": "Wszelkie prawa zastrzeżone."
+  },
+  "footerLinks": {
+    "paymentDelivery": "Płatność i dostawa",
+    "returns": "Zwroty i wymiana",
+    "warranty": "Gwarancja",
+    "care": "Pielęgnacja",
+    "faq": "FAQ",
+    "stockists": "Punkty sprzedaży i showroomy",
+    "designers": "Współpraca dla projektantów",
+    "resources": "Katalogi i rysunki",
+    "about": "Pracownia i produkcja",
+    "contact": "Kontakt"
+  },
+  "home": {
+    "heroEyebrow": "ODUDLAB — beton architektoniczny",
+    "heroTitle": "Forma, ciężar i faktura betonu jako narzędzie projektowe",
+    "heroSubtitle": "Ręcznie wykonane umywalki, donice, stoły i obiekty ścienne — od pojedynczego przedmiotu po realizacje miejskie.",
+    "heroCta": "Przejdź do sklepu",
+    "secondaryCta": "O pracowni"
+  },
+  "placeholder": {
+    "title": "Strona w budowie",
+    "body": "Ta sekcja jest architektonicznie gotowa — treść pojawi się w kolejnym etapie."
+  },
+  "pages": {
+    "shop": "Sklep",
+    "colours": "Kolory",
+    "samples": "Próbki kolorów i materiałów",
+    "projects": "Projekty",
+    "about": "O pracowni",
+    "paymentDelivery": "Płatność i dostawa",
+    "returns": "Zwroty i wymiana",
+    "warranty": "Gwarancja",
+    "care": "Pielęgnacja",
+    "designers": "Dla projektantów",
+    "resources": "Materiały",
+    "stockists": "Punkty sprzedaży",
+    "faq": "FAQ",
+    "contact": "Kontakt",
+    "search": "Szukaj",
+    "cart": "Koszyk"
+  }
+}

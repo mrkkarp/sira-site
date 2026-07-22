@@ -1,0 +1,83 @@
+{
+  "site": {
+    "name": "ODUDLAB",
+    "tagline": "Architectural concrete for interiors and urban space"
+  },
+  "nav": {
+    "shop": "Shop",
+    "colours": "Colours",
+    "samples": "Samples",
+    "projects": "Projects",
+    "about": "About",
+    "designers": "Designers",
+    "resources": "Resources",
+    "stockists": "Stockists",
+    "contact": "Contact"
+  },
+  "shopCategories": {
+    "sinks": "Sinks",
+    "planters": "Planters",
+    "tables": "Tables",
+    "wallModules": "Wall modules",
+    "wallPanels": "Wall panels",
+    "wallArt": "Wall art",
+    "outdoor": "Outdoor"
+  },
+  "header": {
+    "searchPlaceholder": "Search products",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "callToOrder": "Request a call",
+    "menu": "Menu"
+  },
+  "footer": {
+    "shopHeading": "Shop",
+    "infoHeading": "Information",
+    "companyHeading": "Company",
+    "newsletterHeading": "Studio news",
+    "newsletterBody": "New pieces, colours and completed projects.",
+    "newsletterCta": "Subscribe",
+    "copyright": "All rights reserved."
+  },
+  "footerLinks": {
+    "paymentDelivery": "Payment & delivery",
+    "returns": "Returns & exchanges",
+    "warranty": "Warranty",
+    "care": "Care instructions",
+    "faq": "FAQ",
+    "stockists": "Stockists & showrooms",
+    "designers": "Trade & designers",
+    "resources": "Catalogues & drawings",
+    "about": "Studio & production",
+    "contact": "Contact"
+  },
+  "home": {
+    "heroEyebrow": "ODUDLAB — architectural concrete",
+    "heroTitle": "The form, weight and texture of concrete as a design tool",
+    "heroSubtitle": "Handmade sinks, planters, tables and wall pieces — from a single interior object to large-scale urban work.",
+    "heroCta": "Browse the shop",
+    "secondaryCta": "About the studio"
+  },
+  "placeholder": {
+    "title": "Page in progress",
+    "body": "This section is architecturally in place — content lands in the next stage."
+  },
+  "pages": {
+    "shop": "Shop",
+    "colours": "Colours",
+    "samples": "Colour & material samples",
+    "projects": "Projects",
+    "about": "About the studio",
+    "paymentDelivery": "Payment & delivery",
+    "returns": "Returns & exchanges",
+    "warranty": "Warranty",
+    "care": "Care instructions",
+    "designers": "For designers",
+    "resources": "Resources",
+    "stockists": "Stockists",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "search": "Search",
+    "cart": "Cart"
+  }
+}
