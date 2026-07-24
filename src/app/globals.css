@@ -84,11 +84,27 @@
 body {
   background: var(--color-background);
   color: var(--color-text);
+  /* Fallback before Header's ResizeObserver measures the real height on
+     mount — used only by hero sections' negative-margin trick below. */
+  --header-stack-height: 116px;
 }
 
 * {
   border-color: var(--color-border);
 }
+
+/* The header stack is `position: sticky` (not `fixed`, deliberately — see
+   BRAND_VISUAL_GUIDE §12 — sticky avoids iOS Safari's fixed-position quirks
+   and needs no compensating padding on ordinary pages, since it still
+   occupies its own space in normal flow.
+   A page that wants the "transparent header over a dark hero" effect
+   renders <HeroBoundary /> (src/components/header/hero-boundary.tsx) at the
+   end of its hero `Section`, and gives that hero section:
+     margin-top: calc(-1 * var(--header-stack-height));
+     padding-top: var(--header-stack-height);
+   The negative margin pulls the hero's *background* up to visually sit
+   behind the header (which turns transparent while the hero is in view);
+   the matching padding-top keeps the hero's own text clear of the header. */
 
 /* Consistent, visible keyboard focus everywhere — never remove without replacing. */
 :focus-visible {

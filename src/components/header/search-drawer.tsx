@@ -1,0 +1,275 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/get-dictionary";
+import { localeHref } from "@/lib/locale-href";
+import { shopCategories } from "@/lib/schemas/product";
+import { shopCategoryLabel } from "@/lib/shop-category-label";
+import type { SearchResponse } from "@/app/api/search/route";
+
+const RECENT_SEARCHES_KEY = "odudlab:recent-searches";
+const MAX_RECENT = 5;
+
+function readRecentSearches(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(query: string) {
+  const existing = readRecentSearches().filter((entry) => entry !== query);
+  const next = [query, ...existing].slice(0, MAX_RECENT);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+  return next;
+}
+
+const emptyResults: SearchResponse = { products: [], collections: [], projects: [], pages: [] };
+
+export function SearchDrawer({
+  open,
+  onClose,
+  locale,
+  dictionary,
+}: {
+  open: boolean;
+  onClose: () => void;
+  locale: Locale;
+  dictionary: Dictionary;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResponse>(emptyResults);
+  const [recent, setRecent] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<Element | null>(null);
+  const s = dictionary.search;
+
+  useEffect(() => {
+    if (!open) return;
+    triggerRef.current = document.activeElement;
+    const timeout = setTimeout(() => {
+      setRecent(readRecentSearches());
+      inputRef.current?.focus();
+    }, 0);
+    return () => clearTimeout(timeout);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+        if (triggerRef.current instanceof HTMLElement) triggerRef.current.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!query.trim()) {
+      const timeout = setTimeout(() => setResults(emptyResults), 0);
+      return () => clearTimeout(timeout);
+    }
+    const timeout = setTimeout(() => {
+      fetch(`/api/search?q=${encodeURIComponent(query)}&locale=${locale}`)
+        .then((response) => response.json())
+        .then((data: SearchResponse) => setResults(data))
+        .catch(() => setResults(emptyResults));
+    }, 250);
+    return () => clearTimeout(timeout);
+  }, [query, locale]);
+
+  if (!open) return null;
+
+  const hasQuery = query.trim().length > 0;
+  const hasResults =
+    results.products.length > 0 ||
+    results.collections.length > 0 ||
+    results.projects.length > 0 ||
+    results.pages.length > 0;
+
+  function commitSearch(value: string) {
+    if (!value.trim()) return;
+    setRecent(saveRecentSearch(value.trim()));
+  }
+
+  return (
+    <div className="fixed inset-0 z-50">
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={s.title}
+        className="bg-surface relative mx-auto flex max-h-[80vh] max-w-3xl flex-col overflow-y-auto"
+        style={{ marginTop: "var(--header-stack-height, 0px)" }}
+      >
+        <div className="border-border flex items-center gap-(--space-sm) border-b p-(--space-md)">
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="text-text-muted h-5 w-5 shrink-0">
+            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" />
+          </svg>
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") commitSearch(query);
+            }}
+            placeholder={s.placeholder}
+            className="type-body text-text placeholder:text-text-muted h-full flex-1 bg-transparent outline-none"
+          />
+          {query ? (
+            <button
+              type="button"
+              aria-label={s.clearLabel}
+              onClick={() => setQuery("")}
+              className="text-text-muted hover:text-text shrink-0"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            </button>
+          ) : null}
+          <button
+            type="button"
+            aria-label={s.closeLabel}
+            onClick={onClose}
+            className="text-text-muted hover:text-text shrink-0"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 p-(--space-md)">
+          {!hasQuery ? (
+            <div className="flex flex-col gap-(--space-lg)">
+              {recent.length > 0 ? (
+                <div>
+                  <h3 className="type-technical-label text-text-muted mb-(--space-2xs)">
+                    {s.recentHeading}
+                  </h3>
+                  <ul className="flex flex-wrap gap-(--space-2xs)">
+                    {recent.map((entry) => (
+                      <li key={entry}>
+                        <button
+                          type="button"
+                          onClick={() => setQuery(entry)}
+                          className="type-body-sm border-border hover:border-border-strong border px-(--space-xs) py-(--space-3xs)"
+                        >
+                          {entry}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              <div>
+                <h3 className="type-technical-label text-text-muted mb-(--space-2xs)">
+                  {s.popularHeading}
+                </h3>
+                <ul className="flex flex-wrap gap-(--space-2xs)">
+                  {shopCategories.map((category) => (
+                    <li key={category}>
+                      <Link
+                        href={localeHref(locale, `/shop/${category}`)}
+                        onClick={onClose}
+                        className="type-body-sm border-border hover:border-border-strong border px-(--space-xs) py-(--space-3xs)"
+                      >
+                        {shopCategoryLabel(category, dictionary)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : !hasResults ? (
+            <div className="py-(--space-lg) text-center">
+              <p className="type-h4 text-text">{s.noResultsHeading}</p>
+              <p className="type-body-sm text-text-muted mt-(--space-2xs)">{s.noResultsBody}</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-(--space-lg)">
+              {results.products.length > 0 ? (
+                <div>
+                  <h3 className="type-technical-label text-text-muted mb-(--space-2xs)">
+                    {s.productsHeading}
+                  </h3>
+                  <ul className="flex flex-col gap-(--space-xs)">
+                    {results.products.map((product) => (
+                      <li key={product.slug}>
+                        <Link
+                          href={localeHref(locale, `/products/${product.slug}`)}
+                          onClick={() => {
+                            commitSearch(query);
+                            onClose();
+                          }}
+                          className="hover:bg-surface-muted flex items-center gap-(--space-sm) p-(--space-2xs)"
+                        >
+                          <span
+                            className="bg-surface-muted h-12 w-12 shrink-0 bg-cover bg-center"
+                            style={{ backgroundImage: `url(${product.photo})` }}
+                          />
+                          <span className="flex-1">
+                            <span className="type-body-sm text-text block">{product.name}</span>
+                            <span className="type-caption text-text-muted block">{product.category}</span>
+                          </span>
+                          <span className="type-price text-text">
+                            {new Intl.NumberFormat(locale).format(product.price)} ₴
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {results.pages.length > 0 ? (
+                <div>
+                  <h3 className="type-technical-label text-text-muted mb-(--space-2xs)">
+                    {s.pagesHeading}
+                  </h3>
+                  <ul className="flex flex-col gap-(--space-2xs)">
+                    {results.pages.map((page) => (
+                      <li key={page.href}>
+                        <Link
+                          href={page.href}
+                          onClick={() => {
+                            commitSearch(query);
+                            onClose();
+                          }}
+                          className="type-body-sm text-text hover:text-text-muted block"
+                        >
+                          {page.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              <Link
+                href={localeHref(locale, `/search?q=${encodeURIComponent(query)}`)}
+                onClick={() => {
+                  commitSearch(query);
+                  onClose();
+                }}
+                className="type-nav text-text underline underline-offset-4"
+              >
+                {s.viewAll}
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

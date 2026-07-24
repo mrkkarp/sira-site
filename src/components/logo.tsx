@@ -6,7 +6,7 @@ export function Logo({ locale }: { locale: Locale }) {
   return (
     <Link
       href={localeHref(locale, "/")}
-      className="text-text font-serif text-xl tracking-tight"
+      className="font-serif text-xl tracking-tight"
       aria-label="ODUDLAB — home"
     >
       ODUDLAB

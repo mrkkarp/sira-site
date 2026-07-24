@@ -34,6 +34,11 @@ export type OutdoorType = z.infer<typeof OutdoorTypeSchema>;
  * This is the real, unmodified shop data — one row per colour variant.
  * Ukrainian only for now; `name`/`shortDesc`/`fullDesc` become locale-aware
  * once translated copy exists (see TODO in `src/lib/products.ts`).
+ *
+ * Already pre-filtered to visible rows only (Horoshop's "Отображать" /
+ * "show" column was the filter used to produce this file) — there is no
+ * `show` field here because every row that made it into this file is, by
+ * construction, already visible. Don't re-add a `show` re-filter downstream.
  */
 export const ProductSourceRowSchema = z.object({
   sku: z.string(),
@@ -46,7 +51,6 @@ export const ProductSourceRowSchema = z.object({
   shortDesc: z.string(),
   fullDesc: z.string(),
   color: z.string(),
-  show: z.string(),
 });
 export type ProductSourceRow = z.infer<typeof ProductSourceRowSchema>;
 

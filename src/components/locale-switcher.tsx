@@ -19,8 +19,8 @@ export function LocaleSwitcher({ locale }: { locale: Locale }) {
             title={localeLabels[candidate]}
             className={
               candidate === locale
-                ? "text-text font-medium"
-                : "text-text-muted hover:text-text transition-colors duration-(--duration-fast)"
+                ? "font-medium"
+                : "opacity-60 transition-opacity duration-(--duration-fast) hover:opacity-100"
             }
           >
             {candidate}

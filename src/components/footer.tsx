@@ -3,6 +3,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { shopCategories } from "@/lib/schemas/product";
+import { shopCategoryLabel } from "@/lib/shop-category-label";
 
 const infoLinks = [
   "paymentDelivery",
@@ -19,16 +20,6 @@ const companyLinks = [
   "stockists",
   "contact",
 ] as const;
-
-const categoryLabelKey = {
-  sinks: "sinks",
-  planters: "planters",
-  tables: "tables",
-  "wall-modules": "wallModules",
-  "wall-panels": "wallPanels",
-  "wall-art": "wallArt",
-  outdoor: "outdoor",
-} as const;
 
 const categoryPath: Record<(typeof shopCategories)[number], string> = {
   sinks: "/shop/sinks",
@@ -87,7 +78,7 @@ export function Footer({
                   href={localeHref(locale, categoryPath[category])}
                   className="text-background/85 hover:text-background transition-colors duration-(--duration-fast)"
                 >
-                  {dictionary.shopCategories[categoryLabelKey[category]]}
+                  {shopCategoryLabel(category, dictionary)}
                 </Link>
               </li>
             ))}

@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { Header } from "@/components/header";
+import { Header } from "@/components/header/header";
 import { Footer } from "@/components/footer";
 
 const interfaceSans = Manrope({

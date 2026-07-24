@@ -72,10 +72,9 @@ export function getAllProducts(): Product[] {
   if (cachedProducts) return cachedProducts;
 
   const rows = ProductSourceFileSchema.parse(rawSource satisfies unknown[]);
-  const visibleRows = rows.filter((row) => row.show === "Да");
 
   const groups = new Map<string, ProductSourceRow[]>();
-  for (const row of visibleRows) {
+  for (const row of rows) {
     const key = row.parentSku || row.sku;
     const group = groups.get(key) ?? [];
     group.push(row);

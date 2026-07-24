@@ -250,3 +250,36 @@ public content).
 uk (default), en, and pl copy stay in the same register: direct,
 material-focused, no exclamation marks, no false urgency ("limited time",
 "only 2 left"). See `src/i18n/dictionaries/*.json`.
+
+## 12. Header stacking model
+
+The header stack (`AnnouncementBar` + header bar, `src/components/header/header.tsx`)
+is `position: sticky`, not `fixed`. This is deliberate — `sticky` avoids iOS
+Safari's fixed-position quirks (viewport jumps on keyboard open, scroll
+chaining bugs) and needs no compensating `padding-top` on ordinary pages,
+since it still occupies its own space in normal flow.
+
+Its real rendered height is measured (`ResizeObserver` + a direct
+`getBoundingClientRect()` fallback) and written to the
+`--header-stack-height` custom property on `<html>`; `globals.css` sets a
+fallback value for the instant before that measurement runs.
+
+A page that wants the "transparent header over a dark hero" effect renders
+`<HeroBoundary />` (`src/components/header/hero-boundary.tsx`) at the end of
+its hero section, and gives that section:
+
+```css
+margin-top: calc(-1 * var(--header-stack-height));
+padding-top: var(--header-stack-height);
+```
+
+This pulls the hero's background up behind the transparent header (resolved
+by z-index stacking, not by overlapping a fixed element) while keeping the
+hero's actual content flush with where it would otherwise start. `Header`
+watches `#hero-boundary` via `IntersectionObserver` (plus a direct rect
+check on mount, for the same iOS/observer-timing reasons as the height
+measurement above) and switches to `bg-transparent text-background` while
+the boundary is below the fold. Scroll-direction hide/show
+(`-translate-y-full`) never triggers near the top of the page, while any
+overlay (mega-menu, search, mobile drawer) is open, or while focus is
+inside the header.
