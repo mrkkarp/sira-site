@@ -79,3 +79,28 @@ Every `<Image>` needs a real, descriptive `alt` — material + product name +
 what's shown, e.g. `"ODUDLAB Odri concrete sink, floor-standing, graphite finish"`.
 Never leave `alt=""` on a content image (decorative-only images are the only
 exception, and there should be very few of those on this site).
+
+## Frame component & technical ratios
+
+`src/components/layout/media-frame.tsx` is the frame every image should be
+placed inside once real photography lands — it fixes an aspect ratio, sets
+`object-fit`, and reserves space for a caption/credit line (so nothing shifts
+when the image loads). Named ratios (`ratio` prop): `hero-landscape` (21:9),
+`hero-portrait` (4:5), `editorial-landscape` (16:9), `editorial-portrait`
+(4:5), `square` / `product-card` / `product-gallery` / `colour-sample`
+(1:1), `project-cinematic` (21:9), `process-detail` (3:2). Use `fit="cover"`
+for atmospheric/lifestyle shots, `fit="contain"` for packshots, drawings,
+and mounting schematics.
+
+When wiring up real `<Image>` components inside `MediaFrame`, still add:
+`sizes` matched to the layout, a blur `placeholder` where a LQIP is
+available, `loading="lazy"` below the first viewport, and a real `alt`
+(never generated from the filename). A `focalPoint` (e.g. `{ x: 0.5, y: 0.3 }`
+as a fraction of the frame) should be added to the product/photo data model
+once responsive art-direction crops are implemented, so a mobile crop never
+cuts off the product or sits under overlaid text.
+
+`MediaFrame`'s `credit` prop takes `{ photographer, project, location }` and
+renders it next to the caption — always fill this in for project/process
+photography once real credits exist; leave it empty for anonymous studio
+product shots.

@@ -19,14 +19,14 @@ export function MobileNav({
         aria-expanded={open}
         aria-controls="mobile-nav-panel"
         onClick={() => setOpen((value) => !value)}
-        className="text-ink text-sm"
+        className="type-nav text-text"
       >
         {label}
       </button>
       {open ? (
         <div
           id="mobile-nav-panel"
-          className="border-line bg-surface absolute inset-x-0 top-full border-t px-6 py-6"
+          className="border-border bg-surface absolute inset-x-0 top-full border-t px-6 py-6"
         >
           {children}
         </div>

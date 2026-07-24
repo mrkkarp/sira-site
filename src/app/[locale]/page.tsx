@@ -14,26 +14,26 @@ export default async function HomePage({
   const dictionary = await getDictionary(locale);
 
   return (
-    <section className="mx-auto flex max-w-5xl flex-col items-start gap-8 px-6 py-28">
-      <p className="text-ink-muted text-xs tracking-wide uppercase">
+    <section className="mx-auto flex max-w-5xl flex-col items-start gap-8 px-6 py-(--space-xl)">
+      <p className="type-eyebrow text-text-muted">
         {dictionary.home.heroEyebrow}
       </p>
-      <h1 className="text-ink max-w-2xl font-serif text-4xl leading-tight sm:text-5xl">
+      <h1 className="type-display-l text-text max-w-3xl">
         {dictionary.home.heroTitle}
       </h1>
-      <p className="text-ink-muted max-w-xl text-base">
+      <p className="type-body-lg text-text-muted max-w-xl">
         {dictionary.home.heroSubtitle}
       </p>
-      <div className="flex flex-wrap gap-4 pt-2 text-sm">
+      <div className="flex flex-wrap gap-4 pt-2">
         <Link
           href={localeHref(locale, "/shop")}
-          className="border-ink text-ink hover:bg-ink hover:text-paper border px-6 py-3"
+          className="type-nav border-text text-text hover:bg-text hover:text-background border px-6 py-3 transition-colors duration-(--duration-fast)"
         >
           {dictionary.home.heroCta}
         </Link>
         <Link
           href={localeHref(locale, "/about")}
-          className="text-ink-muted hover:text-ink px-6 py-3"
+          className="type-nav text-text-muted hover:text-text px-6 py-3 transition-colors duration-(--duration-fast)"
         >
           {dictionary.home.secondaryCta}
         </Link>

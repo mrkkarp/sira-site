@@ -7,6 +7,11 @@ const prefixedLocales = locales.filter((locale) => locale !== defaultLocale);
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Dev-only tooling route — not part of the localised site, never rewritten.
+  if (pathname === "/design-system" || pathname.startsWith("/design-system/")) {
+    return NextResponse.next();
+  }
+
   const hasLocalePrefix = prefixedLocales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );

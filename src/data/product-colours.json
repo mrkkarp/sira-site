@@ -1,0 +1,84 @@
+[
+  {
+    "slug": "siry-bazovyi",
+    "displayName": "Сірий базовий",
+    "digitalPreviewHex": "#9e9d98",
+    "textMode": "dark",
+    "availableCategories": [
+      "sinks",
+      "planters",
+      "tables",
+      "wall-modules",
+      "wall-panels",
+      "wall-art",
+      "outdoor"
+    ],
+    "physicalSampleAvailable": false,
+    "disclaimer": "Стандартний колір архітектурного бетону без доплати. Реальний відтінок партії бетону може незначно відрізнятися від екранного прев'ю.",
+    "demo": true
+  },
+  {
+    "slug": "dusty-pink",
+    "displayName": "Пудровий рожевий",
+    "digitalPreviewHex": "#c99599",
+    "textMode": "dark",
+    "availableCategories": ["sinks", "planters", "tables", "wall-art"],
+    "physicalSampleAvailable": false,
+    "disclaimer": "Екранний оригінал кольору — орієнтовний. Точний відтінок і код RAL/NCS ще не підтверджені майстернею; не використовувати як остаточну специфікацію до підтвердження.",
+    "demo": true
+  },
+  {
+    "slug": "terracotta",
+    "displayName": "Теракота",
+    "digitalPreviewHex": "#b85b42",
+    "textMode": "light",
+    "availableCategories": ["sinks", "planters", "tables", "wall-art"],
+    "physicalSampleAvailable": false,
+    "disclaimer": "Екранний оригінал кольору — орієнтовний. Точний відтінок і код RAL/NCS ще не підтверджені майстернею; не використовувати як остаточну специфікацію до підтвердження.",
+    "demo": true
+  },
+  {
+    "slug": "muted-olive",
+    "displayName": "Оливковий",
+    "digitalPreviewHex": "#7b806b",
+    "textMode": "light",
+    "availableCategories": [
+      "sinks",
+      "planters",
+      "tables",
+      "wall-art",
+      "outdoor"
+    ],
+    "physicalSampleAvailable": false,
+    "disclaimer": "Екранний оригінал кольору — орієнтовний. Точний відтінок і код RAL/NCS ще не підтверджені майстернею; не використовувати як остаточну специфікацію до підтвердження.",
+    "demo": true
+  },
+  {
+    "slug": "industrial-blue",
+    "displayName": "Синьо-сірий",
+    "digitalPreviewHex": "#5d7882",
+    "textMode": "light",
+    "availableCategories": ["sinks", "planters", "tables", "wall-art"],
+    "physicalSampleAvailable": false,
+    "disclaimer": "Екранний оригінал кольору — орієнтовний. Точний відтінок і код RAL/NCS ще не підтверджені майстернею; не використовувати як остаточну специфікацію до підтвердження.",
+    "demo": true
+  },
+  {
+    "slug": "graphite",
+    "displayName": "Графіт",
+    "digitalPreviewHex": "#343536",
+    "textMode": "light",
+    "availableCategories": [
+      "sinks",
+      "planters",
+      "tables",
+      "wall-modules",
+      "wall-panels",
+      "wall-art",
+      "outdoor"
+    ],
+    "physicalSampleAvailable": false,
+    "disclaimer": "Екранний оригінал кольору — орієнтовний. Точний відтінок і код RAL/NCS ще не підтверджені майстернею; не використовувати як остаточну специфікацію до підтвердження.",
+    "demo": true
+  }
+]

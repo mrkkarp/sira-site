@@ -10,7 +10,7 @@ export function LocaleSwitcher({ locale }: { locale: Locale }) {
   const bare = stripLocaleFromPathname(pathname, locales);
 
   return (
-    <ul className="flex items-center gap-2 text-xs tracking-wide uppercase">
+    <ul className="type-label flex items-center gap-2">
       {locales.map((candidate) => (
         <li key={candidate}>
           <Link
@@ -19,8 +19,8 @@ export function LocaleSwitcher({ locale }: { locale: Locale }) {
             title={localeLabels[candidate]}
             className={
               candidate === locale
-                ? "text-ink font-medium"
-                : "text-ink-muted hover:text-ink"
+                ? "text-text font-medium"
+                : "text-text-muted hover:text-text transition-colors duration-(--duration-fast)"
             }
           >
             {candidate}

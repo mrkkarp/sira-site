@@ -21,12 +21,12 @@ export function Header({
     localeHref(locale, key === "shop" ? "/shop" : `/${key}`);
 
   return (
-    <header className="border-line bg-paper relative border-b">
+    <header className="border-border bg-background relative border-b">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         <Logo locale={locale} />
 
         <nav aria-label={dictionary.header.menu} className="hidden md:block">
-          <ul className="flex items-center gap-8 text-sm">
+          <ul className="type-nav flex items-center gap-8">
             {primaryNav.map((key) => (
               <li
                 key={key}
@@ -34,18 +34,18 @@ export function Header({
               >
                 <Link
                   href={navHref(key)}
-                  className="text-ink hover:text-ink-muted"
+                  className="text-text hover:text-text-muted transition-colors duration-(--duration-fast)"
                 >
                   {navLabel(key)}
                 </Link>
                 {key === "shop" ? (
-                  <div className="border-line bg-surface invisible absolute top-full left-1/2 z-20 w-max -translate-x-1/2 border p-6 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                    <ul className="grid grid-cols-2 gap-x-10 gap-y-3 text-sm">
+                  <div className="border-border bg-surface invisible absolute top-full left-1/2 z-20 w-max -translate-x-1/2 border p-6 opacity-0 transition-opacity duration-(--duration-normal) ease-(--ease-standard) group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                    <ul className="type-nav grid grid-cols-2 gap-x-10 gap-y-3">
                       {shopCategories.map((category) => (
                         <li key={category}>
                           <Link
                             href={localeHref(locale, `/shop/${category}`)}
-                            className="text-ink-muted hover:text-ink"
+                            className="text-text-muted hover:text-text transition-colors duration-(--duration-fast)"
                           >
                             {dictionary.shopCategories[toCamel(category)]}
                           </Link>
@@ -63,21 +63,21 @@ export function Header({
           <LocaleSwitcher locale={locale} />
           <Link
             href={localeHref(locale, "/search")}
-            className="text-ink-muted hover:text-ink hidden text-sm sm:inline"
+            className="type-nav text-text-muted hover:text-text hidden transition-colors duration-(--duration-fast) sm:inline"
           >
             {dictionary.header.searchPlaceholder}
           </Link>
           <Link
             href={localeHref(locale, "/cart")}
-            className="text-ink-muted hover:text-ink text-sm"
+            className="type-nav text-text-muted hover:text-text transition-colors duration-(--duration-fast)"
           >
             {dictionary.header.cart}
           </Link>
           <MobileNav label={dictionary.header.menu}>
-            <ul className="flex flex-col gap-4 text-base">
+            <ul className="type-body-lg flex flex-col gap-4">
               {primaryNav.map((key) => (
                 <li key={key}>
-                  <Link href={navHref(key)} className="text-ink">
+                  <Link href={navHref(key)} className="text-text">
                     {navLabel(key)}
                   </Link>
                 </li>
