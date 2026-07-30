@@ -48,16 +48,35 @@ Environment Variables). See `.env.example` for the annotated list.
 
 ## Deploy on Vercel
 
-1. Import the repository into Vercel. Framework preset: **Next.js** (build
-   command `npm run build`, output handled by the adapter — no override
-   needed).
+1. Import the repository into Vercel. Framework preset: **Next.js**. Override
+   the **Build Command** to `npm run ci:build` (which runs `payload migrate`
+   then `next build`). This is required: Payload's Drizzle `push` only runs in
+   development (`@payloadcms/db-postgres` gates it on
+   `NODE_ENV !== 'production'`), so a production database's schema is created
+   and kept in sync **exclusively through the committed migrations in
+   `src/migrations/`**. Running `next build` against an empty database without
+   migrating first fails.
 2. Provision Postgres (Vercel Postgres, Neon, Supabase, or any managed PG)
    and set `DATABASE_URL`.
 3. Set the required env vars above for the Production (and Preview)
    environments. Point `NEXT_PUBLIC_SITE_URL` / `NEXT_PUBLIC_SERVER_URL` at
    the production domain once assigned.
-4. Deploy. The first build runs `next build` (which typechecks). Payload
-   runs its migrations against `DATABASE_URL` as configured.
+4. Deploy. The build runs `payload migrate` (idempotent — it records applied
+   migrations in the `payload_migrations` table and skips them next time),
+   then `next build` (which typechecks). The first deploy creates the whole
+   schema; later deploys apply only new migrations.
+
+### Schema changes after launch
+
+Whenever you change a Payload collection/field, generate a new migration and
+commit it so production applies it on the next deploy:
+
+```
+npm run payload migrate:create <name>   # writes src/migrations/<ts>_<name>.ts
+git add src/migrations && git commit
+```
+
+Do **not** rely on `push` in production — it is disabled there by design.
 
 ## Deploy on a generic Node host
 
