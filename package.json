@@ -16,7 +16,8 @@
     "format:check": "prettier --check .",
     "payload": "payload",
     "migrate": "node --env-file-if-exists=.env.local node_modules/.bin/payload migrate",
-    "ci:build": "npm run migrate && npm run build",
+    "ci:migrate": "DATABASE_URL=\"${POSTGRES_URL_NON_POOLING:-$DATABASE_URL}\" node_modules/.bin/payload migrate",
+    "ci:build": "npm run ci:migrate && npm run build",
     "import:horoshop": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/import-horoshop.ts",
     "import:horoshop:live": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/import-horoshop.ts --live",
     "seed:legacy-redirects": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/seed-legacy-redirects.ts"

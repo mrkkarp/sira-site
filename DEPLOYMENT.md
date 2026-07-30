@@ -66,6 +66,16 @@ Environment Variables). See `.env.example` for the annotated list.
    then `next build` (which typechecks). The first deploy creates the whole
    schema; later deploys apply only new migrations.
 
+> **Pooled vs direct connection (Neon).** With a serverless Postgres such as
+> Neon, the runtime should use the **pooled** connection (`DATABASE_URL`) but
+> migrations should run over the **direct/non-pooled** connection to avoid
+> transaction-pooler edge cases (advisory locks). `npm run ci:build` handles
+> this: its `ci:migrate` step points `DATABASE_URL` at
+> `POSTGRES_URL_NON_POOLING` (which Neon's Vercel integration injects) for the
+> migration, falling back to the plain `DATABASE_URL` when that var is absent
+> (e.g. a non-Neon host). `next build` and runtime keep using the pooled
+> `DATABASE_URL`.
+
 ### Schema changes after launch
 
 Whenever you change a Payload collection/field, generate a new migration and
