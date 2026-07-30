@@ -42,9 +42,14 @@ yarn-error.log*
 .vercel
 
 # Payload CMS admin — local media storage (dev only; production uses
-# S3-compatible storage instead, once configured) and generated types.
+# S3-compatible storage instead, once configured).
 /media
-src/payload-types.ts
+
+# NOTE: src/payload-types.ts is intentionally committed (not ignored).
+# It's a generated artifact, but the repositories import from it and it must
+# exist on a fresh checkout for the production build (Vercel) to typecheck —
+# same convention as Payload's own starter templates. Regenerate after
+# changing collections with: npm run payload generate:types
 
 # typescript
 *.tsbuildinfo
