@@ -41,6 +41,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Payload CMS admin — local media storage (dev only; production uses
+# S3-compatible storage instead, once configured) and generated types.
+/media
+src/payload-types.ts
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Horoshop migration exports — secrets/PII, never commit
+_horoshop-export/

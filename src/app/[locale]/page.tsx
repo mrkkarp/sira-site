@@ -1,10 +1,73 @@
-import Link from "next/link";
-import { isLocale } from "@/i18n/config";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
-import { notFound } from "next/navigation";
-import { HeroBoundary } from "@/components/header/hero-boundary";
+import { getSiteUrl } from "@/lib/site-url";
+import { getAllProducts, getProductBySlug } from "@/lib/products";
+import { getAllProductColours } from "@/lib/product-colours";
+import {
+  popularProductSlugs,
+  paletteColourSlugs,
+  quickCategories,
+} from "@/config/homepage";
+import {
+  HeroCarousel,
+  QuickCategories,
+  EditorialCampaigns,
+  PopularProducts,
+  ColourPalette,
+  SamplesBlock,
+  AboutBrand,
+  Advantages,
+  ProjectsShowcase,
+  DesignersCta,
+  Testimonials,
+  PressPartners,
+  VisualDiary,
+} from "@/components/home";
+import { HomeStructuredData } from "@/components/home/structured-data";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const dictionary = await getDictionary(locale);
+  const siteUrl = getSiteUrl();
+  const canonicalPath = localeHref(locale, "/");
+
+  return {
+    title: dictionary.home.seo.title,
+    description: dictionary.home.seo.description,
+    alternates: {
+      canonical: canonicalPath,
+      languages: Object.fromEntries(
+        locales.map((altLocale) => [altLocale, localeHref(altLocale, "/")]),
+      ),
+    },
+    openGraph: {
+      title: dictionary.home.seo.title,
+      description: dictionary.home.seo.description,
+      url: new URL(canonicalPath, siteUrl).toString(),
+      siteName: dictionary.site.name,
+      locale,
+      type: "website",
+    },
+  };
+}
+
+/**
+ * ODUDLAB homepage — see Prompt 4 for the full editorial spec this
+ * composes. Section order matches the spec's numbering (§1–§13); each
+ * section is its own component under `src/components/home/`, reading
+ * structure from `src/config/homepage.ts` and copy from
+ * `dictionary.home.*`. Real product/colour data comes straight from the
+ * existing catalog (`src/lib/products.ts`, `src/lib/product-colours.ts`) —
+ * nothing here is invented.
+ */
 export default async function HomePage({
   params,
 }: {
@@ -14,42 +77,56 @@ export default async function HomePage({
   if (!isLocale(locale)) notFound();
   const dictionary = await getDictionary(locale);
 
+  const allProducts = getAllProducts();
+  const popularProducts = popularProductSlugs
+    .map((slug) => allProducts.find((product) => product.slug === slug))
+    .filter((product) => product !== undefined);
+
+  const allColours = getAllProductColours();
+  const paletteColours = paletteColourSlugs
+    .map((slug) => allColours.find((colour) => colour.slug === slug))
+    .filter((colour) => colour !== undefined);
+
+  // Resolve each quick-category's representative photo from the real catalog
+  // (keyed by href). Using the live product's `base.photo` — rather than a
+  // hardcoded path — keeps the homepage image in lockstep with the actual
+  // product media; a slug that stops resolving simply drops back to the
+  // "Фото очікується" placeholder in <QuickCategories>.
+  const categoryImages: Record<string, string> = {};
+  for (const category of quickCategories) {
+    if (category.kind !== "shop-category") continue;
+    const photo = getProductBySlug(category.representativeSlug)?.base.photo;
+    if (photo) categoryImages[category.href] = photo;
+  }
+
   return (
     <>
-      {/* Dark "production mode" hero (BRAND_VISUAL_GUIDE §2.3) — demonstrates
-          the transparent-header-over-hero mechanism (see globals.css and
-          HeroBoundary). No real photography exists yet (IMAGE_REQUIREMENTS.md),
-          so this stands in for a future full-bleed photo hero. */}
-      <section
-        className="bg-footer text-background"
-        style={{
-          marginTop: "calc(-1 * var(--header-stack-height))",
-          paddingTop: "var(--header-stack-height)",
-        }}
-      >
-        <div className="mx-auto flex max-w-5xl flex-col items-start gap-8 px-6 py-(--space-2xl)">
-          <p className="type-eyebrow text-background/70">{dictionary.home.heroEyebrow}</p>
-          <h1 className="type-display-l max-w-3xl">{dictionary.home.heroTitle}</h1>
-          <p className="type-body-lg text-background/80 max-w-xl">
-            {dictionary.home.heroSubtitle}
-          </p>
-          <div className="flex flex-wrap gap-4 pt-2">
-            <Link
-              href={localeHref(locale, "/shop")}
-              className="type-nav border-background hover:bg-background hover:text-footer border px-6 py-3 transition-colors duration-(--duration-fast)"
-            >
-              {dictionary.home.heroCta}
-            </Link>
-            <Link
-              href={localeHref(locale, "/about")}
-              className="type-nav text-background/70 hover:text-background px-6 py-3 transition-colors duration-(--duration-fast)"
-            >
-              {dictionary.home.secondaryCta}
-            </Link>
-          </div>
-        </div>
-        <HeroBoundary />
-      </section>
+      <HomeStructuredData locale={locale} dictionary={dictionary} />
+      <HeroCarousel locale={locale} dictionary={dictionary} />
+      <QuickCategories
+        locale={locale}
+        dictionary={dictionary}
+        categoryImages={categoryImages}
+      />
+      <EditorialCampaigns locale={locale} dictionary={dictionary} />
+      <PopularProducts
+        products={popularProducts}
+        locale={locale}
+        dictionary={dictionary}
+      />
+      <ColourPalette
+        colours={paletteColours}
+        locale={locale}
+        dictionary={dictionary}
+      />
+      <SamplesBlock locale={locale} dictionary={dictionary} />
+      <AboutBrand locale={locale} dictionary={dictionary} />
+      <Advantages dictionary={dictionary} />
+      <ProjectsShowcase locale={locale} dictionary={dictionary} />
+      <DesignersCta locale={locale} dictionary={dictionary} />
+      <Testimonials dictionary={dictionary} />
+      <PressPartners />
+      <VisualDiary dictionary={dictionary} />
     </>
   );
 }

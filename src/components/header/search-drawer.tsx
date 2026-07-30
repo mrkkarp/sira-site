@@ -28,7 +28,12 @@ function saveRecentSearch(query: string) {
   return next;
 }
 
-const emptyResults: SearchResponse = { products: [], collections: [], projects: [], pages: [] };
+const emptyResults: SearchResponse = {
+  products: [],
+  collections: [],
+  projects: [],
+  pages: [],
+};
 
 export function SearchDrawer({
   open,
@@ -63,7 +68,8 @@ export function SearchDrawer({
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         onClose();
-        if (triggerRef.current instanceof HTMLElement) triggerRef.current.focus();
+        if (triggerRef.current instanceof HTMLElement)
+          triggerRef.current.focus();
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -100,7 +106,18 @@ export function SearchDrawer({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} aria-hidden="true" />
+      {/* Prompt 9 §6 (visual consistency audit) — same dismissible-overlay
+          role as `DialogPrimitive`'s backdrop (Modal/Drawer), so it uses the
+          same `bg-black/40` opacity rather than a slightly different
+          one-off value. (MegaMenu's lighter page-dim and the product
+          gallery's near-opaque lightbox backdrop are deliberately different
+          — those dim live nav content or maximize photo contrast, not a
+          dismissible modal/drawer scrim, so they keep their own values.) */}
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+        aria-hidden="true"
+      />
       <div
         role="dialog"
         aria-modal="true"
@@ -109,9 +126,27 @@ export function SearchDrawer({
         style={{ marginTop: "var(--header-stack-height, 0px)" }}
       >
         <div className="border-border flex items-center gap-(--space-sm) border-b p-(--space-md)">
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="text-text-muted h-5 w-5 shrink-0">
-            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" />
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="text-text-muted h-5 w-5 shrink-0"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
           </svg>
           <input
             ref={inputRef}
@@ -132,7 +167,11 @@ export function SearchDrawer({
               className="text-text-muted hover:text-text shrink-0"
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
               </svg>
             </button>
           ) : null}
@@ -143,7 +182,11 @@ export function SearchDrawer({
             className="text-text-muted hover:text-text shrink-0"
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
             </svg>
           </button>
         </div>
@@ -194,7 +237,9 @@ export function SearchDrawer({
           ) : !hasResults ? (
             <div className="py-(--space-lg) text-center">
               <p className="type-h4 text-text">{s.noResultsHeading}</p>
-              <p className="type-body-sm text-text-muted mt-(--space-2xs)">{s.noResultsBody}</p>
+              <p className="type-body-sm text-text-muted mt-(--space-2xs)">
+                {s.noResultsBody}
+              </p>
             </div>
           ) : (
             <div className="flex flex-col gap-(--space-lg)">
@@ -219,11 +264,18 @@ export function SearchDrawer({
                             style={{ backgroundImage: `url(${product.photo})` }}
                           />
                           <span className="flex-1">
-                            <span className="type-body-sm text-text block">{product.name}</span>
-                            <span className="type-caption text-text-muted block">{product.category}</span>
+                            <span className="type-body-sm text-text block">
+                              {product.name}
+                            </span>
+                            <span className="type-caption text-text-muted block">
+                              {product.category}
+                            </span>
                           </span>
                           <span className="type-price text-text">
-                            {new Intl.NumberFormat(locale).format(product.price)} ₴
+                            {new Intl.NumberFormat(locale).format(
+                              product.price,
+                            )}{" "}
+                            ₴
                           </span>
                         </Link>
                       </li>
@@ -257,7 +309,10 @@ export function SearchDrawer({
               ) : null}
 
               <Link
-                href={localeHref(locale, `/search?q=${encodeURIComponent(query)}`)}
+                href={localeHref(
+                  locale,
+                  `/search?q=${encodeURIComponent(query)}`,
+                )}
                 onClick={() => {
                   commitSearch(query);
                   onClose();

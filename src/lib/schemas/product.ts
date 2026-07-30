@@ -24,10 +24,18 @@ export const sinkTypes = [
 export const SinkTypeSchema = z.enum(sinkTypes);
 export type SinkType = z.infer<typeof SinkTypeSchema>;
 
-/** Outdoor product type — only meaningful when category is "outdoor". */
+/** Outdoor product type — only meaningful when category is "outdoor". Not
+ * currently derivable from the source export (see `mapCategory` in
+ * `src/lib/product-mapping.ts`) — kept for forward compatibility only. */
 export const outdoorTypes = ["bench", "bin", "tree-grate", "bollard"] as const;
 export const OutdoorTypeSchema = z.enum(outdoorTypes);
 export type OutdoorType = z.infer<typeof OutdoorTypeSchema>;
+
+/** Planter placement — only meaningful when category is "planters". Real,
+ * derived from the source category split ("Вазони/До дому" vs "Вазони/Вуличні"). */
+export const planterPlacements = ["indoor", "outdoor"] as const;
+export const PlanterPlacementSchema = z.enum(planterPlacements);
+export type PlanterPlacement = z.infer<typeof PlanterPlacementSchema>;
 
 /**
  * Raw source row, as exported from the Horoshop catalog (`products.source.json`).
@@ -47,6 +55,14 @@ export const ProductSourceRowSchema = z.object({
   category: z.string(),
   price: z.number().nonnegative(),
   photo: z.string(),
+  /** Ordered gallery of local image paths for this row, taken from the
+   * Horoshop "Галерея" export (order preserved). The first entry is the main
+   * photo; falls back to `[photo]` when the export had no extra gallery. */
+  gallery: z.array(z.string()).default([]),
+  /** Original Horoshop offer id (Prom feed `id`) for this SKU — used to seed
+   * legacy old→new redirects and to reconcile against the old catalogue.
+   * Optional because not every visible row mapped to a Prom offer. */
+  legacyId: z.string().optional(),
   alias: z.string(),
   shortDesc: z.string(),
   fullDesc: z.string(),
@@ -63,11 +79,44 @@ export const ProductSourceFileSchema = z.array(ProductSourceRowSchema);
  * `ProductSourceRow[]` by `src/lib/products.ts`, not authored by hand.
  */
 export const ProductVariantSchema = z.object({
+  /** The real per-row SKU from the source export (e.g. "Odri" vs "Odri
+   * color") — a genuine, distinct identifier per colour row, not shared
+   * with the product's primary `sku`. */
+  sku: z.string(),
+  /** The real, raw `color` label from the source row (e.g. "Сірий базовий"
+   * / "Свій колір") — never invented; used to render the actual colour
+   * name rather than a hardcoded "base"/"custom" string. Empty for
+   * single-variant products with no colour field at all. */
+  colorLabel: z.string().optional(),
   price: z.number().nonnegative(),
   photo: z.string(),
+  /** Ordered gallery of local image paths for this variant, threaded through
+   * from the source row. First entry is the main photo. Optional because
+   * hand-built variants (tests, ad-hoc fixtures) may omit it; the real
+   * `toVariant` pipeline always populates it. Consumers must treat a missing
+   * value as "just the single `photo`". */
+  gallery: z.array(z.string()).optional(),
   description: z.string(),
+  /** Real per-row lead time in weeks, parsed from the "Термін виготовлення -
+   * N тижні." sentence — see `parseLeadTimeWeeks` in `product-mapping.ts`.
+   * Not present for every row/category; `undefined` means "not stated in the
+   * source", never a guessed default. Verified to genuinely differ between
+   * a product's own variant rows, so this lives per-variant, not per-product. */
+  leadTimeWeeks: z.number().positive().optional(),
+  /** Real "may be out of stock" free-text signal — see
+   * `parseMayBeOutOfStock`. `undefined` (not `false`) when the source is
+   * silent — silence is not proof of "always in stock". */
+  mayBeOutOfStock: z.boolean().optional(),
 });
 export type ProductVariant = z.infer<typeof ProductVariantSchema>;
+
+/** A single real "Характеристики" entry parsed from `fullDesc` — see
+ * `parseSpecEntries` in `product-mapping.ts`. Sinks only, so far. */
+export const ProductSpecEntrySchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+export type ProductSpecEntry = z.infer<typeof ProductSpecEntrySchema>;
 
 export const ProductSchema = z.object({
   slug: z.string(),
@@ -78,6 +127,17 @@ export const ProductSchema = z.object({
   shopCategory: ShopCategorySchema,
   sinkType: SinkTypeSchema.optional(),
   outdoorType: OutdoorTypeSchema.optional(),
+  planterPlacement: PlanterPlacementSchema.optional(),
+  /** Parsed from the real "Характеристики" text block in `fullDesc` — see
+   * `parseDimensionsCm` in `src/lib/product-mapping.ts`. Currently only
+   * populated for sinks; omitted (not guessed) everywhere else. */
+  heightCm: z.number().positive().optional(),
+  widthCm: z.number().positive().optional(),
+  /** Real structured specs (material, weight, diameter, mixer/connection
+   * type, colour note...) parsed from `fullDesc` — see `parseSpecEntries`.
+   * Empty for every category where the source has no "Характеристики"
+   * heading (everything besides sinks, currently) — never fabricated. */
+  specEntries: z.array(ProductSpecEntrySchema).default([]),
   base: ProductVariantSchema,
   customColour: ProductVariantSchema.optional(),
 });

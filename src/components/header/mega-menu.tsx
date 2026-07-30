@@ -87,9 +87,17 @@ export function MegaMenu({
         <svg
           aria-hidden="true"
           viewBox="0 0 16 16"
-          className={cn("h-3 w-3 transition-transform duration-(--duration-fast)", isOpen && "rotate-180")}
+          className={cn(
+            "h-3 w-3 transition-transform duration-(--duration-fast)",
+            isOpen && "rotate-180",
+          )}
         >
-          <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path
+            d="M4 6l4 4 4-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
         </svg>
       </button>
 
@@ -105,7 +113,23 @@ export function MegaMenu({
             id={panelId}
             role="region"
             aria-label={label}
-            style={width === "full" ? { top: "var(--header-stack-height, 0px)" } : undefined}
+            // Close the menu the instant an internal link inside the panel is
+            // activated, rather than waiting for the route to commit — this
+            // keeps the dropdown from lingering over the page during a pending
+            // navigation. The parent `Header` also closes every overlay on
+            // `pathname` change (covering Back/Forward), so this is the
+            // fast-path, not the only guard. Delegated so it works for every
+            // link the panel's children render without threading a callback.
+            onClick={(event) => {
+              if ((event.target as HTMLElement).closest("a[href]")) {
+                onOpenChange(null);
+              }
+            }}
+            style={
+              width === "full"
+                ? { top: "var(--header-stack-height, 0px)" }
+                : undefined
+            }
             className={cn(
               "bg-surface border-border z-40 border",
               width === "full"

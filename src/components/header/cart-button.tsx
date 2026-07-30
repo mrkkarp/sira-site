@@ -1,14 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import type { Locale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-href";
+import { useCart } from "@/lib/cart-store";
 
 /**
- * Count is static at 0 — there is no add-to-cart flow yet (cart/checkout is
- * out of scope for this stage, see README). The badge width is fixed so a
- * real count later won't shift surrounding layout.
+ * Reflects the real, live client-side cart count (see `src/lib/cart-store.tsx`).
+ * Checkout/payment remain an explicit, honestly-labeled out-of-scope gap —
+ * only add/remove/persist is real. The badge width is fixed so the count
+ * changing doesn't shift surrounding layout.
  */
-export function CartButton({ locale, label }: { locale: Locale; label: string }) {
-  const count = 0;
+export function CartButton({
+  locale,
+  label,
+}: {
+  locale: Locale;
+  label: string;
+}) {
+  const { count } = useCart();
 
   return (
     <Link
@@ -28,7 +38,7 @@ export function CartButton({ locale, label }: { locale: Locale; label: string })
       </svg>
       <span
         aria-hidden="true"
-        className="type-technical-value bg-error absolute top-1 right-1 flex h-4 w-4 items-center justify-center text-[10px] text-white tabular-nums"
+        className="type-technical-value bg-error text-background absolute top-1 right-1 flex h-4 w-4 items-center justify-center text-[10px] tabular-nums"
       >
         {count}
       </span>

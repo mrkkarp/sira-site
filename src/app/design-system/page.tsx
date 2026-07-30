@@ -324,6 +324,7 @@ export default function DesignSystemPage() {
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             title="Кошик"
+            closeLabel="Закрити"
           >
             <p className="type-body-sm text-text-muted">
               Drawer content example.

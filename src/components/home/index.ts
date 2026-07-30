@@ -1,0 +1,13 @@
+export { HeroCarousel } from "./hero-carousel";
+export { QuickCategories } from "./quick-categories";
+export { EditorialCampaigns } from "./editorial-campaigns";
+export { PopularProducts } from "./popular-products";
+export { ColourPalette } from "./colour-palette";
+export { SamplesBlock } from "./samples-block";
+export { AboutBrand } from "./about-brand";
+export { Advantages } from "./advantages";
+export { ProjectsShowcase } from "./projects-showcase";
+export { DesignersCta } from "./designers-cta";
+export { Testimonials } from "./testimonials";
+export { PressPartners } from "./press-partners";
+export { VisualDiary } from "./visual-diary";

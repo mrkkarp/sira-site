@@ -1,8 +1,17 @@
 /**
  * Structural nav config — hrefs and dictionary key references only, no
  * copy. Labels are pulled from the `megaMenu`/`nav` dictionaries so every
- * item stays translatable. Query-param filters (type/shape/colour) are
- * inert until the shop pages implement real filtering (see README §What's next).
+ * item stays translatable.
+ *
+ * `sinkTypes`' first three entries (`?mount=...`) are real, data-backed
+ * filters (Prompt 5 — the shop's `mount` facet, values `countertop` /
+ * `wall-mounted` / `freestanding`, from `ShopCategorySchema`'s `sinkType`).
+ * The remaining `sinkTypes` entries (`tap-hole`/`size`/`basins`) and all of
+ * `shapes` (`shape=...`) reference filters that are NOT implemented — the
+ * source data has no tap-hole, single/double-basin, or shape fields to
+ * filter on. Those links still resolve (the shop's filter parser silently
+ * ignores unknown query params rather than crashing) but simply show the
+ * unfiltered category — see Prompt 5's final report "known limitations".
  */
 
 export type NavLink = { labelKey: string; href: string };
@@ -22,9 +31,9 @@ export const catalogMenu = {
   ] satisfies NavLink[],
 
   sinkTypes: [
-    { labelKey: "sinkCountertop", href: "/shop/sinks?type=countertop" },
-    { labelKey: "sinkWallMounted", href: "/shop/sinks?type=wall-mounted" },
-    { labelKey: "sinkFreestanding", href: "/shop/sinks?type=freestanding" },
+    { labelKey: "sinkCountertop", href: "/shop/sinks?mount=countertop" },
+    { labelKey: "sinkWallMounted", href: "/shop/sinks?mount=wall-mounted" },
+    { labelKey: "sinkFreestanding", href: "/shop/sinks?mount=freestanding" },
     { labelKey: "sinkWithTapHole", href: "/shop/sinks?tap-hole=yes" },
     { labelKey: "sinkWithoutTapHole", href: "/shop/sinks?tap-hole=no" },
     { labelKey: "sinkCompact", href: "/shop/sinks?size=compact" },
@@ -101,5 +110,5 @@ export const primaryNav: PrimaryNavItem[] = [
   { key: "projects", href: "/projects" },
   { key: "brand", href: "/about", mega: "brand" },
   { key: "designers", href: "/designers", mega: "designers" },
-  { key: "stockists", href: "/stockists" },
+  { key: "contact", href: "/contact" },
 ];

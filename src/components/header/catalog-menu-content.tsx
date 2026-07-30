@@ -45,7 +45,11 @@ export function CatalogMenuContent({
         <h3 className="type-technical-label text-text-muted mb-(--space-sm)">
           {c.categoriesHeading}
         </h3>
-        <ColumnLinks items={catalogMenu.categories} labels={c} locale={locale} />
+        <ColumnLinks
+          items={catalogMenu.categories}
+          labels={c}
+          locale={locale}
+        />
       </div>
 
       <div>

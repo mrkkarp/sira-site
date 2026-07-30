@@ -10,12 +10,18 @@ export function Drawer({
   open,
   onClose,
   title,
+  closeLabel,
   side = "right",
   children,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  /** Prompt 9 §2 (accessibility audit) — was a hardcoded English "Close",
+   * giving uk/pl users an English-only accessible name on every drawer.
+   * Callers already have a locale-appropriate string on hand
+   * (`dictionary.shop.filters.closeLabel` etc.) — thread it through instead. */
+  closeLabel: string;
   side?: "left" | "right";
   children: ReactNode;
 }) {
@@ -36,7 +42,7 @@ export function Drawer({
           {title}
         </h2>
         <IconButton
-          aria-label="Close"
+          aria-label={closeLabel}
           size="sm"
           onClick={onClose}
           icon={

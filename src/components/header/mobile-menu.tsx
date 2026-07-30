@@ -16,7 +16,8 @@ import {
   type NavLink,
 } from "@/config/navigation";
 
-type Screen = "root" | "catalog" | "collections" | "brand" | "designers" | "language";
+type Screen =
+  "root" | "catalog" | "collections" | "brand" | "designers" | "language";
 
 function LinkGroup({
   heading,
@@ -34,7 +35,9 @@ function LinkGroup({
   return (
     <div>
       {heading ? (
-        <h3 className="type-technical-label text-text-muted mb-(--space-2xs)">{heading}</h3>
+        <h3 className="type-technical-label text-text-muted mb-(--space-2xs)">
+          {heading}
+        </h3>
       ) : null}
       <ul className="flex flex-col gap-(--space-xs)">
         {items.map((item) => (
@@ -129,7 +132,11 @@ export function MobileMenu({
           className="flex h-11 w-11 items-center justify-center"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
           </svg>
         </button>
       </div>
@@ -159,12 +166,20 @@ export function MobileMenu({
                 </button>
               </li>
               <li>
-                <Link href={localeHref(locale, "/colours")} onClick={onClose} className="type-body-lg text-text block py-(--space-2xs)">
+                <Link
+                  href={localeHref(locale, "/colours")}
+                  onClick={onClose}
+                  className="type-body-lg text-text block py-(--space-2xs)"
+                >
                   {dictionary.nav.colours}
                 </Link>
               </li>
               <li>
-                <Link href={localeHref(locale, "/projects")} onClick={onClose} className="type-body-lg text-text block py-(--space-2xs)">
+                <Link
+                  href={localeHref(locale, "/projects")}
+                  onClick={onClose}
+                  className="type-body-lg text-text block py-(--space-2xs)"
+                >
                   {dictionary.nav.projects}
                 </Link>
               </li>
@@ -189,12 +204,11 @@ export function MobileMenu({
                 </button>
               </li>
               <li>
-                <Link href={localeHref(locale, "/stockists")} onClick={onClose} className="type-body-lg text-text block py-(--space-2xs)">
-                  {dictionary.nav.stockists}
-                </Link>
-              </li>
-              <li>
-                <Link href={localeHref(locale, "/contact")} onClick={onClose} className="type-body-lg text-text block py-(--space-2xs)">
+                <Link
+                  href={localeHref(locale, "/contact")}
+                  onClick={onClose}
+                  className="type-body-lg text-text block py-(--space-2xs)"
+                >
                   {dictionary.nav.contact}
                 </Link>
               </li>
@@ -214,7 +228,11 @@ export function MobileMenu({
 
         {screen === "catalog" ? (
           <div>
-            <BackButton label={dictionary.nav.shop} text={m.back} onBack={() => setScreen("root")} />
+            <BackButton
+              label={dictionary.nav.shop}
+              text={m.back}
+              onBack={() => setScreen("root")}
+            />
             <div className="flex flex-col gap-(--space-lg)">
               <LinkGroup
                 heading={dictionary.megaMenu.catalog.categoriesHeading}
@@ -247,7 +265,11 @@ export function MobileMenu({
                       key={colour.href}
                       href={localeHref(locale, colour.href)}
                       onClick={onClose}
-                      aria-label={dictionary.megaMenu.colours[colour.labelKey as keyof typeof dictionary.megaMenu.colours]}
+                      aria-label={
+                        dictionary.megaMenu.colours[
+                          colour.labelKey as keyof typeof dictionary.megaMenu.colours
+                        ]
+                      }
                       className="border-border-strong block h-10 w-10 border"
                       style={{ backgroundColor: colour.hex }}
                     />
@@ -260,7 +282,11 @@ export function MobileMenu({
 
         {screen === "collections" ? (
           <div>
-            <BackButton label={dictionary.nav.collections} text={m.back} onBack={() => setScreen("root")} />
+            <BackButton
+              label={dictionary.nav.collections}
+              text={m.back}
+              onBack={() => setScreen("root")}
+            />
             <LinkGroup
               items={collectionsMenu}
               labels={dictionary.megaMenu.collections}
@@ -272,21 +298,43 @@ export function MobileMenu({
 
         {screen === "brand" ? (
           <div>
-            <BackButton label={dictionary.nav.brand} text={m.back} onBack={() => setScreen("root")} />
-            <LinkGroup items={brandMenu} labels={dictionary.megaMenu.brand} locale={locale} onNavigate={onClose} />
+            <BackButton
+              label={dictionary.nav.brand}
+              text={m.back}
+              onBack={() => setScreen("root")}
+            />
+            <LinkGroup
+              items={brandMenu}
+              labels={dictionary.megaMenu.brand}
+              locale={locale}
+              onNavigate={onClose}
+            />
           </div>
         ) : null}
 
         {screen === "designers" ? (
           <div>
-            <BackButton label={dictionary.nav.designers} text={m.back} onBack={() => setScreen("root")} />
-            <LinkGroup items={designersMenu} labels={dictionary.megaMenu.designers} locale={locale} onNavigate={onClose} />
+            <BackButton
+              label={dictionary.nav.designers}
+              text={m.back}
+              onBack={() => setScreen("root")}
+            />
+            <LinkGroup
+              items={designersMenu}
+              labels={dictionary.megaMenu.designers}
+              locale={locale}
+              onNavigate={onClose}
+            />
           </div>
         ) : null}
 
         {screen === "language" ? (
           <div>
-            <BackButton label={m.language} text={m.back} onBack={() => setScreen("root")} />
+            <BackButton
+              label={m.language}
+              text={m.back}
+              onBack={() => setScreen("root")}
+            />
             <ul className="flex flex-col gap-(--space-xs)">
               {locales.map((candidate) => (
                 <li key={candidate}>
@@ -311,7 +359,12 @@ export function MobileMenu({
 function ChevronRight() {
   return (
     <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3">
-      <path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M6 4l4 4-4 4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </svg>
   );
 }
@@ -331,7 +384,11 @@ function BackButton({
       onClick={onBack}
       className="type-nav text-text mb-(--space-md) flex items-center gap-(--space-2xs)"
     >
-      <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3 -scale-x-100">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 16 16"
+        className="h-3 w-3 -scale-x-100"
+      >
         <path
           d="M4 6l4 4 4-4"
           fill="none"

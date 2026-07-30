@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from "react";
+import type { CSSProperties, ElementType, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const spacingClass = {
@@ -20,16 +20,24 @@ export function Section({
   spacing = "lg",
   tone = "default",
   className,
+  style,
   children,
 }: {
   as?: ElementType;
   spacing?: keyof typeof spacingClass;
   tone?: keyof typeof toneClass;
   className?: string;
+  /** Escape hatch for a section-level inline style (e.g. a very soft,
+   * data-driven background tint) — use sparingly, `tone` should cover most
+   * cases. */
+  style?: CSSProperties;
   children: ReactNode;
 }) {
   return (
-    <As className={cn(spacingClass[spacing], toneClass[tone], className)}>
+    <As
+      className={cn(spacingClass[spacing], toneClass[tone], className)}
+      style={style}
+    >
       {children}
     </As>
   );

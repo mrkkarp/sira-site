@@ -7,10 +7,18 @@ const currencyByLocale: Record<Locale, string> = {
   pl: "UAH",
 };
 
+/**
+ * `currencyDisplay: "code"` (renders "UAH", not a symbol) is deliberate:
+ * Node's bundled ICU and a browser's ICU can resolve the UAH *symbol*
+ * ("грн" vs "₴") to different strings for the same locale, which breaks
+ * SSR hydration the moment a currency symbol is rendered server-side. The
+ * ISO code has no such ambiguity.
+ */
 function formatAmount(amount: number, locale: Locale) {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currencyByLocale[locale],
+    currencyDisplay: "code",
     maximumFractionDigits: 0,
   }).format(amount);
 }

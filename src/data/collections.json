@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "outdoor",
+    "name": "Вуличні вироби",
+    "description": "Кашпо, лави та бетонні об'єкти для вулиці, терас і громадських просторів — підібрані з наявного каталогу за призначенням, а не за окремою \"колекцією\" від бренду.",
+    "coverPhoto": "https://odudlab.com/content/images/2/urban-b-39543528084960_+f68eb2f9c9.jpg",
+    "productSlugs": [
+      "urban-n",
+      "hampy",
+      "rock",
+      "urban-b",
+      "volcano",
+      "town-b",
+      "flute",
+      "plyn",
+      "priamyi"
+    ],
+    "demo": true
+  },
+  {
+    "slug": "textured-concrete",
+    "name": "Фактурний бетон",
+    "description": "Вироби з вираженою фактурою поверхні — канелюри, рельєф і ручна обробка, яку видно й відчутно на дотик.",
+    "coverPhoto": "https://odudlab.com/content/images/15/50025451969450_+3536cebeda.jpg",
+    "productSlugs": [
+      "odri-z-kaneliuramy",
+      "copy-monro",
+      "skolot",
+      "panno-z-betonu-skolot",
+      "riflo"
+    ],
+    "demo": true
+  },
+  {
+    "slug": "small-spaces",
+    "name": "Для малих просторів",
+    "description": "Компактні раковини та кашпо, підібрані для санвузлів і квартир з обмеженою площею.",
+    "coverPhoto": "https://odudlab.com/content/images/39/27086105457749_+1d3e6bcf1f.png",
+    "productSlugs": [
+      "little-semi-nakladna",
+      "low",
+      "ava",
+      "horshchyk-z-betonu-tsylindr-20",
+      "vazon-z-betonu-pivsfera-50"
+    ],
+    "demo": true
+  },
+  {
+    "slug": "minimalism",
+    "name": "Мінімалізм",
+    "description": "Чисті геометричні форми без зайвого декору — циліндр, куб і пряма лінія як основний прийом.",
+    "coverPhoto": "https://odudlab.com/content/images/47/circle-84644998123015_+ccf3af97e6.jpg",
+    "productSlugs": [
+      "circle",
+      "square",
+      "square-nakladna",
+      "monro",
+      "horshchyk-z-betonu-tsylindr-33"
+    ],
+    "demo": true
+  }
+]

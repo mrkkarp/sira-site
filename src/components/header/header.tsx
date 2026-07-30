@@ -1,22 +1,46 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
-import { primaryNav, collectionsMenu, brandMenu, designersMenu } from "@/config/navigation";
+import {
+  primaryNav,
+  collectionsMenu,
+  brandMenu,
+  designersMenu,
+} from "@/config/navigation";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { AnnouncementBar } from "@/components/header/announcement-bar";
-import { MegaMenu } from "@/components/header/mega-menu";
 import { CatalogMenuContent } from "@/components/header/catalog-menu-content";
 import { SimpleMenuContent } from "@/components/header/simple-menu-content";
-import { SearchDrawer } from "@/components/header/search-drawer";
-import { MobileMenu } from "@/components/header/mobile-menu";
 import { CartButton } from "@/components/header/cart-button";
+
+// Prompt 9 §5 (performance audit) — every page renders `Header`, so these
+// three are code-split out of its main client bundle rather than statically
+// imported. `MegaMenu` still needs its default SSR (its trigger button *is*
+// the always-visible primary-nav label, e.g. "Каталог" — that must stay in
+// the server-rendered HTML). `SearchDrawer`/`MobileMenu` render `null`
+// whenever their `open` prop is false (true on first paint), so `ssr:
+// false` costs nothing today and skips server-rendering markup no one can
+// see yet.
+const MegaMenu = dynamic(() =>
+  import("@/components/header/mega-menu").then((mod) => mod.MegaMenu),
+);
+const SearchDrawer = dynamic(
+  () =>
+    import("@/components/header/search-drawer").then((mod) => mod.SearchDrawer),
+  { ssr: false },
+);
+const MobileMenu = dynamic(
+  () => import("@/components/header/mobile-menu").then((mod) => mod.MobileMenu),
+  { ssr: false },
+);
 
 export function Header({
   locale,
@@ -36,6 +60,27 @@ export function Header({
   const [transparent, setTransparent] = useState(false);
 
   const anyOverlayOpen = Boolean(openMenu) || searchOpen || mobileOpen;
+
+  // Close every overlay the moment the route changes. This is the catch-all
+  // that guarantees no menu can survive a navigation: it covers internal-link
+  // clicks inside the mega-menu / mobile drawer / search, the logo, a
+  // category/product selection, AND browser Back/Forward — every one of which
+  // changes `pathname`. (Escape and outside-click are still handled
+  // per-overlay for the no-navigation case.) Setting all three closed also
+  // triggers each overlay's own cleanup — body scroll-lock release, backdrop
+  // removal, `aria-expanded` → false, focus restore — so nothing invisible is
+  // left stacked over the page. Skips the very first run so it never fights
+  // the initial (already-closed) state or flashes on first paint.
+  const isInitialPath = useRef(true);
+  useEffect(() => {
+    if (isInitialPath.current) {
+      isInitialPath.current = false;
+      return;
+    }
+    setOpenMenu(null);
+    setSearchOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
 
   // Measure the announcement bar + header bar together so the hero
   // negative-margin trick can offset by the real (responsive) height.
@@ -141,12 +186,37 @@ export function Header({
             className={cn(
               "transition-colors duration-(--duration-normal)",
               showTransparent
-                ? "bg-transparent text-background"
+                ? "text-background bg-transparent"
                 : "bg-background text-text border-border border-b",
             )}
           >
-            <div className="mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-6">
-              <nav aria-label={dictionary.header.menu} className="hidden md:flex md:items-center md:gap-6">
+            <div className="mx-auto grid h-20 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-6 px-6">
+              <div className="col-start-1 flex items-center gap-(--space-xs)">
+                <button
+                  type="button"
+                  aria-label={dictionary.mobileMenu.openLabel}
+                  onClick={() => setMobileOpen(true)}
+                  className="flex h-11 w-11 items-center justify-center lg:hidden"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      d="M3 6h18M3 12h18M3 18h18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </button>
+                <Logo locale={locale} />
+              </div>
+
+              <nav
+                aria-label={dictionary.header.menu}
+                className="col-start-2 hidden lg:flex lg:items-center lg:justify-center lg:gap-6"
+              >
                 {primaryNav.map((item) =>
                   item.mega ? (
                     <MegaMenu
@@ -154,17 +224,34 @@ export function Header({
                       menuKey={item.mega}
                       openKey={openMenu}
                       onOpenChange={setOpenMenu}
-                      label={dictionary.nav[item.key as keyof typeof dictionary.nav]}
+                      label={
+                        dictionary.nav[item.key as keyof typeof dictionary.nav]
+                      }
                       width={item.mega === "catalog" ? "full" : "auto"}
                     >
                       {item.mega === "catalog" ? (
-                        <CatalogMenuContent locale={locale} dictionary={dictionary} />
+                        <CatalogMenuContent
+                          locale={locale}
+                          dictionary={dictionary}
+                        />
                       ) : item.mega === "collections" ? (
-                        <SimpleMenuContent locale={locale} items={collectionsMenu} labels={dictionary.megaMenu.collections} />
+                        <SimpleMenuContent
+                          locale={locale}
+                          items={collectionsMenu}
+                          labels={dictionary.megaMenu.collections}
+                        />
                       ) : item.mega === "brand" ? (
-                        <SimpleMenuContent locale={locale} items={brandMenu} labels={dictionary.megaMenu.brand} />
+                        <SimpleMenuContent
+                          locale={locale}
+                          items={brandMenu}
+                          labels={dictionary.megaMenu.brand}
+                        />
                       ) : (
-                        <SimpleMenuContent locale={locale} items={designersMenu} labels={dictionary.megaMenu.designers} />
+                        <SimpleMenuContent
+                          locale={locale}
+                          items={designersMenu}
+                          labels={dictionary.megaMenu.designers}
+                        />
                       )}
                     </MegaMenu>
                   ) : (
@@ -179,34 +266,37 @@ export function Header({
                 )}
               </nav>
 
-              <button
-                type="button"
-                aria-label={dictionary.mobileMenu.openLabel}
-                onClick={() => setMobileOpen(true)}
-                className="flex h-11 w-11 items-center justify-center md:hidden"
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-                  <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" />
-                </svg>
-              </button>
-
-              <div className="col-start-2 flex justify-center">
-                <Logo locale={locale} />
-              </div>
-
               <div className="col-start-3 flex items-center justify-end gap-(--space-xs)">
                 <button
                   type="button"
                   aria-label={dictionary.search.openLabel}
                   onClick={() => setSearchOpen(true)}
-                  className="hidden h-11 w-11 items-center justify-center md:flex"
+                  className="flex h-11 w-11 items-center justify-center"
                 >
-                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-                    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" />
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                  >
+                    <circle
+                      cx="11"
+                      cy="11"
+                      r="7"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1="21"
+                      y1="21"
+                      x2="16.65"
+                      y2="16.65"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
                   </svg>
                 </button>
-                <div className="hidden md:block">
+                <div className="hidden lg:block">
                   <LocaleSwitcher locale={locale} />
                 </div>
                 <CartButton locale={locale} label={dictionary.header.cart} />
@@ -216,8 +306,18 @@ export function Header({
         </div>
       </div>
 
-      <SearchDrawer open={searchOpen} onClose={() => setSearchOpen(false)} locale={locale} dictionary={dictionary} />
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} locale={locale} dictionary={dictionary} />
+      <SearchDrawer
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        locale={locale}
+        dictionary={dictionary}
+      />
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        locale={locale}
+        dictionary={dictionary}
+      />
     </>
   );
 }

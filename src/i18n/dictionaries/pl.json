@@ -13,7 +13,6 @@
     "brand": "Marka",
     "designers": "Dla projektantów",
     "resources": "Materiały",
-    "stockists": "Punkty sprzedaży",
     "contact": "Kontakt"
   },
   "announcement": {
@@ -113,7 +112,10 @@
     "pagesHeading": "Strony",
     "noResultsHeading": "Brak wyników",
     "noResultsBody": "Spróbuj innego zapytania.",
-    "viewAll": "Zobacz wszystkie wyniki"
+    "viewAll": "Zobacz wszystkie wyniki",
+    "resultsForTemplate": "Wyniki wyszukiwania dla „{query}”",
+    "resultsCount": "Znaleziono: {count}",
+    "browseShopCta": "Przejdź do sklepu"
   },
   "mobileMenu": {
     "openLabel": "Otwórz menu",
@@ -152,18 +154,252 @@
     "warranty": "Gwarancja",
     "care": "Pielęgnacja",
     "faq": "FAQ",
-    "stockists": "Punkty sprzedaży i showroomy",
     "designers": "Współpraca dla projektantów",
     "resources": "Katalogi i rysunki",
     "about": "Pracownia i produkcja",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "orderStatus": "Status zamówienia"
   },
   "home": {
-    "heroEyebrow": "ODUDLAB — beton architektoniczny",
-    "heroTitle": "Forma, ciężar i faktura betonu jako narzędzie projektowe",
-    "heroSubtitle": "Ręcznie wykonane umywalki, donice, stoły i obiekty ścienne — od pojedynczego przedmiotu po realizacje miejskie.",
-    "heroCta": "Przejdź do sklepu",
-    "secondaryCta": "O pracowni"
+    "seo": {
+      "title": "ODUDLAB — beton architektoniczny do wnętrz i przestrzeni miejskiej",
+      "description": "Ręcznie wykonane umywalki, donice, stoły, panele ścienne i obiekty na zamówienie z betonu architektonicznego. Własna pracownia w Kijowie, kolor w masie, produkcja na zamówienie."
+    },
+    "hero": {
+      "workshop": {
+        "eyebrow": "Beton architektoniczny · Kijów",
+        "title": "Beton jako narzędzie projektowania i architektury",
+        "description": "Wyroby z betonu architektonicznego do wnętrz i przestrzeni miejskiej: umywalki, donice, meble, panele i obiekty na zamówienie.",
+        "primaryCta": "Przejdź do sklepu",
+        "secondaryCta": "Zobacz realizacje"
+      },
+      "product": {
+        "eyebrow": "Forma rzeźbiarska",
+        "title": "Jeden obiekt jako główny akcent przestrzeni",
+        "description": "Kolorowy beton w spokojnym wnętrzu — minimum rekwizytów, z naciskiem na formę i fakturę materiału.",
+        "primaryCta": "Przejdź do sklepu",
+        "secondaryCta": "Zobacz realizacje"
+      },
+      "prevLabel": "Poprzednia kampania",
+      "nextLabel": "Następna kampania",
+      "goToLabel": "Przejdź do kampanii",
+      "pauseLabel": "Zatrzymaj automatyczną zmianę",
+      "playLabel": "Wznów automatyczną zmianę"
+    },
+    "quickCategories": {
+      "eyebrow": "Sklep",
+      "heading": "Szybkie kategorie",
+      "sinksTagline": "Wolnostojące i nablatowe",
+      "plantersTagline": "Do domu i na zewnątrz",
+      "tablesTagline": "Betonowe blaty stolików",
+      "wallPanelsTagline": "Panele i płaskorzeźby ścienne",
+      "outdoorTagline": "Meble i obiekty do przestrzeni miejskiej",
+      "customTagline": "Indywidualna wycena",
+      "customLabel": "Wyroby na zamówienie",
+      "sinksDescription": "Umywalki wolnostojące i nablatowe z betonu architektonicznego — formy cylindryczne, owalne i rzeźbiarskie w dowolnym kolorze RAL lub NCS.",
+      "plantersDescription": "Betonowe donice i osłonki do wnętrz i na zewnątrz — od kompaktowych cylindrów po duże elipsy i półkule.",
+      "tablesDescription": "Stoliki kawowe i blaty z betonu lanego — monolityczne formy o charakterystycznej matowej fakturze.",
+      "wallPanelsDescription": "Reliefowe panele ścienne z betonu, które dodają głębi i gry światła na powierzchni.",
+      "outdoorDescription": "Ławki, kosze i obiekty miejskie z betonu — odporne na pogodę, stworzone do przestrzeni publicznych.",
+      "customDescription": "Wyroby wykonane według Twoich wymiarów i kształtu — indywidualna wycena od pomysłu do realizacji."
+    },
+    "campaigns": {
+      "colouredSinks": {
+        "eyebrow": "Kolor w masie",
+        "heading": "Kolor, który zachowuje formę",
+        "body": "Pigment jest wmieszany bezpośrednio w beton, dlatego kolor się nie odpryskuje i nie blaknie jak powłoka na powierzchni.",
+        "cta": "Zobacz kolory"
+      },
+      "freestanding": {
+        "eyebrow": "Umywalki wolnostojące",
+        "heading": "Samodzielny obiekt w łazience",
+        "body": "Umywalka wolnostojąca nie chowa się pod blatem — staje się głównym elementem przestrzeni, jak mebel czy rzeźba.",
+        "cta": "Zobacz umywalki wolnostojące"
+      },
+      "production": {
+        "eyebrow": "Własna produkcja",
+        "heading": "Każdy wyrób przechodzi przez nasze ręce",
+        "body": "Formy, odlewanie, ręczne wykończenie powierzchni — cały proces odbywa się w jednej pracowni w Kijowie.",
+        "cta": "Jak to robimy"
+      },
+      "texture": {
+        "eyebrow": "Faktura",
+        "heading": "Beton, który widać i czuć",
+        "body": "Pory, kanelury i ślady ręcznego wykończenia to część charakteru materiału, a nie wada.",
+        "cta": "Pielęgnacja wyrobów"
+      },
+      "wallPanels": {
+        "eyebrow": "Panele ścienne i płaskorzeźby",
+        "heading": "Relief na całą ścianę",
+        "body": "Modułowe panele i płaskorzeźby dopasowuje się do wymiaru ściany i montuje jako osobne elementy betonowe.",
+        "cta": "Zobacz panele ścienne"
+      },
+      "urban": {
+        "eyebrow": "Przestrzeń miejska",
+        "heading": "Do ulic i przestrzeni publicznej",
+        "body": "Donice, ławki i obiekty betonowe do przestrzeni miejskiej wytrzymują klimat i skalę otoczenia miejskiego.",
+        "cta": "Wyroby do przestrzeni miejskiej"
+      },
+      "custom": {
+        "eyebrow": "Produkcja indywidualna",
+        "heading": "Obiekt pod konkretne zadanie przestrzeni",
+        "body": "Od rysunku lub modelu 3D po gotowy wyrób — rozmiar, formę i kolor ustalamy wspólnie z Twoim projektem.",
+        "cta": "Zapytaj o wycenę"
+      }
+    },
+    "popularProducts": {
+      "eyebrow": "Sklep",
+      "heading": "Popularne wyroby",
+      "body": "Wybór modeli z różnych kategorii — umywalki, donice, stoły i wyroby do przestrzeni miejskiej.",
+      "viewAllCta": "Wszystkie produkty",
+      "prevLabel": "Poprzedni produkt",
+      "nextLabel": "Następny produkt"
+    },
+    "colours": {
+      "eyebrow": "Kolor w masie",
+      "heading": "Nie tylko szary beton",
+      "body": "Pigment dodawany jest bezpośrednio do masy betonowej — kolor należy do materiału, a nie do powłoki na jego powierzchni.",
+      "disclaimer": "Kolory na ekranie są orientacyjne. Oświetlenie, kalibracja monitora i naturalna zmienność betonu wpływają na to, jak odcień wygląda na żywo.",
+      "selectLabel": "Wybierz kolor",
+      "samplesCta": "Zamów próbki",
+      "viewAllCta": "Wszystkie kolory"
+    },
+    "samples": {
+      "eyebrow": "Próbki",
+      "heading": "Przed zamówieniem — prawdziwa próbka",
+      "body": "Fizyczna próbka pokazuje rzeczywistą fakturę i odcień betonu dokładniej niż jakikolwiek ekran.",
+      "primaryCta": "Zamów próbki",
+      "secondaryCta": "Zobacz kolory"
+    },
+    "aboutBrand": {
+      "eyebrow": "Od formy do gotowego obiektu",
+      "heading": "Wykonane w Kijowie",
+      "intro": "Własna pracownia, w której każdy wyrób przechodzi pełen cykl — od modelu do gotowego obiektu.",
+      "bullets": [
+        "Tworzenie modeli i form dla każdego wyrobu",
+        "Ręczne formowanie i wykończenie powierzchni",
+        "Praca z betonem zbrojonym",
+        "Kontrola geometrii i jakości powierzchni",
+        "Kolor w masie betonu, a nie powłoka na wierzchu",
+        "Produkcja seryjna i obiekty na indywidualne zamówienie"
+      ],
+      "cta": "O ODUDLAB"
+    },
+    "advantages": {
+      "eyebrow": "Dlaczego ODUDLAB",
+      "heading": "Zalety",
+      "items": [
+        {
+          "title": "Produkcja na zamówienie",
+          "body": "Każdy wyrób jest odlewany na konkretne zamówienie, a nie pobierany z partii magazynowej."
+        },
+        {
+          "title": "Kolor w masie",
+          "body": "Pigment jest wmieszany w beton, dlatego kolor nie zależy od powłoki wierzchniej."
+        },
+        {
+          "title": "Indywidualne wymiary",
+          "body": "Gotowe modele można dostosować do wymiarów i potrzeb konkretnej przestrzeni."
+        },
+        {
+          "title": "Własna produkcja",
+          "body": "Formy, odlewanie i wykończenie odbywają się w jednej pracowni w Kijowie."
+        },
+        {
+          "title": "Materiały dla projektantów",
+          "body": "Modele 3D, rysunki i próbki do pracy projektowej z architektami i projektantami."
+        }
+      ]
+    },
+    "projects": {
+      "eyebrow": "Zrealizowane projekty",
+      "heading": "Projekty",
+      "demoLabel": "Przykład demonstracyjny",
+      "viewAllCta": "Wszystkie projekty",
+      "items": [
+        {
+          "title": "Prywatna łazienka",
+          "location": "Kijów"
+        },
+        {
+          "title": "Kawiarnia w centrum miasta",
+          "location": "Kijów"
+        },
+        {
+          "title": "Dziedziniec osiedla mieszkaniowego",
+          "location": "Kijów"
+        }
+      ]
+    },
+    "designers": {
+      "eyebrow": "Dla projektantów",
+      "heading": "Materiały do pracy projektowej",
+      "body": "Modele 3D, rysunki, próbki kolorów i konsultacje techniczne dla architektów i projektantów wnętrz.",
+      "bullets": [
+        "Modele 3D wyrobów",
+        "Rysunki techniczne",
+        "Próbki kolorów i faktur",
+        "Konsultacje techniczne",
+        "Warunki współpracy dla projektantów"
+      ],
+      "cta": "Materiały dla projektantów"
+    },
+    "testimonials": {
+      "eyebrow": "Opinie",
+      "heading": "Co mówią klienci",
+      "demoLabel": "Treści demonstracyjne — prawdziwe opinie zostaną dodane później",
+      "prevLabel": "Poprzednia opinia",
+      "nextLabel": "Następna opinia",
+      "items": [
+        {
+          "quote": "Umywalka została wykonana dokładnie w wybranym przez nas rozmiarze i kolorze. Kształt zgadza się z zdjęciem w katalogu.",
+          "name": "Klient prywatny",
+          "role": "Remont mieszkania, Kijów"
+        },
+        {
+          "quote": "Zamówiliśmy partię donic w kolorze klienta do projektu. Kolor pozostał jednolity w całej partii.",
+          "name": "Projektant wnętrz",
+          "role": "Praca projektowa"
+        },
+        {
+          "quote": "Wygodnie jest mieć próbki koloru — można zobaczyć fakturę betonu na żywo przed zamówieniem.",
+          "name": "Klient prywatny",
+          "role": "Dom prywatny"
+        }
+      ]
+    },
+    "diary": {
+      "eyebrow": "Instagram",
+      "heading": "Wizualny dziennik",
+      "body": "Materiały z naszej produkcji i zrealizowanych projektów.",
+      "instagramCta": "Obserwuj na Instagramie",
+      "items": [
+        {
+          "caption": "Produkcja: odlewanie formy"
+        },
+        {
+          "caption": "Kolorowy wyrób w masie betonu"
+        },
+        {
+          "caption": "Gotowe wnętrze z betonową umywalką"
+        },
+        {
+          "caption": "Projekt miejski z betonowymi donicami"
+        },
+        {
+          "caption": "Zbliżenie faktury betonu"
+        },
+        {
+          "caption": "Zamówienie seryjne donic"
+        },
+        {
+          "caption": "Obiekt na indywidualne zamówienie"
+        },
+        {
+          "caption": "Ręczne wykończenie powierzchni"
+        }
+      ]
+    }
   },
   "placeholder": {
     "title": "Strona w budowie",
@@ -182,10 +418,356 @@
     "care": "Pielęgnacja",
     "designers": "Dla projektantów",
     "resources": "Materiały",
-    "stockists": "Punkty sprzedaży",
     "faq": "FAQ",
     "contact": "Kontakt",
     "search": "Szukaj",
-    "cart": "Koszyk"
+    "cart": "Koszyk",
+    "checkout": "Zamówienie",
+    "orderStatus": "Status zamówienia",
+    "careers": "Kariera",
+    "privacyPolicy": "Polityka prywatności",
+    "termsOfUse": "Warunki korzystania",
+    "publicOffer": "Oferta publiczna",
+    "cookiesPolicy": "Cookies"
+  },
+  "newsletter": {
+    "eyebrow": "Nowości ODUDLAB",
+    "heading": "Nowe produkty, materiały i zrealizowane projekty",
+    "body": "Publikujemy nowe kolekcje, niestandardowe rozwiązania betonowe i materiały dla projektantów.",
+    "emailLabel": "Adres e-mail",
+    "emailPlaceholder": "you@example.com",
+    "submitCta": "Subskrybuj",
+    "submittingCta": "Wysyłanie…",
+    "privacyNote": "Subskrybując, akceptujesz Politykę prywatności. Możesz zrezygnować w dowolnym momencie.",
+    "successMessage": "Dziękujemy! Sprawdź skrzynkę, aby potwierdzić subskrypcję.",
+    "errorMessage": "Nie udało się zapisać subskrypcji. Spróbuj ponownie.",
+    "invalidEmail": "Podaj prawidłowy adres e-mail.",
+    "requiredEmail": "Podaj adres e-mail."
+  },
+  "contactPage": {
+    "eyebrow": "Kontakt",
+    "heading": "Skontaktuj się z nami",
+    "intro": "Pytania o produkt, zamówienie indywidualne lub współpracę z projektantami — napisz lub zadzwoń, a odpowiemy najszybciej, jak to możliwe.",
+    "reachHeading": "Kontakt bezpośredni",
+    "messengersHeading": "Komunikatory",
+    "socialHeading": "Social media",
+    "visitHeading": "Showroom i odbiór osobisty",
+    "visitNote": "Nasz showroom i punkt odbioru znajdują się na terenie VDNG w Kijowie.",
+    "mapCta": "Otwórz w mapach"
+  },
+  "callback": {
+    "heading": "Zamów rozmowę",
+    "nameLabel": "Imię",
+    "phoneLabel": "Telefon",
+    "phonePlaceholder": "+380 __ ___ __ __",
+    "submitCta": "Zamów rozmowę",
+    "submittingCta": "Wysyłanie…",
+    "successMessage": "Dziękujemy! Oddzwonimy wkrótce.",
+    "errorMessage": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie.",
+    "requiredName": "Podaj imię.",
+    "requiredPhone": "Podaj numer telefonu.",
+    "invalidPhone": "Podaj prawidłowy numer telefonu."
+  },
+  "cookieConsent": {
+    "heading": "Używamy plików cookie",
+    "body": "Niezbędne pliki cookie są wymagane do działania strony. Analityczne i marketingowe uruchamiamy tylko za Twoją zgodą.",
+    "acceptAll": "Akceptuję",
+    "rejectOptional": "Odrzuć opcjonalne",
+    "customize": "Dostosuj",
+    "save": "Zapisz wybór",
+    "back": "Wstecz",
+    "necessaryTitle": "Niezbędne",
+    "necessaryBody": "Zawsze aktywne — wymagane do podstawowego działania strony.",
+    "analyticsTitle": "Analityczne",
+    "analyticsBody": "Pomagają zrozumieć, jak odwiedzający korzystają ze strony.",
+    "marketingTitle": "Marketingowe",
+    "marketingBody": "Używane do spersonalizowanej reklamy."
+  },
+  "footerNav": {
+    "brandDescription": "Ręcznie wykonany beton architektoniczny: umywalki, donice, stoły i obiekty do przestrzeni prywatnych i publicznych.",
+    "catalogHeading": "Sklep",
+    "customersHeading": "Dla klientów",
+    "designersHeading": "Dla projektantów",
+    "brandHeading": "O marce",
+    "legalHeading": "Informacje prawne",
+    "contactHeading": "Kontakt",
+    "history": "Historia",
+    "production": "Produkcja",
+    "materials": "Materiały",
+    "projects": "Projekty",
+    "careers": "Kariera",
+    "contact": "Kontakt",
+    "orderStatus": "Status zamówienia",
+    "privacyPolicy": "Polityka prywatności",
+    "termsOfUse": "Warunki korzystania",
+    "deliveryReturns": "Dostawa i zwroty",
+    "publicOffer": "Oferta publiczna",
+    "cookiesPolicy": "Cookies",
+    "addressLabel": "Adres",
+    "emailLabel": "Email",
+    "phoneLabel": "Telefon",
+    "instagramLabel": "Instagram",
+    "viberLabel": "Viber",
+    "telegramLabel": "Telegram",
+    "socialHeading": "Social media",
+    "regionLabel": "Region",
+    "regionValue": "Ukraina",
+    "languageLabel": "Język",
+    "copyright": "Wszelkie prawa zastrzeżone.",
+    "backToTop": "Do góry",
+    "skipToContent": "Przejdź do treści głównej",
+    "mainNavHeading": "Nawigacja"
+  },
+  "customerCare": {
+    "paymentHeading": "Płatność",
+    "paymentLiqpay": "LiqPay — płatność kartą online",
+    "paymentInvoice": "Faktura od zarejestrowanej firmy",
+    "paymentCash": "Gotówka w showroomie",
+    "deliveryHeading": "Dostawa na terenie Ukrainy",
+    "deliveryPickup": "Bezpłatny odbiór własny",
+    "deliveryNovaPoshta": "Nova Poshta — wg cennika przewoźnika",
+    "deliveryCourier": "Kurier na terenie Kijowa — wg cennika przewoźnika",
+    "deliveryCustom": "Indywidualna wycena dla ciężkich lub wielkogabarytowych produktów",
+    "warrantyHeading": "Gwarancja",
+    "warrantyBody": "12 miesięcy. Pełne warunki znajdują się na stronie gwarancji.",
+    "careHeading": "Pielęgnacja",
+    "careNoAbrasive": "Nie używaj ściernych gąbek",
+    "careNoAcid": "Nie używaj kwaśnych środków czyszczących",
+    "careCleanPromptly": "Usuwaj zabrudzenia na bieżąco",
+    "careAvoidImpact": "Unikaj silnych uderzeń ostrymi przedmiotami",
+    "readMore": "Dowiedz się więcej"
+  },
+  "notFoundPage": {
+    "eyebrow": "404",
+    "title": "Strony nie znaleziono",
+    "body": "Mogła zostać przeniesiona lub usunięta. Sprawdź adres lub wróć na stronę główną.",
+    "cta": "Strona główna"
+  },
+  "errorPage": {
+    "eyebrow": "Błąd",
+    "title": "Coś poszło nie tak",
+    "body": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
+    "retry": "Spróbuj ponownie",
+    "cta": "Strona główna"
+  },
+  "shop": {
+    "breadcrumbHome": "Strona główna",
+    "breadcrumbShop": "Sklep",
+    "heading": "Sklep",
+    "allCategoriesHeading": "Wszystkie produkty",
+    "allCategoriesIntro": "Umywalki, donice, stoliki, panele ścienne i meble ogrodowe z architektonicznego betonu ręcznej roboty — własna produkcja, kolor w masie.",
+    "resultsCount": "Znaleziono produktów: {count}",
+    "categoryNavHeading": "Kategorie",
+    "filtersButton": "Filtry",
+    "filtersButtonWithCount": "Filtry ({count})",
+    "sortLabel": "Sortowanie",
+    "sort": {
+      "featured": "Polecane",
+      "priceAsc": "Najpierw najtańsze",
+      "priceDesc": "Najpierw najdroższe",
+      "nameAsc": "Nazwa (A–Z)"
+    },
+    "filters": {
+      "heading": "Filtry",
+      "mountHeading": "Typ montażu",
+      "mountFreestanding": "Wolnostojące",
+      "mountCountertop": "Nablatowe",
+      "mountWallMounted": "Naścienne",
+      "placementHeading": "Lokalizacja",
+      "placementIndoor": "Do domu",
+      "placementOutdoor": "Na zewnątrz",
+      "colourHeading": "Kolor",
+      "colourBase": "Szary bazowy",
+      "colourCustom": "Kolor niestandardowy",
+      "collectionHeading": "Kolekcja",
+      "priceHeading": "Cena, UAH",
+      "priceMinPlaceholder": "Od",
+      "priceMaxPlaceholder": "Do",
+      "widthHeading": "Szerokość / średnica, cm",
+      "heightHeading": "Wysokość, cm",
+      "clearAll": "Wyczyść wszystko",
+      "applyCta": "Pokaż produkty",
+      "applyCtaWithCount": "Pokaż produkty ({count})",
+      "closeLabel": "Zamknij filtry"
+    },
+    "activeFilters": {
+      "removeLabel": "Usuń filtr"
+    },
+    "pagination": {
+      "label": "Strony katalogu",
+      "prevLabel": "Poprzednia strona",
+      "nextLabel": "Następna strona"
+    },
+    "states": {
+      "loadingLabel": "Wczytywanie produktów…",
+      "emptyCategoryHeading": "W tej kategorii nie ma jeszcze produktów",
+      "emptyCategoryBody": "Asortyment tej kategorii jest jeszcze budowany. Przejrzyj inne kategorie katalogu poniżej.",
+      "noResultsHeading": "Nic nie znaleziono dla tych filtrów",
+      "noResultsBody": "Spróbuj zmienić filtry lub wyczyścić je całkowicie.",
+      "noResultsClearCta": "Wyczyść filtry",
+      "nearbyHeading": "Inne kategorie",
+      "brokenImageAlt": "Zdjęcie niedostępne"
+    },
+    "categoryIntros": {
+      "sinks": "Umywalki wolnostojące i nablatowe z betonu architektonicznego — kolor w masie, wymiary niestandardowe na życzenie.",
+      "planters": "Donice do domu i na zewnątrz — odporne na warunki atmosferyczne, w standardowych lub niestandardowych rozmiarach.",
+      "tables": "Stoliki kawowe z betonowymi blatami do salonu i przestrzeni publicznych.",
+      "wallModules": "Betonowe moduły okładzinowe na ścianę. Asortyment tej kategorii jest jeszcze budowany — skontaktuj się z nami w sprawie indywidualnego zamówienia.",
+      "wallPanels": "Modułowe panele ścienne o fakturowanej powierzchni, dopasowywane do wymiarów ściany.",
+      "wallArt": "Betonowe panele dekoracyjne i płaskorzeźby na ścianę akcentową.",
+      "outdoor": "Meble i obiekty zewnętrzne — ławki, donice i elementy małej architektury dla przestrzeni publicznej."
+    },
+    "productCard": {
+      "madeToOrderBadge": "Na zamówienie",
+      "customColourAvailable": "Kolor niestandardowy",
+      "fromPricePrefix": "od"
+    }
+  },
+  "collectionsPage": {
+    "heading": "Kolekcje",
+    "intro": "Tematyczne zestawienia produktów z dostępnego katalogu.",
+    "demoLabel": "Zestawienie demonstracyjne — oficjalne, nazwane kolekcje marki pojawią się później.",
+    "viewProductsCta": "Zobacz produkty",
+    "relatedColoursHeading": "Kolory dostępne dla tych produktów",
+    "projectsLinkCta": "Zrealizowane projekty",
+    "backToShopCta": "Cały katalog",
+    "notFoundHeading": "Nie znaleziono kolekcji",
+    "notFoundBody": "Link mógł być nieaktualny. Przejrzyj wszystkie kolekcje lub cały katalog."
+  },
+  "product": {
+    "skuLabel": "SKU",
+    "colourLabel": "Kolor",
+    "inStock": "Dostępne",
+    "mayBeOutOfStock": "Może być tymczasowo niedostępne",
+    "leadTimeTemplate": "Czas realizacji — {weeks} tyg.",
+    "addToCartCta": "Dodaj do koszyka",
+    "addingToCartCta": "Dodawanie…",
+    "addedToCartAnnouncement": "{name} dodano do koszyka",
+    "addToCartError": "Nie udało się dodać produktu do koszyka. Spróbuj ponownie.",
+    "selectOptionsPrompt": "Wybierz {options}, aby kontynuować",
+    "viewCartCta": "Przejdź do koszyka",
+    "requestQuoteCta": "Poproś o wycenę",
+    "requestQuoteSendingCta": "Wysyłanie…",
+    "requestQuoteSuccess": "Dziękujemy! Skontaktujemy się z wyceną.",
+    "requestQuoteError": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie.",
+    "requestQuoteIntro": "To konfiguracja niestandardowa, na zamówienie — zostaw dane kontaktowe, a odezwiemy się z wyceną.",
+    "trustConsultation": "Konsultacja: telefon, Viber, Telegram",
+    "trustMadeInKyiv": "Wyprodukowano w Kijowie",
+    "trustColourMatching": "Dostępne dopasowanie koloru RAL/NCS",
+    "descriptionIntroHeading": "Opis",
+    "descriptionIdeaHeading": "Idea projektu",
+    "descriptionMaterialHeading": "Materiał",
+    "descriptionUsageHeading": "Zastosowanie",
+    "descriptionFeaturesHeading": "Cechy",
+    "descriptionCareHeading": "Pielęgnacja",
+    "specsHeading": "Specyfikacja",
+    "documentsHeading": "Dokumenty",
+    "noDocuments": "Dla tego produktu nie dodano jeszcze dokumentacji.",
+    "accordionSpecs": "Specyfikacja",
+    "accordionDelivery": "Dostawa",
+    "accordionInstallation": "Montaż",
+    "accordionCare": "Pielęgnacja",
+    "accordionDocuments": "Dokumenty",
+    "accordionWarranty": "Gwarancja",
+    "accordionFaq": "Pytania",
+    "galleryThumbnailAlt": "Zdjęcie {index}",
+    "galleryOpenLightbox": "Otwórz na pełnym ekranie",
+    "galleryCloseLightbox": "Zamknij",
+    "galleryPrevious": "Poprzednie zdjęcie",
+    "galleryNext": "Następne zdjęcie",
+    "galleryCounter": "{current} z {total}",
+    "relatedYouMayAlsoLike": "Może Ci się spodobać",
+    "relatedSimilarInShape": "Podobne kształtem",
+    "relatedInThisColour": "W tym kolorze",
+    "relatedCompleteTheSet": "Uzupełnij komplet",
+    "galleryLabel": "Galeria zdjęć",
+    "editorialCraftHeading": "Idea i materiał",
+    "editorialColourHeading": "Kolor na zamówienie"
+  },
+  "cart": {
+    "drawerHeading": "Koszyk",
+    "emptyMessage": "Twój koszyk jest pusty.",
+    "removeCta": "Usuń",
+    "itemAddedAnnouncement": "{name} dodano do koszyka",
+    "totalLabel": "Razem",
+    "viewCartCta": "Przejdź do koszyka",
+    "continueShoppingCta": "Kontynuuj zakupy",
+    "checkoutNotice": "Niektóre produkty w koszyku nie są już dostępne — usuń je, aby złożyć zamówienie.",
+    "quantityLabel": "Ilość",
+    "priceChangedNotice": "Cena zmieniła się od momentu dodania produktu do koszyka",
+    "unavailableNotice": "Ten produkt nie jest już dostępny"
+  },
+  "checkout": {
+    "customerHeading": "Dane kontaktowe",
+    "fullNameLabel": "Imię i nazwisko",
+    "phoneLabel": "Telefon",
+    "emailLabel": "E-mail",
+    "deliveryHeading": "Dostawa",
+    "deliveryMethodLabel": "Sposób dostawy",
+    "deliveryNovaPoshtaBranch": "Nova Poshta — oddział",
+    "deliveryNovaPoshtaCourier": "Nova Poshta — kurier",
+    "deliveryCourier": "Kurier lokalny",
+    "deliveryPickup": "Odbiór osobisty",
+    "pickupLocationLabel": "Miejsce odbioru",
+    "cityLabel": "Miasto",
+    "branchNumberLabel": "Numer oddziału",
+    "addressLabel": "Adres",
+    "notesLabel": "Uwagi do zamówienia",
+    "submitCta": "Złóż zamówienie",
+    "submittingCta": "Składanie zamówienia…",
+    "invalidFormMessage": "Sprawdź, proszę, wypełnione pola.",
+    "errorMessage": "Nie udało się złożyć zamówienia. Spróbuj ponownie lub skontaktuj się z nami.",
+    "redirectingToLiqpay": "Przekierowujemy do płatności…",
+    "manualConfirmationHeading": "Zamówienie przyjęte",
+    "manualConfirmationBody": "Skontaktujemy się, aby potwierdzić zamówienie. Numer zamówienia:",
+    "continueShoppingCta": "Kontynuuj zakupy",
+    "emptyCartMessage": "Twój koszyk jest pusty — dodaj produkty, aby złożyć zamówienie.",
+    "summaryHeading": "Twoje zamówienie",
+    "itemsCountLabel": "Produktów w koszyku",
+    "totalLabel": "Razem"
+  },
+  "orderStatus": {
+    "intro": "Podaj numer zamówienia i numer telefonu podany przy zamówieniu, aby sprawdzić jego status.",
+    "orderNumberLabel": "Numer zamówienia",
+    "phoneLabel": "Telefon",
+    "submitCta": "Sprawdź status",
+    "submittingCta": "Sprawdzanie…",
+    "notFoundMessage": "Nie znaleziono zamówienia. Sprawdź numer zamówienia i telefon.",
+    "errorMessage": "Nie udało się sprawdzić statusu. Spróbuj ponownie później.",
+    "resultHeading": "Zamówienie",
+    "statusLabel": "Status",
+    "totalLabel": "Razem",
+    "statusPending": "Oczekuje",
+    "statusAwaitingPayment": "Oczekuje na płatność",
+    "statusPaid": "Opłacone",
+    "statusProcessing": "W realizacji",
+    "statusShipped": "Wysłane",
+    "statusCompleted": "Zrealizowane",
+    "statusCancelled": "Anulowane",
+    "statusRefunded": "Zwrócono środki",
+    "statusFailed": "Płatność nieudana"
+  },
+  "warranty": {
+    "title": "Gwarancja",
+    "intro": "Opisz problem z produktem i dodaj zdjęcia — skontaktujemy się z Tobą w sprawie obsługi gwarancyjnej.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Email (opcjonalnie)",
+    "orderNumberLabel": "Numer zamówienia",
+    "orderNumberPlaceholder": "Numer zamówienia (opcjonalnie)",
+    "issueLabel": "Opis problemu",
+    "issuePlaceholder": "Opisz, co się stało",
+    "requiredIssue": "Opisz, proszę, problem",
+    "photosLabel": "Zdjęcia uszkodzenia",
+    "photosHint": "Do 5 zdjęć, JPG/PNG/WebP, do 8 MB każde",
+    "addPhotoCta": "Dodaj zdjęcie",
+    "removePhotoCta": "Usuń",
+    "uploadingPhoto": "Przesyłanie…",
+    "photoTooLarge": "Plik jest za duży (maks. 8 MB)",
+    "photoInvalidType": "Nieobsługiwany format pliku",
+    "tooManyPhotos": "Maksymalnie 5 zdjęć",
+    "submitCta": "Wyślij zgłoszenie",
+    "submittingCta": "Wysyłanie…",
+    "successMessage": "Dziękujemy! Zgłoszenie zostało przyjęte — skontaktujemy się wkrótce.",
+    "errorMessage": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie lub zadzwoń do nas."
   }
 }

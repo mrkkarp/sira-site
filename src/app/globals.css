@@ -8,13 +8,22 @@
   --color-text: #1d1d1b;
   --color-text-muted: #68655f;
   --color-border: #d5cfc5;
-  --color-border-strong: #9e9991;
+  /* Prompt 9 §2 (accessibility audit) — darkened from the brief's #9e9991
+     (2.44:1 on --color-background, 2.69:1 on --color-surface — both fail
+     WCAG 1.4.11's 3:1 non-text-contrast minimum for UI-component
+     boundaries like input/button borders) to 3.17:1 / 3.49:1. Same warm-
+     taupe hue, just darker. */
+  --color-border-strong: #8a8579;
   --color-footer: #20201e;
   --color-focus: #2457d6;
   --color-error: #b3261e;
   /* Darkened from the brief's #2E7D46 (4.38:1 on --color-background, fails
      WCAG AA 4.5:1 for normal text) to 5.55:1 — see BRAND_VISUAL_GUIDE §9. */
   --color-success: #296b3d;
+  /* --color-error only reaches 2.5:1 on --color-footer (#20201E) — far
+     below WCAG AA. Used for form error text inside the dark footer
+     (newsletter/callback forms); 6.72:1 on --color-footer. */
+  --color-error-on-dark: #f2897c;
 
   /* ---- Material accents (product colour, used sparingly in UI) ---- */
   --color-concrete-light: #c9c4ba;
@@ -64,6 +73,7 @@
   --color-footer: var(--color-footer);
   --color-focus: var(--color-focus);
   --color-error: var(--color-error);
+  --color-error-on-dark: var(--color-error-on-dark);
   --color-success: var(--color-success);
 
   --color-concrete-light: var(--color-concrete-light);

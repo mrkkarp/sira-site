@@ -7,6 +7,16 @@ import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { Header } from "@/components/header/header";
 import { Footer } from "@/components/footer";
+import { ToastProvider } from "@/components/ui/toast";
+import { SkipToContent } from "@/components/skip-to-content";
+import { NoScriptNav } from "@/components/no-script-nav";
+import { RouteProgress } from "@/components/route-progress";
+import { BackToTop } from "@/components/back-to-top";
+import { CookieConsent } from "@/components/cookie-consent";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { getSiteUrl } from "@/lib/site-url";
+
+const siteUrl = getSiteUrl();
 
 const interfaceSans = Manrope({
   variable: "--font-interface-sans",
@@ -33,8 +43,26 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
   const dictionary = await getDictionary(locale);
   return {
-    title: `${dictionary.site.name} — ${dictionary.site.tagline}`,
+    metadataBase: siteUrl,
+    title: {
+      default: `${dictionary.site.name} — ${dictionary.site.tagline}`,
+      template: `%s — ${dictionary.site.name}`,
+    },
     description: dictionary.site.tagline,
+    robots: {
+      // No production domain/indexing decision has been confirmed yet —
+      // default to indexable so per-page metadata (added in a later pass,
+      // see README "what's next") can opt individual pages out as needed.
+      index: true,
+      follow: true,
+    },
+    // Google Search Console "HTML tag" verification. Env-driven so no token is
+    // invented here: set `GOOGLE_SITE_VERIFICATION` to the value GSC gives you
+    // (see GOOGLE_SEARCH_CONSOLE_SETUP.md) and this emits the required
+    // <meta name="google-site-verification"> tag; unset, it emits nothing.
+    verification: process.env.GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+      : undefined,
   };
 }
 
@@ -56,9 +84,19 @@ export default async function LocaleLayout({
       className={`${interfaceSans.variable} ${editorialSerif.variable}`}
     >
       <body className="bg-background text-text flex min-h-screen flex-col font-sans antialiased">
-        <Header locale={locale} dictionary={dictionary} />
-        <main className="flex-1">{children}</main>
-        <Footer locale={locale} dictionary={dictionary} />
+        <ToastProvider>
+          <SkipToContent label={dictionary.footerNav.skipToContent} />
+          <RouteProgress />
+          <NoScriptNav locale={locale} dictionary={dictionary} />
+          <Header locale={locale} dictionary={dictionary} />
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
+          <Footer locale={locale} dictionary={dictionary} />
+          <BackToTop label={dictionary.footerNav.backToTop} />
+          <CookieConsent dictionary={dictionary} />
+          <GoogleAnalytics />
+        </ToastProvider>
       </body>
     </html>
   );

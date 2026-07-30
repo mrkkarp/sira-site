@@ -18,8 +18,12 @@ export function AnnouncementBar({
     <div className="bg-text text-background">
       <div className="mx-auto flex h-9 max-w-7xl items-center justify-center gap-(--space-xs) px-6">
         <p className="type-caption truncate">
-          <span className="hidden sm:inline">{dictionary.announcement.message}</span>
-          <span className="sm:hidden">{dictionary.announcement.messageShort}</span>
+          <span className="hidden sm:inline">
+            {dictionary.announcement.message}
+          </span>
+          <span className="sm:hidden">
+            {dictionary.announcement.messageShort}
+          </span>
         </p>
         <Link
           href={localeHref(locale, announcementConfig.href)}

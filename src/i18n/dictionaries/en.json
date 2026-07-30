@@ -13,7 +13,6 @@
     "brand": "Brand",
     "designers": "Designers",
     "resources": "Resources",
-    "stockists": "Stockists",
     "contact": "Contact"
   },
   "announcement": {
@@ -113,7 +112,10 @@
     "pagesHeading": "Pages",
     "noResultsHeading": "No results found",
     "noResultsBody": "Try a different search.",
-    "viewAll": "View all results"
+    "viewAll": "View all results",
+    "resultsForTemplate": "Search results for \"{query}\"",
+    "resultsCount": "Found: {count}",
+    "browseShopCta": "Browse the shop"
   },
   "mobileMenu": {
     "openLabel": "Open menu",
@@ -152,18 +154,252 @@
     "warranty": "Warranty",
     "care": "Care instructions",
     "faq": "FAQ",
-    "stockists": "Stockists & showrooms",
     "designers": "Trade & designers",
     "resources": "Catalogues & drawings",
     "about": "Studio & production",
-    "contact": "Contact"
+    "contact": "Contact",
+    "orderStatus": "Order status"
   },
   "home": {
-    "heroEyebrow": "ODUDLAB — architectural concrete",
-    "heroTitle": "The form, weight and texture of concrete as a design tool",
-    "heroSubtitle": "Handmade sinks, planters, tables and wall pieces — from a single interior object to large-scale urban work.",
-    "heroCta": "Browse the shop",
-    "secondaryCta": "About the studio"
+    "seo": {
+      "title": "ODUDLAB — architectural concrete for interiors and urban spaces",
+      "description": "Handmade architectural-concrete sinks, planters, tables, wall panels and custom pieces. Our own workshop in Kyiv, colour cast through the mass, made to order."
+    },
+    "hero": {
+      "workshop": {
+        "eyebrow": "Architectural concrete · Kyiv",
+        "title": "Concrete as a tool for design and architecture",
+        "description": "Architectural-concrete pieces for interiors and urban spaces: sinks, planters, furniture, panels and custom objects.",
+        "primaryCta": "Browse the shop",
+        "secondaryCta": "See projects"
+      },
+      "product": {
+        "eyebrow": "Sculptural form",
+        "title": "One piece as the main accent of a space",
+        "description": "Coloured concrete in a calm interior — minimal props, with the focus on form and material texture.",
+        "primaryCta": "Browse the shop",
+        "secondaryCta": "See projects"
+      },
+      "prevLabel": "Previous campaign",
+      "nextLabel": "Next campaign",
+      "goToLabel": "Go to campaign",
+      "pauseLabel": "Pause autoplay",
+      "playLabel": "Resume autoplay"
+    },
+    "quickCategories": {
+      "eyebrow": "Shop",
+      "heading": "Quick categories",
+      "sinksTagline": "Freestanding and countertop",
+      "plantersTagline": "For indoors and outdoors",
+      "tablesTagline": "Concrete coffee-table tops",
+      "wallPanelsTagline": "Panels and wall art",
+      "outdoorTagline": "Furniture and objects for outdoor space",
+      "customTagline": "Custom quote",
+      "customLabel": "Custom pieces",
+      "sinksDescription": "Floor-standing and countertop basins in architectural concrete — cylindrical, oval and sculptural forms in any RAL or NCS colour.",
+      "plantersDescription": "Concrete planters and pots for indoors and outdoors — from compact cylinders to large ellipses and half-spheres.",
+      "tablesDescription": "Coffee tables and tabletops in cast concrete — monolithic forms with a distinctive matte texture.",
+      "wallPanelsDescription": "Relief concrete wall panels that add depth and a play of light across the surface.",
+      "outdoorDescription": "Benches, bins and street objects in concrete — weatherproof and built for public spaces.",
+      "customDescription": "Pieces made to your dimensions and shape — a bespoke quote from first idea to finished object."
+    },
+    "campaigns": {
+      "colouredSinks": {
+        "eyebrow": "Colour cast through the mass",
+        "heading": "Colour that holds its shape",
+        "body": "Pigment is mixed straight into the concrete, so the colour never chips or fades the way a surface coating would.",
+        "cta": "See the colours"
+      },
+      "freestanding": {
+        "eyebrow": "Freestanding sinks",
+        "heading": "A standalone object in the bathroom",
+        "body": "A freestanding sink isn't tucked under a countertop — it becomes the main piece in the room, like furniture or a sculpture.",
+        "cta": "See freestanding sinks"
+      },
+      "production": {
+        "eyebrow": "Our own workshop",
+        "heading": "Every piece passes through our hands",
+        "body": "Formwork, casting, hand-finishing — the whole process happens in one workshop in Kyiv.",
+        "cta": "How we make it"
+      },
+      "texture": {
+        "eyebrow": "Texture",
+        "heading": "Concrete you can see and feel",
+        "body": "Pores, flutes and hand-finishing marks are part of the material's character, not a flaw.",
+        "cta": "Caring for your piece"
+      },
+      "wallPanels": {
+        "eyebrow": "Wall panels and wall art",
+        "heading": "Relief across the whole wall",
+        "body": "Modular panels and wall art are assembled to fit the wall and installed as separate concrete elements.",
+        "cta": "See wall panels"
+      },
+      "urban": {
+        "eyebrow": "Urban space",
+        "heading": "Built for streets and public space",
+        "body": "Outdoor planters, benches and concrete objects hold up to climate and the scale of an urban setting.",
+        "cta": "Outdoor pieces"
+      },
+      "custom": {
+        "eyebrow": "Custom-made",
+        "heading": "An object built for a specific space",
+        "body": "From a drawing or a 3D model to the finished piece — we work out the size, shape and colour with your project.",
+        "cta": "Request a quote"
+      }
+    },
+    "popularProducts": {
+      "eyebrow": "Shop",
+      "heading": "Popular pieces",
+      "body": "A selection across categories — sinks, planters, tables and outdoor pieces.",
+      "viewAllCta": "All products",
+      "prevLabel": "Previous product",
+      "nextLabel": "Next product"
+    },
+    "colours": {
+      "eyebrow": "Colour cast through the mass",
+      "heading": "Not just grey concrete",
+      "body": "Pigment is added straight into the concrete mix — the colour belongs to the material, not a coating on its surface.",
+      "disclaimer": "On-screen colours are approximate. Lighting, your monitor's calibration, and the natural variation of concrete all affect how a shade looks in person.",
+      "selectLabel": "Select a colour",
+      "samplesCta": "Order samples",
+      "viewAllCta": "All colours"
+    },
+    "samples": {
+      "eyebrow": "Samples",
+      "heading": "See the real thing before you order",
+      "body": "A physical sample shows the concrete's true texture and shade more accurately than any screen.",
+      "primaryCta": "Order samples",
+      "secondaryCta": "See the colours"
+    },
+    "aboutBrand": {
+      "eyebrow": "From form to finished object",
+      "heading": "Made in Kyiv",
+      "intro": "Our own workshop, where every piece goes through the full cycle — from model to finished object.",
+      "bullets": [
+        "Building models and moulds for every piece",
+        "Hand casting and surface finishing",
+        "Working with reinforced concrete",
+        "Controlling geometry and surface quality",
+        "Colour cast through the concrete, not coated on top",
+        "Series production and custom-made objects"
+      ],
+      "cta": "About ODUDLAB"
+    },
+    "advantages": {
+      "eyebrow": "Why ODUDLAB",
+      "heading": "Advantages",
+      "items": [
+        {
+          "title": "Made to order",
+          "body": "Every piece is cast for a specific order, not pulled from a warehouse batch."
+        },
+        {
+          "title": "Colour through the mass",
+          "body": "Pigment is mixed into the concrete, so the colour doesn't depend on a top coating."
+        },
+        {
+          "title": "Custom sizes",
+          "body": "Standard models can be adapted to the size and needs of a specific space."
+        },
+        {
+          "title": "Our own production",
+          "body": "Formwork, casting and finishing all happen in one workshop in Kyiv."
+        },
+        {
+          "title": "Materials for designers",
+          "body": "3D models, drawings and samples for project work with architects and designers."
+        }
+      ]
+    },
+    "projects": {
+      "eyebrow": "Completed projects",
+      "heading": "Projects",
+      "demoLabel": "Demonstration example",
+      "viewAllCta": "All projects",
+      "items": [
+        {
+          "title": "Private bathroom",
+          "location": "Kyiv"
+        },
+        {
+          "title": "City-centre café",
+          "location": "Kyiv"
+        },
+        {
+          "title": "Residential courtyard",
+          "location": "Kyiv"
+        }
+      ]
+    },
+    "designers": {
+      "eyebrow": "For designers",
+      "heading": "Materials for project work",
+      "body": "3D models, drawings, colour samples and technical consultation for architects and interior designers.",
+      "bullets": [
+        "3D models of the pieces",
+        "Technical drawings",
+        "Colour and texture samples",
+        "Technical consultation",
+        "Terms for designers"
+      ],
+      "cta": "Materials for designers"
+    },
+    "testimonials": {
+      "eyebrow": "Reviews",
+      "heading": "What clients say",
+      "demoLabel": "Demonstration content — real reviews will be added later",
+      "prevLabel": "Previous review",
+      "nextLabel": "Next review",
+      "items": [
+        {
+          "quote": "The sink was made exactly to the size and colour we chose. The shape matches the catalogue photo precisely.",
+          "name": "Private client",
+          "role": "Apartment renovation, Kyiv"
+        },
+        {
+          "quote": "We ordered a batch of planters in the client's colour for a project. The colour stayed consistent across the whole batch.",
+          "name": "Interior designer",
+          "role": "Project work"
+        },
+        {
+          "quote": "It helps that samples exist — you can see the concrete's texture in person before ordering.",
+          "name": "Private client",
+          "role": "Private house"
+        }
+      ]
+    },
+    "diary": {
+      "eyebrow": "Instagram",
+      "heading": "Visual diary",
+      "body": "Material from our workshop and completed projects.",
+      "instagramCta": "Follow on Instagram",
+      "items": [
+        {
+          "caption": "Production: casting a mould"
+        },
+        {
+          "caption": "A coloured piece cast through the mass"
+        },
+        {
+          "caption": "A finished interior with a concrete sink"
+        },
+        {
+          "caption": "An urban project with concrete planters"
+        },
+        {
+          "caption": "A close-up of the concrete's texture"
+        },
+        {
+          "caption": "A series order of planters"
+        },
+        {
+          "caption": "A custom-made object"
+        },
+        {
+          "caption": "Hand-finishing the surface"
+        }
+      ]
+    }
   },
   "placeholder": {
     "title": "Page in progress",
@@ -182,10 +418,356 @@
     "care": "Care instructions",
     "designers": "For designers",
     "resources": "Resources",
-    "stockists": "Stockists",
     "faq": "FAQ",
     "contact": "Contact",
     "search": "Search",
-    "cart": "Cart"
+    "cart": "Cart",
+    "checkout": "Checkout",
+    "orderStatus": "Order status",
+    "careers": "Careers",
+    "privacyPolicy": "Privacy policy",
+    "termsOfUse": "Terms of use",
+    "publicOffer": "Public offer",
+    "cookiesPolicy": "Cookies"
+  },
+  "newsletter": {
+    "eyebrow": "ODUDLAB news",
+    "heading": "New pieces, materials and completed projects",
+    "body": "We share new collections, custom concrete work and materials for designers.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "submitCta": "Subscribe",
+    "submittingCta": "Sending…",
+    "privacyNote": "By subscribing you agree to the Privacy Policy. You can unsubscribe at any time.",
+    "successMessage": "Thanks! Check your inbox to confirm your subscription.",
+    "errorMessage": "We couldn't complete the subscription. Please try again.",
+    "invalidEmail": "Enter a valid email address.",
+    "requiredEmail": "Enter your email address."
+  },
+  "contactPage": {
+    "eyebrow": "Contacts",
+    "heading": "Get in touch",
+    "intro": "Questions about a piece, a custom order, or working with designers — write or call and we’ll get back to you as soon as we can.",
+    "reachHeading": "Direct contact",
+    "messengersHeading": "Messengers",
+    "socialHeading": "Social",
+    "visitHeading": "Showroom & pickup",
+    "visitNote": "Our showroom and pickup point are at VDNG in Kyiv.",
+    "mapCta": "Open in maps"
+  },
+  "callback": {
+    "heading": "Request a call",
+    "nameLabel": "Name",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "+380 __ ___ __ __",
+    "submitCta": "Request a call",
+    "submittingCta": "Sending…",
+    "successMessage": "Thanks! We'll call you back shortly.",
+    "errorMessage": "We couldn't send your request. Please try again.",
+    "requiredName": "Enter your name.",
+    "requiredPhone": "Enter your phone number.",
+    "invalidPhone": "Enter a valid phone number."
+  },
+  "cookieConsent": {
+    "heading": "We use cookies",
+    "body": "Necessary cookies keep the site running. Analytics and marketing cookies only load with your consent.",
+    "acceptAll": "Accept",
+    "rejectOptional": "Reject optional",
+    "customize": "Customize",
+    "save": "Save choices",
+    "back": "Back",
+    "necessaryTitle": "Necessary",
+    "necessaryBody": "Always active — required for basic site functionality.",
+    "analyticsTitle": "Analytics",
+    "analyticsBody": "Help us understand how visitors use the site.",
+    "marketingTitle": "Marketing",
+    "marketingBody": "Used for personalised advertising."
+  },
+  "footerNav": {
+    "brandDescription": "Handmade architectural concrete: sinks, planters, tables and pieces for private and public spaces.",
+    "catalogHeading": "Shop",
+    "customersHeading": "For customers",
+    "designersHeading": "For designers",
+    "brandHeading": "About the brand",
+    "legalHeading": "Legal",
+    "contactHeading": "Contact",
+    "history": "History",
+    "production": "Production",
+    "materials": "Materials",
+    "projects": "Projects",
+    "careers": "Careers",
+    "contact": "Contact",
+    "orderStatus": "Order status",
+    "privacyPolicy": "Privacy policy",
+    "termsOfUse": "Terms of use",
+    "deliveryReturns": "Delivery & returns",
+    "publicOffer": "Public offer",
+    "cookiesPolicy": "Cookies",
+    "addressLabel": "Address",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "instagramLabel": "Instagram",
+    "viberLabel": "Viber",
+    "telegramLabel": "Telegram",
+    "socialHeading": "Social",
+    "regionLabel": "Region",
+    "regionValue": "Ukraine",
+    "languageLabel": "Language",
+    "copyright": "All rights reserved.",
+    "backToTop": "Back to top",
+    "skipToContent": "Skip to main content",
+    "mainNavHeading": "Navigation"
+  },
+  "customerCare": {
+    "paymentHeading": "Payment",
+    "paymentLiqpay": "LiqPay — online card payment",
+    "paymentInvoice": "Invoice from a registered business",
+    "paymentCash": "Cash at the showroom",
+    "deliveryHeading": "Delivery within Ukraine",
+    "deliveryPickup": "Free pickup",
+    "deliveryNovaPoshta": "Nova Poshta — at carrier rates",
+    "deliveryCourier": "Courier within Kyiv — at carrier rates",
+    "deliveryCustom": "Custom quote for heavy or oversized pieces",
+    "warrantyHeading": "Warranty",
+    "warrantyBody": "12 months. Full terms are on the warranty page.",
+    "careHeading": "Care",
+    "careNoAbrasive": "Do not use abrasive sponges",
+    "careNoAcid": "Do not use acidic cleaning products",
+    "careCleanPromptly": "Clean spills promptly",
+    "careAvoidImpact": "Avoid strong impacts from sharp objects",
+    "readMore": "Read more"
+  },
+  "notFoundPage": {
+    "eyebrow": "404",
+    "title": "Page not found",
+    "body": "It may have been moved or removed. Check the address or return to the homepage.",
+    "cta": "Go home"
+  },
+  "errorPage": {
+    "eyebrow": "Error",
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. Please try again.",
+    "retry": "Try again",
+    "cta": "Go home"
+  },
+  "shop": {
+    "breadcrumbHome": "Home",
+    "breadcrumbShop": "Shop",
+    "heading": "Shop",
+    "allCategoriesHeading": "All products",
+    "allCategoriesIntro": "Sinks, planters, tables, wall panels and outdoor pieces in handmade architectural concrete — our own production, colour cast into the material.",
+    "resultsCount": "{count} products found",
+    "categoryNavHeading": "Categories",
+    "filtersButton": "Filters",
+    "filtersButtonWithCount": "Filters ({count})",
+    "sortLabel": "Sort",
+    "sort": {
+      "featured": "Featured",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "nameAsc": "Name (A–Z)"
+    },
+    "filters": {
+      "heading": "Filters",
+      "mountHeading": "Mount type",
+      "mountFreestanding": "Freestanding",
+      "mountCountertop": "Countertop",
+      "mountWallMounted": "Wall-mounted",
+      "placementHeading": "Placement",
+      "placementIndoor": "Indoor",
+      "placementOutdoor": "Outdoor",
+      "colourHeading": "Colour",
+      "colourBase": "Base grey",
+      "colourCustom": "Custom colour",
+      "collectionHeading": "Collection",
+      "priceHeading": "Price, UAH",
+      "priceMinPlaceholder": "From",
+      "priceMaxPlaceholder": "To",
+      "widthHeading": "Width / diameter, cm",
+      "heightHeading": "Height, cm",
+      "clearAll": "Clear all",
+      "applyCta": "Show products",
+      "applyCtaWithCount": "Show products ({count})",
+      "closeLabel": "Close filters"
+    },
+    "activeFilters": {
+      "removeLabel": "Remove filter"
+    },
+    "pagination": {
+      "label": "Catalog pages",
+      "prevLabel": "Previous page",
+      "nextLabel": "Next page"
+    },
+    "states": {
+      "loadingLabel": "Loading products…",
+      "emptyCategoryHeading": "No products in this category yet",
+      "emptyCategoryBody": "This category's range is still being built out. Browse the other catalog categories below.",
+      "noResultsHeading": "No products match these filters",
+      "noResultsBody": "Try changing the filters, or clear them entirely.",
+      "noResultsClearCta": "Clear filters",
+      "nearbyHeading": "Other categories",
+      "brokenImageAlt": "Image unavailable"
+    },
+    "categoryIntros": {
+      "sinks": "Freestanding and countertop sinks in architectural concrete — colour cast into the material, custom sizes on request.",
+      "planters": "Planters for indoors and outdoors — climate-resistant, in standard or custom sizes.",
+      "tables": "Coffee tables with concrete tops for living rooms and public spaces.",
+      "wallModules": "Concrete cladding modules for walls. This category's range is still being built out — contact us for a custom request.",
+      "wallPanels": "Modular wall panels with a textured surface, assembled to fit your wall.",
+      "wallArt": "Concrete wall art and relief pieces for an accent wall.",
+      "outdoor": "Outdoor furniture and objects — benches, planters and landscaping elements for public spaces."
+    },
+    "productCard": {
+      "madeToOrderBadge": "Made to order",
+      "customColourAvailable": "Custom colour",
+      "fromPricePrefix": "from"
+    }
+  },
+  "collectionsPage": {
+    "heading": "Collections",
+    "intro": "Themed selections drawn from the existing catalog.",
+    "demoLabel": "Demo selection — official named brand collections will follow.",
+    "viewProductsCta": "View products",
+    "relatedColoursHeading": "Colours available for these products",
+    "projectsLinkCta": "Completed projects",
+    "backToShopCta": "Full catalog",
+    "notFoundHeading": "Collection not found",
+    "notFoundBody": "The link may be outdated. Browse all collections or the full catalog."
+  },
+  "product": {
+    "skuLabel": "SKU",
+    "colourLabel": "Colour",
+    "inStock": "In stock",
+    "mayBeOutOfStock": "May be temporarily out of stock",
+    "leadTimeTemplate": "Lead time — {weeks} wk",
+    "addToCartCta": "Add to cart",
+    "addingToCartCta": "Adding…",
+    "addedToCartAnnouncement": "{name} added to cart",
+    "addToCartError": "Couldn't add this item to your cart. Please try again.",
+    "selectOptionsPrompt": "Choose {options} to continue",
+    "viewCartCta": "View cart",
+    "requestQuoteCta": "Get a quote",
+    "requestQuoteSendingCta": "Sending…",
+    "requestQuoteSuccess": "Thanks! We'll get back to you with a quote.",
+    "requestQuoteError": "We couldn't send your request. Please try again.",
+    "requestQuoteIntro": "This is a custom, made-to-order configuration — leave your details and we'll follow up with a quote.",
+    "trustConsultation": "Consultation: phone, Viber, Telegram",
+    "trustMadeInKyiv": "Made in Kyiv",
+    "trustColourMatching": "RAL/NCS colour matching available",
+    "descriptionIntroHeading": "Overview",
+    "descriptionIdeaHeading": "Design idea",
+    "descriptionMaterialHeading": "Material",
+    "descriptionUsageHeading": "Usage",
+    "descriptionFeaturesHeading": "Features",
+    "descriptionCareHeading": "Care",
+    "specsHeading": "Specifications",
+    "documentsHeading": "Documents",
+    "noDocuments": "No documentation has been uploaded for this product yet.",
+    "accordionSpecs": "Specifications",
+    "accordionDelivery": "Delivery",
+    "accordionInstallation": "Installation",
+    "accordionCare": "Care",
+    "accordionDocuments": "Documents",
+    "accordionWarranty": "Warranty",
+    "accordionFaq": "Questions",
+    "galleryThumbnailAlt": "Photo {index}",
+    "galleryOpenLightbox": "Open fullscreen",
+    "galleryCloseLightbox": "Close",
+    "galleryPrevious": "Previous photo",
+    "galleryNext": "Next photo",
+    "galleryCounter": "{current} of {total}",
+    "relatedYouMayAlsoLike": "You may also like",
+    "relatedSimilarInShape": "Similar in shape",
+    "relatedInThisColour": "In this colour",
+    "relatedCompleteTheSet": "Complete the set",
+    "galleryLabel": "Image gallery",
+    "editorialCraftHeading": "Idea & material",
+    "editorialColourHeading": "Custom colour"
+  },
+  "cart": {
+    "drawerHeading": "Cart",
+    "emptyMessage": "Your cart is empty.",
+    "removeCta": "Remove",
+    "itemAddedAnnouncement": "{name} added to cart",
+    "totalLabel": "Total",
+    "viewCartCta": "View cart",
+    "continueShoppingCta": "Continue shopping",
+    "checkoutNotice": "Some items in your cart are no longer available — remove them to check out.",
+    "quantityLabel": "Quantity",
+    "priceChangedNotice": "The price has changed since this item was added to your cart",
+    "unavailableNotice": "This item is no longer available"
+  },
+  "checkout": {
+    "customerHeading": "Contact details",
+    "fullNameLabel": "Full name",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
+    "deliveryHeading": "Delivery",
+    "deliveryMethodLabel": "Delivery method",
+    "deliveryNovaPoshtaBranch": "Nova Poshta — branch",
+    "deliveryNovaPoshtaCourier": "Nova Poshta — courier",
+    "deliveryCourier": "Local courier",
+    "deliveryPickup": "Pickup",
+    "pickupLocationLabel": "Pickup location",
+    "cityLabel": "City",
+    "branchNumberLabel": "Branch number",
+    "addressLabel": "Address",
+    "notesLabel": "Order notes",
+    "submitCta": "Place order",
+    "submittingCta": "Placing order…",
+    "invalidFormMessage": "Please check the fields you've filled in.",
+    "errorMessage": "We couldn't place your order. Please try again or contact us.",
+    "redirectingToLiqpay": "Redirecting you to payment…",
+    "manualConfirmationHeading": "Order received",
+    "manualConfirmationBody": "We'll contact you to confirm. Order number:",
+    "continueShoppingCta": "Continue shopping",
+    "emptyCartMessage": "Your cart is empty — add items before checking out.",
+    "summaryHeading": "Your order",
+    "itemsCountLabel": "Items in cart",
+    "totalLabel": "Total"
+  },
+  "orderStatus": {
+    "intro": "Enter your order number and the phone number used at checkout to check its status.",
+    "orderNumberLabel": "Order number",
+    "phoneLabel": "Phone",
+    "submitCta": "Check status",
+    "submittingCta": "Checking…",
+    "notFoundMessage": "Order not found. Please check the order number and phone number.",
+    "errorMessage": "We couldn't check the status. Please try again later.",
+    "resultHeading": "Order",
+    "statusLabel": "Status",
+    "totalLabel": "Total",
+    "statusPending": "Pending",
+    "statusAwaitingPayment": "Awaiting payment",
+    "statusPaid": "Paid",
+    "statusProcessing": "Processing",
+    "statusShipped": "Shipped",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled",
+    "statusRefunded": "Refunded",
+    "statusFailed": "Payment failed"
+  },
+  "warranty": {
+    "title": "Warranty",
+    "intro": "Describe the issue with your product and add photos — we'll contact you about warranty service.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Email (optional)",
+    "orderNumberLabel": "Order number",
+    "orderNumberPlaceholder": "Order number (optional)",
+    "issueLabel": "Issue description",
+    "issuePlaceholder": "Describe what happened",
+    "requiredIssue": "Please describe the issue",
+    "photosLabel": "Photos of the damage",
+    "photosHint": "Up to 5 photos, JPG/PNG/WebP, up to 8MB each",
+    "addPhotoCta": "Add photo",
+    "removePhotoCta": "Remove",
+    "uploadingPhoto": "Uploading…",
+    "photoTooLarge": "File is too large (max 8MB)",
+    "photoInvalidType": "Unsupported file format",
+    "tooManyPhotos": "Maximum 5 photos",
+    "submitCta": "Submit claim",
+    "submittingCta": "Submitting…",
+    "successMessage": "Thank you! Your claim has been received — we'll contact you shortly.",
+    "errorMessage": "We couldn't submit your claim. Please try again or call us."
   }
 }

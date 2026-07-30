@@ -50,7 +50,7 @@ re-check contrast before changing them (see §8 Accessibility).
 | `--color-text`          | `#1D1D1B`  | Primary text, primary buttons                |
 | `--color-text-muted`    | `#68655F`  | Secondary text, captions, resting nav        |
 | `--color-border`        | `#D5CFC5`  | Hairline dividers                            |
-| `--color-border-strong` | `#9E9991`  | Input borders, stronger separators           |
+| `--color-border-strong` | `#8A8579`² | Input borders, stronger separators           |
 | `--color-footer`        | `#20201E`  | Dark graphite footer / production sections   |
 | `--color-focus`         | `#2457D6`  | Accessible focus ring — never remove         |
 | `--color-error`         | `#B3261E`  | Form errors, destructive state               |
@@ -59,6 +59,12 @@ re-check contrast before changing them (see §8 Accessibility).
 ¹ Darkened from the brief's `#2E7D46` — that value contrasts `--color-background`
 at only 4.38:1, below WCAG AA's 4.5:1 for normal text (see §9). `#296B3D`
 gives 5.55:1.
+
+² Darkened from the brief's `#9E9991` during the Prompt 9 accessibility audit
+— that value only reached 2.44:1/2.69:1 against `--color-surface`/
+`--color-background`, below WCAG 1.4.11's 3:1 non-text-contrast minimum for
+this token's actual use (input/button/chip/swatch boundaries — the only
+visible edge on those controls). `#8A8579` gives 3.17:1/3.49:1.
 
 ### 2.2 Material accents — the product's own colour, not UI decoration
 
@@ -233,12 +239,15 @@ components will render real images into once photography exists.
 
 ## 10. Component library
 
-`src/components/ui/` (23 components, all typed, all with the accessibility
-attributes noted above where relevant): `Button`, `TextLink`, `IconButton`,
-`Badge`, `Price`, `Divider`, `Breadcrumbs`, `Accordion`, `Tabs`, `Drawer`,
-`Modal` (+ shared `DialogPrimitive`), `SearchField`, `Select`, `Checkbox`,
-`RadioGroup`, `QuantitySelector`, `Swatch`, `Toast`/`ToastProvider`,
-`Skeleton`, `EmptyState`, `FormField`, `Pagination`, `VisuallyHidden`.
+`src/components/ui/` (24 components, all typed, all with the accessibility
+attributes noted above where relevant): `Button`, `LinkButton` (shares
+`Button`'s base/variant/size classes, wraps `next/link` instead of a
+`<button>`, no `"use client"` so it's safe in Server Components), `TextLink`,
+`IconButton`, `Badge`, `Price`, `Divider`, `Breadcrumbs`, `Accordion`, `Tabs`,
+`Drawer`, `Modal` (+ shared `DialogPrimitive`), `SearchField`, `Select`,
+`Checkbox`, `RadioGroup`, `QuantitySelector`, `Swatch`, `Toast`/
+`ToastProvider`, `Skeleton`, `EmptyState`, `FormField`, `Pagination`,
+`VisuallyHidden`.
 
 Live, interactive reference: **`/design-system`** (dev-only — the route's
 own layout calls `notFound()` when `NODE_ENV === "production"`, and

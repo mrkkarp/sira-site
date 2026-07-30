@@ -1,4 +1,5 @@
 export { Button } from "./button";
+export { LinkButton } from "./link-button";
 export { TextLink } from "./text-link";
 export { IconButton } from "./icon-button";
 export { Badge } from "./badge";
