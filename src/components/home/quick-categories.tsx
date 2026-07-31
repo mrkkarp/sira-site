@@ -6,7 +6,6 @@ import { localeHref } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
 import { Section, Container, Grid, SectionHeader } from "@/components/layout";
 import { MediaFrame } from "@/components/layout/media-frame";
-import { ImagePlaceholder } from "@/components/home/image-placeholder";
 import { ProductImage } from "@/components/product/product-image";
 
 const spanClass: Record<QuickCategoryConfig["size"], string> = {
@@ -84,10 +83,12 @@ export function QuickCategories({
                         className="transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]"
                       />
                     ) : (
-                      <ImagePlaceholder
-                        label={dictionary.megaMenu.catalog.editorialImageAlt}
-                        className="transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]"
-                      />
+                      // The custom "Індивідуальні вироби" card has no single
+                      // representative product photo. Rather than a "Фото
+                      // очікується" placeholder, it gets a deliberate dark
+                      // concrete tile that reads as an intentional
+                      // consultation entry point (the label sits below).
+                      <div className="bg-footer h-full w-full transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]" />
                     )}
                   </div>
                 </MediaFrame>

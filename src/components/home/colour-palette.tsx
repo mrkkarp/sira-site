@@ -5,12 +5,10 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { ProductColour } from "@/lib/schemas/colour";
 import { localeHref } from "@/lib/locale-href";
-import { Section, Container, EditorialLayout } from "@/components/layout";
-import { MediaFrame } from "@/components/layout/media-frame";
+import { Section, Container } from "@/components/layout";
 import { TextLink } from "@/components/ui/text-link";
 import { LinkButton } from "@/components/ui/link-button";
 import { Swatch } from "@/components/ui/swatch";
-import { ImagePlaceholder } from "@/components/home/image-placeholder";
 
 function hexToSoftWash(hex: string): string {
   const value = hex.replace("#", "");
@@ -25,10 +23,11 @@ function hexToSoftWash(hex: string): string {
 /**
  * "Колір у масі" palette (Prompt 4 §5). No real per-colour product photo
  * exists yet (the source catalog only distinguishes "base grey" vs. "own
- * colour" — see `src/lib/products.ts`), so the large photo stays a stable
- * placeholder throughout; only the swatch selection, name, reference and
- * disclaimer change. Selection is click/keyboard only — hovering a swatch
- * never swaps anything, satisfying the "no photo change on hover" rule
+ * colour" — see `src/lib/products.ts`), so rather than show a "Фото
+ * очікується" placeholder the section is swatch-led: a soft full-section wash
+ * hints at the active colour while the swatch selection, name, reference and
+ * disclaimer carry the block. Selection is click/keyboard only — hovering a
+ * swatch never swaps anything, satisfying the "no photo change on hover" rule
  * trivially as well as by design.
  */
 export function ColourPalette({
@@ -53,16 +52,7 @@ export function ColourPalette({
       style={{ backgroundColor: hexToSoftWash(active.digitalPreviewHex) }}
     >
       <Container>
-        <EditorialLayout
-          reverse
-          media={
-            <MediaFrame ratio="editorial-portrait">
-              <ImagePlaceholder
-                label={dictionary.megaMenu.catalog.editorialImageAlt}
-              />
-            </MediaFrame>
-          }
-        >
+        <div className="max-w-2xl">
           <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
           <h2 className="type-display-l text-text mt-(--space-xs)">
             {copy.heading}
@@ -113,7 +103,7 @@ export function ColourPalette({
               {copy.viewAllCta}
             </TextLink>
           </div>
-        </EditorialLayout>
+        </div>
       </Container>
     </Section>
   );
