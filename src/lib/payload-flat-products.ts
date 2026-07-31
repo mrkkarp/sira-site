@@ -164,6 +164,17 @@ function payloadDocToFlatProduct(
         description,
         leadTimeWeeks: snapshot?.customColour?.leadTimeWeeks,
         mayBeOutOfStock: snapshot?.customColour?.mayBeOutOfStock,
+        // A custom RAL/NCS colour routes to the consultation CTA by default —
+        // its final price/feasibility needs confirming. An admin opts a
+        // specific product's custom colourway into direct checkout by marking
+        // that variant "В наявності" (inStock) with a real price; every other
+        // status (the default "madeToOrder", "quoteOnly", "unavailable"…)
+        // keeps it a consultation. Left `undefined` when there is no Payload
+        // variant (snapshot-only), so `buildVariantModel` applies the same
+        // "consultation by default" rule.
+        contactRequired: customVariant
+          ? customVariant.status !== "inStock"
+          : undefined,
       }
     : undefined;
 

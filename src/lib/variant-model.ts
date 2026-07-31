@@ -20,6 +20,11 @@ import type { Product, ProductVariant } from "@/lib/schemas/product";
  */
 export type VariantOptionKind = "colour" | "mount" | "size" | "technical";
 
+/** Distinguishes a concrete, catalogued colourway ("standard") from the
+ * open-ended custom RAL/NCS colour option ("custom"). Drives the two labeled
+ * sections and the differing price/CTA treatment in the colour selector. */
+export type ColourChoiceKind = "standard" | "custom";
+
 export interface VariantChoice {
   /** Stable id used in the URL and as a selection key, e.g. "base" | "custom". */
   id: string;
@@ -31,6 +36,20 @@ export interface VariantChoice {
   available: boolean;
   /** A representative photo for this choice (used for colour swatches). */
   photo?: string;
+  /** Standard (catalogued) colour vs the custom RAL/NCS option. */
+  kind: ColourChoiceKind;
+  /** The real price this choice resolves to (base price for standard, the
+   * custom-colour row's price for custom). */
+  price: number;
+  /** Extra cost of this choice over the base/standard price, always ≥ 0.
+   * Always 0 for the standard colour; 0 for a custom colour priced the same
+   * as base. Derived here as the single source of truth so the UI never
+   * recomputes a surcharge from raw prices. */
+  surcharge: number;
+  /** `true` when picking this choice must route to a consultation/quote CTA
+   * instead of direct add-to-cart (custom colours whose final price/feasibility
+   * need confirmation). Never true for the standard colour. */
+  contactRequired: boolean;
 }
 
 export interface VariantOption {
@@ -78,17 +97,30 @@ export function buildVariantModel(product: Product): VariantModel {
   const options: VariantOption[] = [];
 
   if (product.customColour) {
+    const basePrice = product.base.price;
+    const customPrice = product.customColour.price;
     const baseChoice: VariantChoice = {
       id: "base",
       label: product.base.colorLabel ?? product.base.sku,
       available: true,
       photo: product.base.photo,
+      kind: "standard",
+      price: basePrice,
+      surcharge: 0,
+      contactRequired: false,
     };
     const customChoice: VariantChoice = {
       id: "custom",
       label: product.customColour.colorLabel ?? product.customColour.sku,
       available: true,
       photo: product.customColour.photo,
+      kind: "custom",
+      price: customPrice,
+      surcharge: Math.max(0, customPrice - basePrice),
+      // A custom RAL/NCS colour defaults to a consultation flow (its final
+      // price/feasibility needs confirming); an admin can opt a specific
+      // product out via the variant status (see payload-flat-products.ts).
+      contactRequired: product.customColour.contactRequired ?? true,
     };
     options.push({
       id: "colour",

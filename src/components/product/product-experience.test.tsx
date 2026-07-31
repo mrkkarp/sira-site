@@ -105,19 +105,24 @@ describe("ProductExperience", () => {
       </ToastProvider>,
     );
 
-    const swatches = screen.getAllByRole("option");
-    fireEvent.click(swatches[1]);
+    const radios = screen.getAllByRole("radio");
+    fireEvent.click(radios[1]);
 
     expect(push).toHaveBeenCalledWith("/uk/products/odri?colour=custom", {
       scroll: false,
     });
-    // The "Отримати прорахунок" quote flow replaces add-to-cart for the
-    // custom-colour selection — never both at once.
+    // The calm consultation CTA replaces add-to-cart for the custom colour —
+    // never both at once, and never an auto-appearing quote form/popup.
     expect(
-      screen.getByRole("button", { name: dictionary.product.requestQuoteCta }),
+      screen.getByRole("button", { name: dictionary.product.contactColourCta }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: dictionary.product.addToCartCta }),
+    ).not.toBeInTheDocument();
+    // The lead form is NOT auto-shown — its submit button only appears after
+    // the shopper explicitly opens the consultation CTA.
+    expect(
+      screen.queryByRole("button", { name: dictionary.product.requestQuoteCta }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(dictionary.shop.productCard.fromPricePrefix),
@@ -126,6 +131,35 @@ describe("ProductExperience", () => {
       "src",
       expect.stringContaining("odri-custom"),
     );
+  });
+
+  it("reveals the quote form only after an explicit click on the consultation CTA (no popup)", async () => {
+    const dictionary = await getDictionary("uk");
+    render(
+      <ToastProvider>
+        <ProductExperience
+          product={odriProduct()}
+          dictionary={dictionary}
+          locale="uk"
+          basePath="/uk/products/odri"
+          initialSelection={{ colour: "custom" }}
+          brokenImageLabel="broken"
+        />
+      </ToastProvider>,
+    );
+    // No form yet.
+    expect(
+      screen.queryByRole("button", { name: dictionary.product.requestQuoteCta }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: dictionary.product.contactColourCta }),
+    );
+
+    // Now the inline lead form (with its submit button) is present.
+    expect(
+      screen.getByRole("button", { name: dictionary.product.requestQuoteCta }),
+    ).toBeInTheDocument();
   });
 
   it("restores the custom-colour selection from the initial (URL-derived) selection after a refresh", async () => {
@@ -143,12 +177,15 @@ describe("ProductExperience", () => {
       </ToastProvider>,
     );
     expect(
-      screen.getByRole("button", { name: dictionary.product.requestQuoteCta }),
+      screen.getByRole("button", { name: dictionary.product.contactColourCta }),
     ).toBeInTheDocument();
-    const selected = within(screen.getByRole("listbox")).getByRole("option", {
-      selected: true,
+    const selected = within(screen.getByRole("radiogroup")).getByRole("radio", {
+      checked: true,
     });
-    expect(selected).toHaveAttribute("aria-label", "Свій колір");
+    expect(selected).toHaveAttribute(
+      "aria-label",
+      dictionary.product.colourCustomOptionTitle,
+    );
   });
 
   it("renders a plain add-to-cart button with no quote form for a single-variant product", async () => {
@@ -174,7 +211,7 @@ describe("ProductExperience", () => {
         />
       </ToastProvider>,
     );
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: dictionary.product.addToCartCta }),
     ).toBeInTheDocument();

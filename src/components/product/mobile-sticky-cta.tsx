@@ -20,7 +20,7 @@ export function MobileStickyCta({
   hideForCookieBanner,
   product,
   variant,
-  isCustomColour,
+  contactRequired,
   onRequestQuote,
   dictionary,
   locale,
@@ -29,7 +29,9 @@ export function MobileStickyCta({
   hideForCookieBanner: boolean;
   product: Product;
   variant: ProductVariant | undefined;
-  isCustomColour: boolean;
+  /** True when the resolved (custom) colour routes to a consultation CTA
+   * instead of add-to-cart — mirrors `ProductExperience`'s desktop flow. */
+  contactRequired: boolean;
   onRequestQuote: () => void;
   dictionary: Dictionary;
   locale: Locale;
@@ -63,14 +65,14 @@ export function MobileStickyCta({
             ) : null}
           </div>
         </div>
-        {isCustomColour ? (
+        {contactRequired ? (
           <Button
             type="button"
             size="sm"
             onClick={onRequestQuote}
             className="shrink-0"
           >
-            {dictionary.product.requestQuoteCta}
+            {dictionary.product.contactColourCta}
           </Button>
         ) : (
           <Button

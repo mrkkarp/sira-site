@@ -22,15 +22,24 @@ import { Badge } from "@/components/ui/badge";
 export function ProductCoreInfo({
   product,
   variant,
-  showFromPrefix,
+  priceDisplay,
   locale,
   dictionary,
 }: {
   product: Product;
   variant: ProductVariant;
-  /** True while showing the default/lowest price before the shopper has
-   * settled on a specific variant (mirrors `ProductCard`'s "from" price). */
-  showFromPrefix: boolean;
+  /** How to present the resolved variant's price (computed in
+   * `ProductExperience` from the real variant/choice data):
+   *  - `"fixed"`   — a plain exact price;
+   *  - `"from"`    — a "від"/"from" floor (a standard colour is shown but a
+   *                  differently-priced or consultation-only custom colour
+   *                  exists, so this is the starting price);
+   *  - `"surcharge"` — an exact price plus the real per-colour surcharge. */
+  priceDisplay: {
+    type: "fixed" | "from" | "surcharge";
+    amount: number;
+    surcharge: number;
+  };
   locale: Locale;
   dictionary: Dictionary;
 }) {
@@ -42,13 +51,22 @@ export function ProductCoreInfo({
       <p className="type-caption text-text-muted">{typeLabel}</p>
       <h1 className="type-h2 text-text">{product.name}</h1>
 
-      <div className="flex flex-wrap items-baseline gap-(--space-2xs)">
-        {showFromPrefix ? (
-          <span className="type-caption text-text-muted">
-            {cardCopy.fromPricePrefix}
+      <div className="flex flex-col gap-(--space-3xs)">
+        <div className="flex flex-wrap items-baseline gap-(--space-2xs)">
+          {priceDisplay.type === "from" ? (
+            <span className="type-caption text-text-muted">
+              {cardCopy.fromPricePrefix}
+            </span>
+          ) : null}
+          <Price amount={priceDisplay.amount} locale={locale} />
+        </div>
+        {priceDisplay.type === "surcharge" ? (
+          <span className="type-caption text-text-muted inline-flex items-baseline gap-(--space-3xs)">
+            <span aria-hidden="true">+</span>
+            <Price amount={priceDisplay.surcharge} locale={locale} />
+            <span>{dictionary.product.colourSurchargeSuffix}</span>
           </span>
         ) : null}
-        <Price amount={variant.price} locale={locale} />
       </div>
 
       <div className="flex flex-wrap gap-(--space-3xs)">

@@ -107,6 +107,15 @@ export const ProductVariantSchema = z.object({
    * `parseMayBeOutOfStock`. `undefined` (not `false`) when the source is
    * silent — silence is not proof of "always in stock". */
   mayBeOutOfStock: z.boolean().optional(),
+  /** Presentation flag for the colour selector: `true` marks a variant that
+   * cannot be bought directly and must instead route the shopper to a
+   * consultation/quote CTA (a custom RAL/NCS colour whose final price and
+   * feasibility need confirmation). `undefined`/`false` means the variant is
+   * directly orderable at its stated `price`. Never applies to the base
+   * (standard) colour. Derived from the Payload variant status in
+   * `payload-flat-products.ts`; defaults to "consultation" for a custom
+   * colour when unspecified (see `buildVariantModel`). */
+  contactRequired: z.boolean().optional(),
 });
 export type ProductVariant = z.infer<typeof ProductVariantSchema>;
 

@@ -28,6 +28,7 @@ import { ColourSelector } from "@/components/product/colour-selector";
 import { AddToCartButton } from "@/components/product/add-to-cart-button";
 import { QuoteRequestForm } from "@/components/product/quote-request-form";
 import { MobileStickyCta } from "@/components/product/mobile-sticky-cta";
+import { Button } from "@/components/ui/button";
 
 function subscribeToConsentDecision(onChange: () => void) {
   window.addEventListener("storage", onChange);
@@ -78,15 +79,58 @@ export function ProductExperience({
     [product, variant],
   );
 
-  const isCustomColour =
-    Boolean(product.customColour) && resolved.variant === product.customColour;
-  const showFromPrefix = Boolean(product.customColour) && !isCustomColour;
   const colourOption = model.options.find((option) => option.id === "colour");
+  const colourChoices = colourOption?.choices ?? [];
+  const resolvedColourChoice = colourChoices.find(
+    (choice) => choice.id === resolved.selection.colour,
+  );
+  const customChoice = colourChoices.find((choice) => choice.kind === "custom");
+
+  // Custom colours route to a consultation CTA (not a modal) instead of the
+  // direct add-to-cart flow. Driven entirely by the resolved choice's data
+  // flag so it's universal — a custom colourway an admin marks as directly
+  // orderable simply reports `contactRequired: false` and buys normally.
+  const contactRequired = resolvedColourChoice?.contactRequired ?? false;
+
+  // How to present the resolved variant's price (§3/§6): an exact surcharge
+  // for a pricier custom colour, a "from" floor while a standard colour is
+  // shown but a differently-priced/consultation custom option exists, or a
+  // plain fixed price otherwise. Never fabricates a number.
+  const priceDisplay: {
+    type: "fixed" | "from" | "surcharge";
+    amount: number;
+    surcharge: number;
+  } = (() => {
+    if (resolvedColourChoice?.kind === "custom" && resolvedColourChoice.surcharge > 0) {
+      return {
+        type: "surcharge",
+        amount: variant.price,
+        surcharge: resolvedColourChoice.surcharge,
+      };
+    }
+    const showingStandard =
+      !resolvedColourChoice || resolvedColourChoice.kind === "standard";
+    if (
+      showingStandard &&
+      customChoice &&
+      (customChoice.surcharge > 0 || customChoice.contactRequired)
+    ) {
+      return { type: "from", amount: variant.price, surcharge: 0 };
+    }
+    return { type: "fixed", amount: variant.price, surcharge: 0 };
+  })();
+
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
 
   function handleSelect(optionId: string, choiceId: string) {
     const next = { ...selection, [optionId]: choiceId };
     setSelection(next);
     router.push(buildVariantHref(basePath, next), { scroll: false });
+  }
+
+  function revealQuoteForm() {
+    setShowQuoteForm(true);
+    quoteFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   const ctaSentinelRef = useRef<HTMLDivElement>(null);
@@ -126,7 +170,7 @@ export function ProductExperience({
         <ProductCoreInfo
           product={product}
           variant={variant}
-          showFromPrefix={showFromPrefix}
+          priceDisplay={priceDisplay}
           locale={locale}
           dictionary={dictionary}
         />
@@ -137,6 +181,7 @@ export function ProductExperience({
             selectedId={resolved.selection.colour}
             onSelect={(choiceId) => handleSelect("colour", choiceId)}
             dictionary={dictionary}
+            locale={locale}
             brokenImageLabel={brokenImageLabel}
           />
         ) : null}
@@ -155,14 +200,34 @@ export function ProductExperience({
 
         <div ref={ctaSentinelRef}>
           {resolved.isComplete && resolved.variant ? (
-            isCustomColour ? (
-              <div ref={quoteFormRef}>
-                <QuoteRequestForm
-                  dictionary={dictionary}
-                  context={buildQuoteContext(product, resolved.variant)}
-                  productId={product.slug}
-                  variantId={resolved.variant.sku}
-                />
+            contactRequired ? (
+              // §4/§5: a calm, embedded consultation CTA — never an
+              // auto-appearing modal/popup. The lead form is revealed inline
+              // only on an explicit click (progressive disclosure).
+              <div
+                ref={quoteFormRef}
+                className="flex flex-col gap-(--space-2xs)"
+              >
+                <p className="type-body-sm text-text-muted">
+                  {dictionary.product.contactColourIntro}
+                </p>
+                {showQuoteForm ? (
+                  <QuoteRequestForm
+                    dictionary={dictionary}
+                    context={buildQuoteContext(product, resolved.variant)}
+                    productId={product.slug}
+                    variantId={resolved.variant.sku}
+                  />
+                ) : (
+                  <Button
+                    type="button"
+                    variant="primary-dark"
+                    className="self-start"
+                    onClick={() => setShowQuoteForm(true)}
+                  >
+                    {dictionary.product.contactColourCta}
+                  </Button>
+                )}
               </div>
             ) : (
               <AddToCartButton
@@ -185,13 +250,8 @@ export function ProductExperience({
         hideForCookieBanner={cookieBannerUndecided}
         product={product}
         variant={resolved.isComplete ? resolved.variant : undefined}
-        isCustomColour={isCustomColour}
-        onRequestQuote={() =>
-          quoteFormRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          })
-        }
+        contactRequired={contactRequired}
+        onRequestQuote={revealQuoteForm}
         dictionary={dictionary}
         locale={locale}
       />

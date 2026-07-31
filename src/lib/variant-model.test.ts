@@ -63,6 +63,49 @@ describe("buildVariantModel", () => {
     expect(model.defaultSelection).toEqual({ colour: "base" });
   });
 
+  it("enriches each colour choice with kind, price, derived surcharge, and contact flag", () => {
+    const model = buildVariantModel(product());
+    const [base, custom] = model.options[0].choices;
+    expect(base).toMatchObject({
+      kind: "standard",
+      price: 15150,
+      surcharge: 0,
+      contactRequired: false,
+    });
+    expect(custom).toMatchObject({
+      kind: "custom",
+      price: 17150,
+      // 17150 - 15150, derived here as the single source of truth.
+      surcharge: 2000,
+      // Custom colours default to a consultation flow when unspecified.
+      contactRequired: true,
+    });
+  });
+
+  it("never reports a negative surcharge when a custom colour is cheaper/equal, and honours an explicit contact opt-out", () => {
+    const model = buildVariantModel(
+      product({
+        base: {
+          sku: "X",
+          price: 2000,
+          photo: "/x.jpg",
+          description: "",
+        },
+        customColour: {
+          sku: "X color",
+          colorLabel: "Свій колір",
+          price: 2000,
+          photo: "/x.jpg",
+          description: "",
+          contactRequired: false,
+        },
+      }),
+    );
+    const custom = model.options[0].choices[1];
+    expect(custom.surcharge).toBe(0);
+    expect(custom.contactRequired).toBe(false);
+  });
+
   it("produces zero options for a single-variant product (nothing to choose)", () => {
     const model = buildVariantModel(product({ customColour: undefined }));
     expect(model.options).toEqual([]);
