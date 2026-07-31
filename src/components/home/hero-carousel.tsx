@@ -35,7 +35,12 @@ export function HeroCarousel({
   locale: Locale;
   dictionary: Dictionary;
 }) {
-  const campaigns = heroCampaigns;
+  // Only show hero slides that have real, delivered photography — a slide
+  // still waiting on its image must never fall back to the "Фото очікується"
+  // placeholder for visitors (IMAGE_REQUIREMENTS.md bans stock/AI stand-ins).
+  // Filtering here (rather than rendering a placeholder) means an unphotographed
+  // campaign simply drops out until its image is added to `heroCampaigns`.
+  const campaigns = heroCampaigns.filter((campaign) => Boolean(campaign.image));
   const copy = dictionary.home.hero;
   const [active, setActive] = useState(0);
   const [autoplay, setAutoplay] = useState(campaigns.length > 1);
@@ -101,6 +106,10 @@ export function HeroCarousel({
   }, [autoplay, campaigns.length, scrollTrackTo]);
 
   const stopAutoplay = () => setAutoplay(false);
+
+  // Defensive: if no campaign has delivered photography yet, hide the hero
+  // rather than render an empty full-viewport frame.
+  if (campaigns.length === 0) return null;
 
   return (
     <section

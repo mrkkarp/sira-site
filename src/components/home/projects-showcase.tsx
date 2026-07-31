@@ -34,6 +34,9 @@ export function ProjectsShowcase({
     ...copy.items[index],
   }));
   const [activeIndex, setActiveIndex] = useState(0);
+  // No real projects on file → self-hide instead of rendering "Фото
+  // очікується" placeholders or demo case studies (mirrors <PressPartners>).
+  if (items.length === 0) return null;
   const active = items[activeIndex];
 
   return (

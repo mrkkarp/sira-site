@@ -69,6 +69,10 @@ export function PopularProducts({
     setActive(Math.max(0, Math.min(products.length - 1, index)));
   }, [products.length]);
 
+  // Defensive: if none of the configured popular slugs resolve to a real
+  // catalog product, hide the section rather than render an empty slider.
+  if (products.length === 0) return null;
+
   return (
     <Section spacing="xl" tone="surface">
       <Container>

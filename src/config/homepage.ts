@@ -245,40 +245,32 @@ export const paletteColourSlugs = [
 ] as const;
 
 /**
- * Demo project entries for the homepage "Реалізовані проєкти" teaser.
- * Mirrors `dictionary.home.projects.items` 1:1 by index (title/location
- * live in the dictionary, `demo: true` throughout — see
- * `src/lib/schemas/project.ts`: "No real projects are on file yet.").
+ * Homepage "Реалізовані проєкти" teaser entries. Intentionally empty: no
+ * real project has been photographed or confirmed yet, and the section must
+ * never present fabricated case studies with "Фото очікується" placeholders
+ * (Prompt 4 §9). While this stays empty, `<ProjectsShowcase>` renders `null`
+ * — the same self-hiding pattern as `pressPartners`. Populate with real
+ * `{ slug }` entries (and wire their delivered photography) to bring it back.
  */
-export const demoProjects = [
-  { slug: "private-bathroom-kyiv", demo: true },
-  { slug: "city-cafe-kyiv", demo: true },
-  { slug: "residential-courtyard-kyiv", demo: true },
-] as const;
-
-/** Demo testimonials, index-aligned with `dictionary.home.testimonials.items`. */
-export const demoTestimonials = [
-  { id: "testimonial-1", demo: true },
-  { id: "testimonial-2", demo: true },
-  { id: "testimonial-3", demo: true },
-] as const;
+export const demoProjects: { slug: string }[] = [];
 
 /**
- * Visual-diary items, index-aligned with `dictionary.home.diary.items`
- * (8 captions). No Instagram embed/API is wired up — these are meant to
- * become locally-hosted copies of real posts once delivered; sizes only
- * control the asymmetric grid span, `large` marks the one bigger frame.
+ * Homepage testimonials, index-aligned with
+ * `dictionary.home.testimonials.items`. Intentionally empty: no real review
+ * is on file, and the section must not show invented quotes. While empty,
+ * `<Testimonials>` renders `null`. Add real `{ id }` entries once collected.
  */
-export const diaryItems = [
-  { id: "diary-1", size: "large" as const },
-  { id: "diary-2", size: "small" as const },
-  { id: "diary-3", size: "small" as const },
-  { id: "diary-4", size: "small" as const },
-  { id: "diary-5", size: "small" as const },
-  { id: "diary-6", size: "small" as const },
-  { id: "diary-7", size: "small" as const },
-  { id: "diary-8", size: "small" as const },
-];
+export const demoTestimonials: { id: string }[] = [];
+
+/**
+ * Visual-diary ("Instagram") items, index-aligned with
+ * `dictionary.home.diary.items`. Intentionally empty: no real posts have
+ * been locally hosted yet and no embed/API is wired up, so the grid must not
+ * render "Фото очікується" placeholders. While empty, `<VisualDiary>`
+ * renders `null`. Populate with `{ id, size }` once real imagery is on file
+ * (`large` marks the one bigger frame in the asymmetric grid).
+ */
+export const diaryItems: { id: string; size: "large" | "small" }[] = [];
 
 /**
  * Press/partner logos — intentionally empty. No real partner has been

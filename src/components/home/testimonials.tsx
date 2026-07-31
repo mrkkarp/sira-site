@@ -21,6 +21,9 @@ export function Testimonials({ dictionary }: { dictionary: Dictionary }) {
     ...copy.items[index],
   }));
   const [active, setActive] = useState(0);
+  // No real reviews on file → the section self-hides rather than showing an
+  // empty shell or invented quotes (mirrors <PressPartners>).
+  if (items.length === 0) return null;
   const current = items[active];
 
   const go = (index: number) =>

@@ -18,7 +18,6 @@ import {
 import {
   HeroCarousel,
   QuickCategories,
-  EditorialCampaigns,
   PopularProducts,
   ColourPalette,
   SamplesBlock,
@@ -113,7 +112,11 @@ export default async function HomePage({
         dictionary={dictionary}
         categoryImages={categoryImages}
       />
-      <EditorialCampaigns locale={locale} dictionary={dictionary} />
+      {/* <EditorialCampaigns> is intentionally not mounted: every one of its
+          seven layouts is built around large editorial photography that has
+          not been delivered, so with no real media it renders only "Фото
+          очікується" placeholders. Re-add it here once real photography is on
+          file and wired into `editorialCampaigns` (see src/config/homepage.ts). */}
       <PopularProducts
         products={popularProducts}
         locale={locale}

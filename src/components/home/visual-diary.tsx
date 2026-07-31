@@ -21,6 +21,10 @@ export function VisualDiary({ dictionary }: { dictionary: Dictionary }) {
     caption: copy.items[index]?.caption ?? "",
   }));
 
+  // No real, locally-hosted posts yet → self-hide rather than render a grid
+  // of "Фото очікується" placeholders (mirrors <PressPartners>).
+  if (items.length === 0) return null;
+
   return (
     <Section spacing="xl">
       <Container>
