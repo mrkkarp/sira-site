@@ -33,7 +33,6 @@ export function ProductCard({
   dictionary: Dictionary;
   priority?: boolean;
 }) {
-  const variant = product.customColour ?? product.base;
   const typeLabel = shopCategoryLabel(product.shopCategory, dictionary);
   const href = localeHref(locale, `/products/${product.slug}`);
   const hasCustomColour = Boolean(product.customColour);
@@ -45,8 +44,12 @@ export function ProductCard({
       className="group block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-focus)"
     >
       <MediaFrame ratio="product-card">
+        {/* Always the base (hero / Payload `mainImage`) shot. Never the
+            custom-colour variant photo: for Horoshop-imported galleries the
+            "custom" photo is derived as the trailing gallery image, which is
+            frequently a dimension drawing — those must never be a card cover. */}
         <ProductImage
-          src={variant.photo}
+          src={product.base.photo}
           alt={`ODUDLAB ${product.name}, ${typeLabel.toLowerCase()}`}
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 85vw"
           priority={priority}
