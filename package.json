@@ -18,14 +18,21 @@
     "migrate": "node --env-file-if-exists=.env.local node_modules/.bin/payload migrate",
     "ci:migrate": "DATABASE_URL=\"${POSTGRES_URL_NON_POOLING:-$DATABASE_URL}\" node_modules/.bin/payload migrate",
     "ci:build": "npm run ci:migrate && npm run build",
+    "audit:facts": "node_modules/.bin/tsx scripts/audit-product-facts.ts",
     "import:horoshop": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/import-horoshop.ts",
     "import:horoshop:live": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/import-horoshop.ts --live",
-    "seed:legacy-redirects": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/seed-legacy-redirects.ts"
+    "seed:legacy-redirects": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/seed-legacy-redirects.ts",
+    "content:pilot": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/apply-pilot-content.ts",
+    "content:pilot:apply": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/apply-pilot-content.ts --apply",
+    "content:build": "node_modules/.bin/tsx scripts/build-content-drafts.ts",
+    "content:all": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/apply-pilot-content.ts --file=content-all.json",
+    "content:all:apply": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/apply-pilot-content.ts --file=content-all.json --apply"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.86.0",
     "@payloadcms/next": "^3.86.0",
     "@payloadcms/richtext-lexical": "^3.86.0",
+    "@payloadcms/storage-s3": "^3.86.0",
     "graphql": "^16.14.2",
     "next": "16.2.11",
     "payload": "^3.86.0",

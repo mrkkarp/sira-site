@@ -3,7 +3,8 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { buildConfig } from "payload";
+import { s3Storage } from "@payloadcms/storage-s3";
+import { buildConfig, type Plugin } from "payload";
 
 import { Users } from "./src/collections/Users";
 import { Media } from "./src/collections/Media";
@@ -22,6 +23,50 @@ import { ImportWarnings } from "./src/collections/ImportWarnings";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+
+/**
+ * S3 media storage (DEPLOYMENT.md → "Optional / S3-compatible media storage").
+ *
+ * Gated entirely on env presence so this is a graceful no-op until the owner
+ * provisions a bucket: with no S3 vars set the plugin is omitted and Media
+ * keeps using local disk (`staticDir: "../media"`), exactly as before — which
+ * is fine for local dev but NOT durable on Vercel (ephemeral filesystem). Set
+ * all of `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`
+ * (and `S3_ENDPOINT` for non-AWS S3-compatible hosts like Cloudflare R2 /
+ * Backblaze B2 / MinIO) to switch the `media` collection over to S3.
+ *
+ * Secrets live only in the host env (Vercel env UI / gitignored `.env.local`),
+ * never in this file or Git.
+ */
+const s3Enabled = Boolean(
+  process.env.S3_BUCKET &&
+    process.env.S3_REGION &&
+    process.env.S3_ACCESS_KEY_ID &&
+    process.env.S3_SECRET_ACCESS_KEY,
+);
+
+const plugins: Plugin[] = [];
+if (s3Enabled) {
+  plugins.push(
+    s3Storage({
+      collections: { media: true },
+      bucket: process.env.S3_BUCKET!,
+      config: {
+        region: process.env.S3_REGION!,
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+        },
+        // Custom endpoint + path-style addressing for S3-compatible hosts
+        // (R2/B2/MinIO). Omitted for real AWS S3, which uses the default
+        // virtual-hosted endpoint derived from the region.
+        ...(process.env.S3_ENDPOINT
+          ? { endpoint: process.env.S3_ENDPOINT, forcePathStyle: true }
+          : {}),
+      },
+    }),
+  );
+}
 
 /**
  * ODUDLAB admin — Payload CMS 3 config (Prompt 10 §1–§2).
@@ -89,5 +134,6 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || "",
     },
   }),
+  plugins,
   sharp,
 });

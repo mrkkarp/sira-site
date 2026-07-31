@@ -1,4 +1,6 @@
 import crypto from "node:crypto";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import type { Payload } from "payload";
 import rawSource from "@/data/products.source.json";
 import ukDictionary from "@/i18n/dictionaries/uk.json";
@@ -97,14 +99,49 @@ function sha256(input: string): string {
   return crypto.createHash("sha256").update(input).digest("hex");
 }
 
+const MIME_BY_EXT: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".avif": "image/avif",
+};
+
+function mimetypeFromName(name: string): string {
+  return MIME_BY_EXT[path.extname(name).toLowerCase()] ?? "image/jpeg";
+}
+
 async function defaultFetchPhoto(url: string): Promise<DownloadedPhoto | null> {
+  const name = url.split("/").pop()?.split("?")[0] || "photo.jpg";
+
+  // The snapshot stores photos as root-relative paths (e.g.
+  // "/products/foo.jpg") that live in `public/`. Node's `fetch()` can't
+  // resolve those — they aren't absolute URLs — so read them off disk
+  // instead. Anything with a real scheme still goes over the network.
+  const isRemote = /^https?:\/\//i.test(url);
+  if (!isRemote) {
+    try {
+      const rel = url.replace(/^\/+/, "");
+      const filePath = path.join(process.cwd(), "public", rel);
+      const data = await readFile(filePath);
+      return {
+        data,
+        mimetype: mimetypeFromName(name),
+        name,
+        size: data.byteLength,
+      };
+    } catch {
+      return null;
+    }
+  }
+
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
     const arrayBuffer = await response.arrayBuffer();
     const data = Buffer.from(arrayBuffer);
-    const mimetype = response.headers.get("content-type") || "image/jpeg";
-    const name = url.split("/").pop() || "photo.jpg";
+    const mimetype = response.headers.get("content-type") || mimetypeFromName(name);
     return { data, mimetype, name, size: data.byteLength };
   } catch {
     return null;
@@ -352,22 +389,51 @@ export async function runHoroshopImport(
       }
 
       let galleryIds: number[] | undefined;
-      if (
-        product.customColour &&
-        !(existingDoc?.gallery && existingDoc.gallery.length > 0)
-      ) {
-        const downloaded = await fetchPhoto(product.customColour.photo);
-        if (downloaded) {
-          const media = await payload.create({
-            collection: "media",
-            overrideAccess: true,
-            data: {
-              alt: `${product.name} — ${product.customColour.colorLabel ?? "свій колір"}`,
-            },
-            file: downloaded,
-          });
-          galleryIds = [media.id];
+      if (!(existingDoc?.gallery && existingDoc.gallery.length > 0)) {
+        // Link the product's full gallery, not just the main photo. The
+        // snapshot's `base.gallery` carries every image for the product
+        // (first entry is the main photo, already used as `mainImage`), so
+        // download the remainder here and dedupe by URL so the main photo
+        // isn't repeated. The custom-colour variant photo (if any) is
+        // appended so both colourways are represented in the gallery.
+        const seen = new Set<string>([product.base.photo]);
+        const galleryUrls: { url: string; alt: string }[] = [];
+        for (const url of product.base.gallery ?? []) {
+          if (seen.has(url)) continue;
+          seen.add(url);
+          galleryUrls.push({ url, alt: product.name });
         }
+        if (product.customColour && !seen.has(product.customColour.photo)) {
+          seen.add(product.customColour.photo);
+          galleryUrls.push({
+            url: product.customColour.photo,
+            alt: `${product.name} — ${product.customColour.colorLabel ?? "свій колір"}`,
+          });
+        }
+
+        const collected: number[] = [];
+        for (const { url, alt } of galleryUrls) {
+          const downloaded = await fetchPhoto(url);
+          if (downloaded) {
+            const media = await payload.create({
+              collection: "media",
+              overrideAccess: true,
+              data: { alt },
+              file: downloaded,
+            });
+            collected.push(media.id);
+          } else {
+            await recordWarning(
+              payload,
+              batch.id,
+              "product",
+              product.sku,
+              "warning",
+              `Не вдалося завантажити фото галереї "${url}" — пропущено.`,
+            );
+          }
+        }
+        if (collected.length > 0) galleryIds = collected;
       }
 
       const data = {

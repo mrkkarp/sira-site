@@ -4,6 +4,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { SearchResults } from "@/components/search/search-results";
+import { preloadProducts } from "@/lib/products";
 
 export async function generateMetadata({
   params,
@@ -44,6 +45,8 @@ export default async function SearchPage({
   const query = Array.isArray(rawQuery)
     ? (rawQuery[0] ?? "")
     : (rawQuery ?? "");
+
+  await preloadProducts();
 
   return (
     <SearchResults query={query} locale={locale} dictionary={dictionary} />

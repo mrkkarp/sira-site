@@ -4,7 +4,11 @@ import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
-import { getAllProducts, getProductBySlug } from "@/lib/products";
+import {
+  getAllProducts,
+  getProductBySlug,
+  preloadProducts,
+} from "@/lib/products";
 import { getAllProductColours } from "@/lib/product-colours";
 import {
   popularProductSlugs,
@@ -77,6 +81,7 @@ export default async function HomePage({
   if (!isLocale(locale)) notFound();
   const dictionary = await getDictionary(locale);
 
+  await preloadProducts();
   const allProducts = getAllProducts();
   const popularProducts = popularProductSlugs
     .map((slug) => allProducts.find((product) => product.slug === slug))

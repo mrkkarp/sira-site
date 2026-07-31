@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
         hostname: "odudlab.com",
         pathname: "/content/images/**",
       },
+      // Cloudflare R2 public bucket (owner-chosen "Публічний R2 + домен"
+      // delivery). Product photography imported by the Horoshop importer now
+      // lives in the `odudlab` R2 bucket and is served from this public
+      // r2.dev subdomain — the storefront resolves each Payload `Media`
+      // document to `${NEXT_PUBLIC_MEDIA_BASE_URL}/<filename>` (see
+      // src/lib/payload-flat-products.ts). Kept as an explicit host allowlist
+      // rather than a wildcard so only this bucket's CDN can be optimized.
+      {
+        protocol: "https",
+        hostname: "pub-56fa3a7086354b2397e6d9204f7702d5.r2.dev",
+        pathname: "/**",
+      },
     ],
     // Prompt 9 §5 (performance audit) — prefer AVIF, falling back to Next's
     // default WebP for browsers that don't support it yet.

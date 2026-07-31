@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getAllProducts } from "@/lib/products";
+import { getAllProductsAsync } from "@/lib/products";
 import { getAllProductColours } from "@/lib/product-colours";
 import { isLocale, defaultLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
   const dictionary = await getDictionary(locale);
   const { products, pages } = searchCatalog(query, {
-    products: getAllProducts(),
+    products: await getAllProductsAsync(),
     colours: getAllProductColours(),
     dictionary,
     limit: MAX_RESULTS_PER_GROUP,

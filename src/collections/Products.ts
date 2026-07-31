@@ -1,4 +1,6 @@
 import type {
+  CollectionAfterChangeHook,
+  CollectionAfterDeleteHook,
   CollectionBeforeChangeHook,
   CollectionConfig,
   Field,
@@ -76,6 +78,48 @@ const recordBasePriceChange: CollectionBeforeChangeHook = ({
   return data;
 };
 
+/**
+ * Storefront revalidation (owner directive #12: "verify admin changes appear
+ * on site after publish/revalidation"). When a product is created, edited or
+ * deleted in the admin, drop the Next.js cache for the storefront so the
+ * change shows up on the next request instead of being pinned to a stale
+ * static render.
+ *
+ * Deliberately guarded on `NEXT_RUNTIME`: this hook also fires during the
+ * Horoshop importer CLI (`scripts/import-horoshop.ts`, a plain `tsx` process
+ * with no Next server around it), where `revalidatePath` would throw. Skipping
+ * it there avoids 38 spurious throws per import run. `next/cache` is imported
+ * dynamically for the same reason — so merely loading `payload.config.ts` in
+ * that CLI context never pulls Next's request-scoped module in eagerly.
+ */
+async function revalidateStorefront(slug?: string | null): Promise<void> {
+  if (!process.env.NEXT_RUNTIME) return;
+  try {
+    const { revalidatePath } = await import("next/cache");
+    // Whole storefront: catalog grids, homepage, search, sitemap all read the
+    // catalog, so revalidate broadly rather than trying to enumerate routes.
+    revalidatePath("/", "layout");
+    if (slug) revalidatePath(`/products/${slug}`, "page");
+  } catch {
+    // Outside a request/render scope (or Next not initialised) — nothing to
+    // revalidate; the change is still persisted, just not force-refreshed.
+  }
+}
+
+const revalidateOnChange: CollectionAfterChangeHook = async ({ doc }) => {
+  await revalidateStorefront(
+    doc && typeof doc === "object" ? (doc as { slug?: string }).slug : undefined,
+  );
+  return doc;
+};
+
+const revalidateOnDelete: CollectionAfterDeleteHook = async ({ doc }) => {
+  await revalidateStorefront(
+    doc && typeof doc === "object" ? (doc as { slug?: string }).slug : undefined,
+  );
+  return doc;
+};
+
 // Single source of truth for variant option axes: `colour` gets a real
 // relationship field (below), every other axis is a free-text field
 // generated from this list so adding an axis never means touching two
@@ -115,6 +159,8 @@ export const Products: CollectionConfig = {
   versions: { drafts: true },
   hooks: {
     beforeChange: [recordBasePriceChange],
+    afterChange: [revalidateOnChange],
+    afterDelete: [revalidateOnDelete],
   },
   fields: [
     {

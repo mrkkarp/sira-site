@@ -57,3 +57,6 @@ next-env.d.ts
 
 # Horoshop migration exports — secrets/PII, never commit
 _horoshop-export/
+
+# Content audit output — mirrors catalogue/pricing, never commit
+/_content-audit/

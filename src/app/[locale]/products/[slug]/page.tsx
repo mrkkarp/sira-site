@@ -4,7 +4,11 @@ import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
-import { getProductBySlug, getProductsByCategory } from "@/lib/products";
+import {
+  getProductBySlug,
+  getProductsByCategory,
+  preloadProducts,
+} from "@/lib/products";
 import {
   getAllCollections,
   getCollectionProducts,
@@ -40,6 +44,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
+  await preloadProducts();
   const product = getProductBySlug(slug);
   if (!product) return {};
 
@@ -104,6 +109,7 @@ export default async function ProductPage({
 }) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
+  await preloadProducts();
   const product = getProductBySlug(slug);
   if (!product) notFound();
 

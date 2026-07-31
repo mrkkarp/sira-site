@@ -1,7 +1,11 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { ShopCategory } from "@/lib/schemas/product";
-import { getAllProducts, getProductsByCategory } from "@/lib/products";
+import {
+  getAllProducts,
+  getProductsByCategory,
+  preloadProducts,
+} from "@/lib/products";
 import { localeHref } from "@/lib/locale-href";
 import {
   parseFilters,
@@ -52,6 +56,7 @@ export async function ShopCatalog({
   category?: ShopCategory;
   searchParams: Record<string, string | string[] | undefined>;
 }) {
+  await preloadProducts();
   const basePath = localeHref(locale, category ? `/shop/${category}` : "/shop");
   const categoryProducts = category
     ? getProductsByCategory(category)

@@ -5,6 +5,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
 import { getCollectionBySlug, getCollectionProducts } from "@/lib/collections";
+import { preloadProducts } from "@/lib/products";
 import { getAllProductColours } from "@/lib/product-colours";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
 import { Container, Section, EditorialLayout } from "@/components/layout";
@@ -122,6 +123,7 @@ export default async function CollectionPage({
     );
   }
 
+  await preloadProducts();
   const products = getCollectionProducts(collection);
   const categoriesInCollection = Array.from(
     new Set(products.map((product) => product.shopCategory)),

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { locales } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
-import { getAllProducts } from "@/lib/products";
+import { getAllProductsAsync } from "@/lib/products";
 import { getAllCollections } from "@/lib/collections";
 import { shopCategories } from "@/lib/schemas/product";
 
@@ -33,9 +33,9 @@ import { shopCategories } from "@/lib/schemas/product";
  * the sitemap-level counterpart to the `alternates.languages` (hreflang)
  * already set in each page's own `generateMetadata`.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
-  const products = getAllProducts();
+  const products = await getAllProductsAsync();
   const collections = getAllCollections();
 
   const staticPaths = [
