@@ -2,11 +2,9 @@
 
 import { useRef } from "react";
 import type { KeyboardEvent } from "react";
-import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { VariantChoice } from "@/lib/variant-model";
 import { ProductImage } from "@/components/product/product-image";
-import { Price } from "@/components/ui/price";
 import { cn } from "@/lib/cn";
 
 /**
@@ -33,14 +31,12 @@ export function ColourSelector({
   selectedId,
   onSelect,
   dictionary,
-  locale,
   brokenImageLabel,
 }: {
   choices: VariantChoice[];
   selectedId: string | undefined;
   onSelect: (choiceId: string) => void;
   dictionary: Dictionary;
-  locale: Locale;
   brokenImageLabel: string;
 }) {
   const t = dictionary.product;
@@ -78,28 +74,6 @@ export function ColourSelector({
       default:
         break;
     }
-  }
-
-  /** Real, non-fabricated price signal for a custom choice: an exact surcharge
-   * when the data has one, otherwise an honest "calculated separately" note. */
-  function renderCustomPriceHint(choice: VariantChoice) {
-    if (choice.surcharge > 0) {
-      return (
-        <span className="type-caption text-text inline-flex items-baseline gap-(--space-3xs)">
-          <span aria-hidden="true">+</span>
-          <Price amount={choice.surcharge} locale={locale} />
-          <span className="text-text-muted">{t.colourSurchargeSuffix}</span>
-        </span>
-      );
-    }
-    if (choice.contactRequired) {
-      return (
-        <span className="type-caption text-text-muted">
-          {t.colourCustomQuoteHint}
-        </span>
-      );
-    }
-    return null;
   }
 
   return (
@@ -212,7 +186,6 @@ export function ColourSelector({
                       <span className="type-body-sm text-text">
                         {t.colourCustomOptionTitle}
                       </span>
-                      {renderCustomPriceHint(choice)}
                       <span className="type-caption text-text-muted">
                         {t.colourCustomNote}
                       </span>

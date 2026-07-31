@@ -38,7 +38,6 @@ async function renderSelector(
       selectedId="base"
       onSelect={onSelect}
       dictionary={dictionary}
-      locale="uk"
       brokenImageLabel="broken"
       {...overrides}
     />,
@@ -77,26 +76,4 @@ describe("ColourSelector", () => {
     ).toBeInTheDocument();
   });
 
-  it("surfaces the real surcharge on the custom colour when one exists", async () => {
-    const { dictionary } = await renderSelector();
-    expect(
-      screen.getByText(dictionary.product.colourSurchargeSuffix),
-    ).toBeInTheDocument();
-    // No "price calculated separately" note when a concrete surcharge shows.
-    expect(
-      screen.queryByText(dictionary.product.colourCustomQuoteHint),
-    ).not.toBeInTheDocument();
-  });
-
-  it("falls back to a 'calculated separately' hint for a quote-only custom colour with no surcharge", async () => {
-    const { dictionary } = await renderSelector({
-      choices: [
-        choices[0],
-        { ...choices[1], surcharge: 0, price: 15150, contactRequired: true },
-      ],
-    });
-    expect(
-      screen.getByText(dictionary.product.colourCustomQuoteHint),
-    ).toBeInTheDocument();
-  });
 });

@@ -28,18 +28,12 @@ export function ProductCoreInfo({
 }: {
   product: Product;
   variant: ProductVariant;
-  /** How to present the resolved variant's price (computed in
-   * `ProductExperience` from the real variant/choice data):
-   *  - `"fixed"`   — a plain exact price;
-   *  - `"from"`    — a "від"/"from" floor (a standard colour is shown but a
-   *                  differently-priced or consultation-only custom colour
-   *                  exists, so this is the starting price);
-   *  - `"surcharge"` — an exact price plus the real per-colour surcharge. */
-  priceDisplay: {
-    type: "fixed" | "from" | "surcharge";
-    amount: number;
-    surcharge: number;
-  };
+  /** How to present the resolved variant's full price (computed in
+   * `ProductExperience`): `"from"` shows a "від"/"from" floor (a standard
+   * colour is displayed while a custom colour also exists), `"fixed"` shows
+   * the plain price of the selected colour. Always the real variant price —
+   * never a surcharge breakdown. */
+  priceDisplay: { type: "fixed" | "from"; amount: number };
   locale: Locale;
   dictionary: Dictionary;
 }) {
@@ -51,22 +45,13 @@ export function ProductCoreInfo({
       <p className="type-caption text-text-muted">{typeLabel}</p>
       <h1 className="type-h2 text-text">{product.name}</h1>
 
-      <div className="flex flex-col gap-(--space-3xs)">
-        <div className="flex flex-wrap items-baseline gap-(--space-2xs)">
-          {priceDisplay.type === "from" ? (
-            <span className="type-caption text-text-muted">
-              {cardCopy.fromPricePrefix}
-            </span>
-          ) : null}
-          <Price amount={priceDisplay.amount} locale={locale} />
-        </div>
-        {priceDisplay.type === "surcharge" ? (
-          <span className="type-caption text-text-muted inline-flex items-baseline gap-(--space-3xs)">
-            <span aria-hidden="true">+</span>
-            <Price amount={priceDisplay.surcharge} locale={locale} />
-            <span>{dictionary.product.colourSurchargeSuffix}</span>
+      <div className="flex flex-wrap items-baseline gap-(--space-2xs)">
+        {priceDisplay.type === "from" ? (
+          <span className="type-caption text-text-muted">
+            {cardCopy.fromPricePrefix}
           </span>
         ) : null}
+        <Price amount={priceDisplay.amount} locale={locale} />
       </div>
 
       <div className="flex flex-wrap gap-(--space-3xs)">

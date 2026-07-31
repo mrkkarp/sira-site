@@ -92,32 +92,17 @@ export function ProductExperience({
   // orderable simply reports `contactRequired: false` and buys normally.
   const contactRequired = resolvedColourChoice?.contactRequired ?? false;
 
-  // How to present the resolved variant's price (§3/§6): an exact surcharge
-  // for a pricier custom colour, a "from" floor while a standard colour is
-  // shown but a differently-priced/consultation custom option exists, or a
-  // plain fixed price otherwise. Never fabricates a number.
-  const priceDisplay: {
-    type: "fixed" | "from" | "surcharge";
-    amount: number;
-    surcharge: number;
-  } = (() => {
-    if (resolvedColourChoice?.kind === "custom" && resolvedColourChoice.surcharge > 0) {
-      return {
-        type: "surcharge",
-        amount: variant.price,
-        surcharge: resolvedColourChoice.surcharge,
-      };
-    }
+  // Each colour keeps showing its own full price (as before the redesign):
+  // a "від"/"from" floor while a standard colour is displayed but a custom
+  // colour also exists, otherwise the plain price of the selected colour.
+  // No surcharge breakdown — the price shown is always the real variant price.
+  const priceDisplay: { type: "fixed" | "from"; amount: number } = (() => {
     const showingStandard =
       !resolvedColourChoice || resolvedColourChoice.kind === "standard";
-    if (
-      showingStandard &&
-      customChoice &&
-      (customChoice.surcharge > 0 || customChoice.contactRequired)
-    ) {
-      return { type: "from", amount: variant.price, surcharge: 0 };
+    if (showingStandard && customChoice) {
+      return { type: "from", amount: variant.price };
     }
-    return { type: "fixed", amount: variant.price, surcharge: 0 };
+    return { type: "fixed", amount: variant.price };
   })();
 
   const [showQuoteForm, setShowQuoteForm] = useState(false);
@@ -181,7 +166,6 @@ export function ProductExperience({
             selectedId={resolved.selection.colour}
             onSelect={(choiceId) => handleSelect("colour", choiceId)}
             dictionary={dictionary}
-            locale={locale}
             brokenImageLabel={brokenImageLabel}
           />
         ) : null}
