@@ -152,14 +152,31 @@ export function Header({
       return () => clearTimeout(timeout);
     }
 
+    // The header stack is sticky at the top, so it keeps covering the hero
+    // until the hero's bottom edge (`#hero-boundary`) scrolls *under* it.
+    // Offset the observer's root by the header height so `transparent` (white
+    // text) flips back to the solid header the instant the header stops
+    // covering the dark hero. Without this, the light text lingers over the
+    // light content directly below the hero and turns invisible — most
+    // visibly when the auto-hidden header slides back in on scroll-up.
+    const measured = stackRef.current?.getBoundingClientRect().height;
+    const cssVar = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--header-stack-height",
+      ),
+    );
+    const headerH = Math.ceil(
+      measured ?? (Number.isFinite(cssVar) ? cssVar : 0),
+    );
+
     const timeout = setTimeout(() => {
       const rect = sentinel.getBoundingClientRect();
-      setTransparent(rect.top > 0 && rect.top < window.innerHeight);
+      setTransparent(rect.top > headerH && rect.top < window.innerHeight);
     }, 0);
 
     const observer = new IntersectionObserver(
       ([entry]) => setTransparent(entry.isIntersecting),
-      { rootMargin: "-1px 0px 0px 0px", threshold: 0 },
+      { rootMargin: `-${headerH}px 0px 0px 0px`, threshold: 0 },
     );
     observer.observe(sentinel);
     return () => {
