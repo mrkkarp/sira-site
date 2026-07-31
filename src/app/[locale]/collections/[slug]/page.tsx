@@ -123,7 +123,7 @@ export default async function CollectionPage({
     );
   }
 
-  await preloadProducts();
+  await preloadProducts(locale);
   const products = getCollectionProducts(collection);
   const categoriesInCollection = Array.from(
     new Set(products.map((product) => product.shopCategory)),

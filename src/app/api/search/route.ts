@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
   const dictionary = await getDictionary(locale);
   const { products, pages } = searchCatalog(query, {
-    products: await getAllProductsAsync(),
+    products: await getAllProductsAsync(locale),
     colours: getAllProductColours(),
     dictionary,
     limit: MAX_RESULTS_PER_GROUP,

@@ -46,7 +46,7 @@ export default async function SearchPage({
     ? (rawQuery[0] ?? "")
     : (rawQuery ?? "");
 
-  await preloadProducts();
+  await preloadProducts(locale);
 
   return (
     <SearchResults query={query} locale={locale} dictionary={dictionary} />

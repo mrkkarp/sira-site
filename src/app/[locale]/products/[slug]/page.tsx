@@ -44,7 +44,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
-  await preloadProducts();
+  await preloadProducts(locale);
   const product = getProductBySlug(slug);
   if (!product) return {};
 
@@ -109,7 +109,7 @@ export default async function ProductPage({
 }) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
-  await preloadProducts();
+  await preloadProducts(locale);
   const product = getProductBySlug(slug);
   if (!product) notFound();
 

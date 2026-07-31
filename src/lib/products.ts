@@ -8,6 +8,7 @@ import {
 } from "@/lib/schemas/product";
 import { groupProductSourceRows } from "@/lib/product-grouping";
 import { loadPayloadFlatProducts } from "@/lib/payload-flat-products";
+import { defaultLocale, type Locale } from "@/i18n/config";
 
 /**
  * Presentation catalog loader. Returns presentation-ready `Product` records
@@ -37,9 +38,16 @@ import { loadPayloadFlatProducts } from "@/lib/payload-flat-products";
 
 /** One mutable holder per request (React `cache()` memoizes by args; no args
  * → a single instance per request). Populated by `preloadProducts()` (async,
- * for the Payload path) or lazily/synchronously (snapshot path). */
-const requestStore = cache((): { products: Product[] | null } => ({
+ * for the Payload path) or lazily/synchronously (snapshot path). Tracks which
+ * `locale` it was warmed for so a second warm in a different locale (rare, but
+ * e.g. metadata vs. body if they ever diverged) re-reads rather than serving
+ * the wrong language. */
+const requestStore = cache((): {
+  products: Product[] | null;
+  locale: Locale | null;
+} => ({
   products: null,
+  locale: null,
 }));
 
 function loadSnapshot(): Product[] {
@@ -47,7 +55,7 @@ function loadSnapshot(): Product[] {
   return groupProductSourceRows(rows);
 }
 
-function usePayloadSource(): boolean {
+function isPayloadSource(): boolean {
   return process.env.CATALOG_SOURCE === "payload";
 }
 
@@ -58,10 +66,15 @@ function usePayloadSource(): boolean {
  * (snapshot path) when Payload isn't the source. Every storefront entrypoint
  * that reads products calls this first.
  */
-export async function preloadProducts(): Promise<void> {
+export async function preloadProducts(
+  locale: Locale = defaultLocale,
+): Promise<void> {
   const store = requestStore();
-  if (store.products) return;
-  store.products = usePayloadSource() ? await loadPayloadFlatProducts() : loadSnapshot();
+  if (store.products && store.locale === locale) return;
+  store.products = isPayloadSource()
+    ? await loadPayloadFlatProducts(locale)
+    : loadSnapshot();
+  store.locale = locale;
 }
 
 /**
@@ -74,13 +87,16 @@ export async function preloadProducts(): Promise<void> {
  * array directly. RSC pages should keep using `preloadProducts()` + the sync
  * accessors.
  */
-export async function getAllProductsAsync(): Promise<Product[]> {
+export async function getAllProductsAsync(
+  locale: Locale = defaultLocale,
+): Promise<Product[]> {
   const store = requestStore();
-  if (store.products) return store.products;
-  const products = usePayloadSource()
-    ? await loadPayloadFlatProducts()
+  if (store.products && store.locale === locale) return store.products;
+  const products = isPayloadSource()
+    ? await loadPayloadFlatProducts(locale)
     : loadSnapshot();
   store.products = products;
+  store.locale = locale;
   return products;
 }
 
@@ -88,7 +104,7 @@ export function getAllProducts(): Product[] {
   const store = requestStore();
   if (store.products) return store.products;
 
-  if (usePayloadSource()) {
+  if (isPayloadSource()) {
     // The Payload catalog can only be read asynchronously — a sync accessor
     // reaching here means the entrypoint forgot `await preloadProducts()`.
     // Fail loudly (caught in build/smoke) rather than silently serving an

@@ -10,6 +10,7 @@ import {
 } from "@/lib/schemas/product";
 import { groupProductSourceRows } from "@/lib/product-grouping";
 import { getPayloadClient } from "@/lib/payload-client";
+import { defaultLocale, type Locale } from "@/i18n/config";
 import type {
   Product as PayloadProduct,
   Media,
@@ -186,20 +187,24 @@ function payloadDocToFlatProduct(
 
 /**
  * Loads every published Payload product and adapts it to the flat
- * presentation `Product[]`. Read with `locale: "uk"` (the storefront's flat
- * `Product` is single-language today — the default `uk` copy, exactly as the
- * snapshot path already renders; locale-aware storefront copy is a later
- * content-phase step) and `depth: 1` so `mainImage`/`gallery` come back
- * populated with their `filename` for R2 URL resolution.
+ * presentation `Product[]`, reading the localized copy (name / description /
+ * SEO) for the requested `locale`. Payload's localization has fallback on, so
+ * a locale with no own value for a field transparently resolves to the
+ * `uk` default — meaning `/en` and `/pl` show real translations where they
+ * exist and fall back to the Ukrainian source elsewhere, never blank.
+ * `depth: 1` so `mainImage`/`gallery` come back populated with their
+ * `filename` for R2 URL resolution. Photos/prices/specs are locale-invariant.
  */
-export async function loadPayloadFlatProducts(): Promise<Product[]> {
+export async function loadPayloadFlatProducts(
+  locale: Locale = defaultLocale,
+): Promise<Product[]> {
   const payload = await getPayloadClient();
   const enrichment = buildEnrichmentBySku();
 
   const result = await payload.find({
     collection: "products",
     where: { editorialStatus: { equals: "published" } },
-    locale: "uk",
+    locale,
     depth: 1,
     limit: 0,
     overrideAccess: true,

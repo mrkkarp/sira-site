@@ -81,7 +81,7 @@ export default async function HomePage({
   if (!isLocale(locale)) notFound();
   const dictionary = await getDictionary(locale);
 
-  await preloadProducts();
+  await preloadProducts(locale);
   const allProducts = getAllProducts();
   const popularProducts = popularProductSlugs
     .map((slug) => allProducts.find((product) => product.slug === slug))

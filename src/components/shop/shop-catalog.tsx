@@ -56,7 +56,7 @@ export async function ShopCatalog({
   category?: ShopCategory;
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  await preloadProducts();
+  await preloadProducts(locale);
   const basePath = localeHref(locale, category ? `/shop/${category}` : "/shop");
   const categoryProducts = category
     ? getProductsByCategory(category)
