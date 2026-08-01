@@ -136,16 +136,12 @@
     "searchPlaceholder": "Search products",
     "wishlist": "Wishlist",
     "cart": "Cart",
-    "callToOrder": "Request a call",
     "menu": "Menu"
   },
   "footer": {
     "shopHeading": "Shop",
     "infoHeading": "Information",
     "companyHeading": "Company",
-    "newsletterHeading": "Studio news",
-    "newsletterBody": "New pieces, colours and completed projects.",
-    "newsletterCta": "Subscribe",
     "copyright": "All rights reserved."
   },
   "footerLinks": {
@@ -430,20 +426,6 @@
     "publicOffer": "Public offer",
     "cookiesPolicy": "Cookies"
   },
-  "newsletter": {
-    "eyebrow": "ODUDLAB news",
-    "heading": "New pieces, materials and completed projects",
-    "body": "We share new collections, custom concrete work and materials for designers.",
-    "emailLabel": "Email address",
-    "emailPlaceholder": "you@example.com",
-    "submitCta": "Subscribe",
-    "submittingCta": "Sending…",
-    "privacyNote": "By subscribing you agree to the Privacy Policy. You can unsubscribe at any time.",
-    "successMessage": "Thanks! Check your inbox to confirm your subscription.",
-    "errorMessage": "We couldn't complete the subscription. Please try again.",
-    "invalidEmail": "Enter a valid email address.",
-    "requiredEmail": "Enter your email address."
-  },
   "contactPage": {
     "eyebrow": "Contacts",
     "heading": "Get in touch",
@@ -455,15 +437,10 @@
     "visitNote": "Our showroom and pickup point are at VDNG in Kyiv.",
     "mapCta": "Open in maps"
   },
-  "callback": {
-    "heading": "Request a call",
+  "leadFields": {
     "nameLabel": "Name",
     "phoneLabel": "Phone",
     "phonePlaceholder": "+380 __ ___ __ __",
-    "submitCta": "Request a call",
-    "submittingCta": "Sending…",
-    "successMessage": "Thanks! We'll call you back shortly.",
-    "errorMessage": "We couldn't send your request. Please try again.",
     "requiredName": "Enter your name.",
     "requiredPhone": "Enter your phone number.",
     "invalidPhone": "Enter a valid phone number."

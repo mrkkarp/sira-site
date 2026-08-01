@@ -20,8 +20,9 @@ export type QuoteRequestResponse =
 
 /**
  * "Отримати прорахунок" (product-page quote request) endpoint — Phase E.
- * Previously shared the footer's mock `/api/callback` route and only
- * carried a flattened `context` string; now a `quote`-type `LeadRequest`
+ * Long ago this shared the footer's mock callback route (since deleted
+ * along with the footer form) and only carried a flattened `context`
+ * string; now a `quote`-type `LeadRequest`
  * in its own right, carrying the real selected `productId`/`variantId`
  * (see `src/components/product/quote-request-form.tsx`) so staff — and
  * any future CRM integration — get the structured reference, not just

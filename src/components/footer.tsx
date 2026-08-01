@@ -11,8 +11,6 @@ import {
   footerLegalLinks,
 } from "@/config/footer-nav";
 import type { NavLink } from "@/config/navigation";
-import { Newsletter } from "@/components/footer/newsletter";
-import { CallbackForm } from "@/components/footer/callback-form";
 import { CustomerCareSummary } from "@/components/footer/customer-care-summary";
 import { Accordion } from "@/components/ui/accordion";
 import { LocaleSwitcher } from "@/components/locale-switcher";
@@ -57,11 +55,18 @@ function LinkColumn({
 }
 
 /**
- * Dark "production mode" footer per BRAND_VISUAL_GUIDE §2.4. Structure per
- * ПРОМПТ 3: newsletter strip, ODUDLAB info + callback form, five link
- * columns, a customer-care summary band, then the legal/locale bottom row.
- * Desktop shows six columns as a grid; below `md` the link columns collapse
- * into a keyboard-accessible Accordion (first section open by default).
+ * Dark "production mode" footer per BRAND_VISUAL_GUIDE §2.4: ODUDLAB info,
+ * five link columns, a customer-care summary band, then the legal/locale
+ * bottom row. Desktop shows six columns as a grid; below `md` the link
+ * columns collapse into a keyboard-accessible Accordion (first section open
+ * by default).
+ *
+ * ПРОМПТ 3 also specified a newsletter strip above this and a "Замовити
+ * дзвінок" form inside the ODUDLAB column. Both were removed at the owner's
+ * request — the site is not to collect subscriptions or call-back requests —
+ * so do not reinstate them from the prompt. The `/api/newsletter` and
+ * `/api/callback` endpoints went with them; only the contact, quote,
+ * designer, warranty and sample forms remain.
  */
 export function Footer({
   locale,
@@ -162,8 +167,6 @@ export function Footer({
           </a>
         </li>
       </ul>
-
-      <CallbackForm dictionary={dictionary} />
     </div>
   );
 
@@ -247,11 +250,7 @@ export function Footer({
 
   return (
     <footer className="bg-footer text-background border-t border-white/10">
-      <div className="mx-auto max-w-7xl px-6 py-(--space-lg)">
-        <Newsletter dictionary={dictionary} />
-      </div>
-
-      <div className="border-t border-white/10 px-6 py-(--space-lg)">
+      <div className="px-6 py-(--space-lg)">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-(--space-lg) lg:hidden">
           {contactBlock}
         </div>

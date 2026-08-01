@@ -136,16 +136,12 @@
     "searchPlaceholder": "Пошук товарів",
     "wishlist": "Список бажань",
     "cart": "Кошик",
-    "callToOrder": "Замовити дзвінок",
     "menu": "Меню"
   },
   "footer": {
     "shopHeading": "Каталог",
     "infoHeading": "Інформація",
     "companyHeading": "Компанія",
-    "newsletterHeading": "Новини майстерні",
-    "newsletterBody": "Нові вироби, кольори та реалізовані проєкти.",
-    "newsletterCta": "Підписатися",
     "copyright": "Усі права захищено."
   },
   "footerLinks": {
@@ -430,20 +426,6 @@
     "publicOffer": "Публічна оферта",
     "cookiesPolicy": "Cookies"
   },
-  "newsletter": {
-    "eyebrow": "Новини ODUDLAB",
-    "heading": "Нові вироби, матеріали та реалізовані проєкти",
-    "body": "Публікуємо нові колекції, нестандартні бетонні рішення та матеріали для дизайнерів.",
-    "emailLabel": "Електронна пошта",
-    "emailPlaceholder": "you@example.com",
-    "submitCta": "Підписатися",
-    "submittingCta": "Надсилаємо…",
-    "privacyNote": "Підписуючись, ви погоджуєтесь з Політикою конфіденційності. Відписатися можна в будь-який момент.",
-    "successMessage": "Дякуємо! Перевірте пошту для підтвердження підписки.",
-    "errorMessage": "Не вдалося оформити підписку. Спробуйте ще раз.",
-    "invalidEmail": "Введіть коректну електронну адресу.",
-    "requiredEmail": "Вкажіть електронну адресу."
-  },
   "contactPage": {
     "eyebrow": "Контакти",
     "heading": "Звʼяжіться з нами",
@@ -455,15 +437,10 @@
     "visitNote": "Наш шоурум і точка самовивозу розташовані на ВДНГ у Києві.",
     "mapCta": "Відкрити на карті"
   },
-  "callback": {
-    "heading": "Замовити дзвінок",
+  "leadFields": {
     "nameLabel": "Ім'я",
     "phoneLabel": "Телефон",
     "phonePlaceholder": "+380 __ ___ __ __",
-    "submitCta": "Замовити дзвінок",
-    "submittingCta": "Надсилаємо…",
-    "successMessage": "Дякуємо! Ми зателефонуємо найближчим часом.",
-    "errorMessage": "Не вдалося надіслати заявку. Спробуйте ще раз.",
     "requiredName": "Вкажіть ім'я.",
     "requiredPhone": "Вкажіть номер телефону.",
     "invalidPhone": "Введіть коректний номер телефону."

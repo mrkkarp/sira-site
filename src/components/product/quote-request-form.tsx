@@ -63,13 +63,13 @@ export function QuoteRequestForm({
       for (const issue of parsed.error.issues) {
         if (issue.path[0] === "name" && !nextErrors.name) {
           nextErrors.name = name.trim()
-            ? dictionary.callback.invalidPhone
-            : dictionary.callback.requiredName;
+            ? dictionary.leadFields.invalidPhone
+            : dictionary.leadFields.requiredName;
         }
         if (issue.path[0] === "phone" && !nextErrors.phone) {
           nextErrors.phone = phone.trim()
-            ? dictionary.callback.invalidPhone
-            : dictionary.callback.requiredPhone;
+            ? dictionary.leadFields.invalidPhone
+            : dictionary.leadFields.requiredPhone;
         }
       }
       setErrors(nextErrors);
@@ -123,7 +123,7 @@ export function QuoteRequestForm({
 
       <div>
         <VisuallyHidden as="label" htmlFor={`${baseId}-name`}>
-          <span>{dictionary.callback.nameLabel}</span>
+          <span>{dictionary.leadFields.nameLabel}</span>
         </VisuallyHidden>
         <input
           ref={nameRef}
@@ -132,7 +132,7 @@ export function QuoteRequestForm({
           autoComplete="name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder={dictionary.callback.nameLabel}
+          placeholder={dictionary.leadFields.nameLabel}
           disabled={status === "submitting"}
           aria-invalid={Boolean(errors.name)}
           aria-describedby={errors.name ? `${baseId}-name-error` : undefined}
@@ -150,7 +150,7 @@ export function QuoteRequestForm({
 
       <div>
         <VisuallyHidden as="label" htmlFor={`${baseId}-phone`}>
-          <span>{dictionary.callback.phoneLabel}</span>
+          <span>{dictionary.leadFields.phoneLabel}</span>
         </VisuallyHidden>
         <input
           ref={phoneRef}
@@ -159,7 +159,7 @@ export function QuoteRequestForm({
           autoComplete="tel"
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
-          placeholder={dictionary.callback.phonePlaceholder}
+          placeholder={dictionary.leadFields.phonePlaceholder}
           disabled={status === "submitting"}
           aria-invalid={Boolean(errors.phone)}
           aria-describedby={errors.phone ? `${baseId}-phone-error` : undefined}

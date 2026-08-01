@@ -23,13 +23,13 @@ describe("WarrantyRequestForm", () => {
     render(<WarrantyRequestForm dictionary={dictionary} />);
 
     fireEvent.change(
-      screen.getByPlaceholderText(dictionary.callback.nameLabel),
+      screen.getByPlaceholderText(dictionary.leadFields.nameLabel),
       {
         target: { value: "Марко" },
       },
     );
     fireEvent.change(
-      screen.getByPlaceholderText(dictionary.callback.phonePlaceholder),
+      screen.getByPlaceholderText(dictionary.leadFields.phonePlaceholder),
       {
         target: { value: "+380671112233" },
       },
@@ -75,7 +75,7 @@ describe("WarrantyRequestForm", () => {
     );
 
     expect(
-      await screen.findByText(dictionary.callback.requiredName),
+      await screen.findByText(dictionary.leadFields.requiredName),
     ).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -96,13 +96,13 @@ describe("WarrantyRequestForm", () => {
     render(<WarrantyRequestForm dictionary={dictionary} />);
 
     fireEvent.change(
-      screen.getByPlaceholderText(dictionary.callback.nameLabel),
+      screen.getByPlaceholderText(dictionary.leadFields.nameLabel),
       {
         target: { value: "Марко" },
       },
     );
     fireEvent.change(
-      screen.getByPlaceholderText(dictionary.callback.phonePlaceholder),
+      screen.getByPlaceholderText(dictionary.leadFields.phonePlaceholder),
       {
         target: { value: "+380671112233" },
       },

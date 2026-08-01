@@ -153,16 +153,16 @@ export function WarrantyRequestForm({
       for (const issue of parsed.error.issues) {
         if (issue.path[0] === "name" && !nextErrors.name) {
           nextErrors.name = name.trim()
-            ? dictionary.callback.invalidPhone
-            : dictionary.callback.requiredName;
+            ? dictionary.leadFields.invalidPhone
+            : dictionary.leadFields.requiredName;
         }
         if (issue.path[0] === "phone" && !nextErrors.phone) {
           nextErrors.phone = phone.trim()
-            ? dictionary.callback.invalidPhone
-            : dictionary.callback.requiredPhone;
+            ? dictionary.leadFields.invalidPhone
+            : dictionary.leadFields.requiredPhone;
         }
         if (issue.path[0] === "email" && !nextErrors.email) {
-          nextErrors.email = dictionary.callback.invalidPhone;
+          nextErrors.email = dictionary.leadFields.invalidPhone;
         }
         if (
           issue.path[0] === "issueDescription" &&
@@ -245,7 +245,7 @@ export function WarrantyRequestForm({
 
       <div>
         <VisuallyHidden as="label" htmlFor={`${baseId}-name`}>
-          <span>{dictionary.callback.nameLabel}</span>
+          <span>{dictionary.leadFields.nameLabel}</span>
         </VisuallyHidden>
         <input
           ref={nameRef}
@@ -254,7 +254,7 @@ export function WarrantyRequestForm({
           autoComplete="name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder={dictionary.callback.nameLabel}
+          placeholder={dictionary.leadFields.nameLabel}
           disabled={status === "submitting"}
           aria-invalid={Boolean(errors.name)}
           aria-describedby={errors.name ? `${baseId}-name-error` : undefined}
@@ -272,7 +272,7 @@ export function WarrantyRequestForm({
 
       <div>
         <VisuallyHidden as="label" htmlFor={`${baseId}-phone`}>
-          <span>{dictionary.callback.phoneLabel}</span>
+          <span>{dictionary.leadFields.phoneLabel}</span>
         </VisuallyHidden>
         <input
           ref={phoneRef}
@@ -281,7 +281,7 @@ export function WarrantyRequestForm({
           autoComplete="tel"
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
-          placeholder={dictionary.callback.phonePlaceholder}
+          placeholder={dictionary.leadFields.phonePlaceholder}
           disabled={status === "submitting"}
           aria-invalid={Boolean(errors.phone)}
           aria-describedby={errors.phone ? `${baseId}-phone-error` : undefined}

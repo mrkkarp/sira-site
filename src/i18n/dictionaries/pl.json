@@ -136,16 +136,12 @@
     "searchPlaceholder": "Szukaj produktów",
     "wishlist": "Lista życzeń",
     "cart": "Koszyk",
-    "callToOrder": "Zamów rozmowę",
     "menu": "Menu"
   },
   "footer": {
     "shopHeading": "Sklep",
     "infoHeading": "Informacje",
     "companyHeading": "Firma",
-    "newsletterHeading": "Nowości pracowni",
-    "newsletterBody": "Nowe produkty, kolory i zrealizowane projekty.",
-    "newsletterCta": "Subskrybuj",
     "copyright": "Wszelkie prawa zastrzeżone."
   },
   "footerLinks": {
@@ -430,20 +426,6 @@
     "publicOffer": "Oferta publiczna",
     "cookiesPolicy": "Cookies"
   },
-  "newsletter": {
-    "eyebrow": "Nowości ODUDLAB",
-    "heading": "Nowe produkty, materiały i zrealizowane projekty",
-    "body": "Publikujemy nowe kolekcje, niestandardowe rozwiązania betonowe i materiały dla projektantów.",
-    "emailLabel": "Adres e-mail",
-    "emailPlaceholder": "you@example.com",
-    "submitCta": "Subskrybuj",
-    "submittingCta": "Wysyłanie…",
-    "privacyNote": "Subskrybując, akceptujesz Politykę prywatności. Możesz zrezygnować w dowolnym momencie.",
-    "successMessage": "Dziękujemy! Sprawdź skrzynkę, aby potwierdzić subskrypcję.",
-    "errorMessage": "Nie udało się zapisać subskrypcji. Spróbuj ponownie.",
-    "invalidEmail": "Podaj prawidłowy adres e-mail.",
-    "requiredEmail": "Podaj adres e-mail."
-  },
   "contactPage": {
     "eyebrow": "Kontakt",
     "heading": "Skontaktuj się z nami",
@@ -455,15 +437,10 @@
     "visitNote": "Nasz showroom i punkt odbioru znajdują się na terenie VDNG w Kijowie.",
     "mapCta": "Otwórz w mapach"
   },
-  "callback": {
-    "heading": "Zamów rozmowę",
+  "leadFields": {
     "nameLabel": "Imię",
     "phoneLabel": "Telefon",
     "phonePlaceholder": "+380 __ ___ __ __",
-    "submitCta": "Zamów rozmowę",
-    "submittingCta": "Wysyłanie…",
-    "successMessage": "Dziękujemy! Oddzwonimy wkrótce.",
-    "errorMessage": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie.",
     "requiredName": "Podaj imię.",
     "requiredPhone": "Podaj numer telefonu.",
     "invalidPhone": "Podaj prawidłowy numer telefonu."

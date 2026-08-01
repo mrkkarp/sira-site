@@ -3,14 +3,14 @@ import "server-only";
 /**
  * The one place an outbound staff email is actually sent.
  *
- * Three separate paths notify ODUDLAB staff — new leads
- * (`lead-notification-adapter.ts`), new orders
- * (`order-notification-adapter.ts`) and newsletter subscriptions
- * (`/api/newsletter`) — and each one had, or would have had, its own copy
- * of the same Resend POST. Copies drift: a header fixed in one, a timeout
- * added to another, and the path nobody tested silently stops delivering.
- * They share this instead, and keep only their own subject/body and their
- * own failure code.
+ * Separate paths notify ODUDLAB staff — new leads
+ * (`lead-notification-adapter.ts`) and new orders
+ * (`order-notification-adapter.ts`); a third, newsletter subscriptions,
+ * existed until the footer form was removed. Each one had, or would have
+ * had, its own copy of the same Resend POST. Copies drift: a header fixed
+ * in one, a timeout added to another, and the path nobody tested silently
+ * stops delivering. They share this instead, and keep only their own
+ * subject/body and their own failure code.
  */
 
 export interface StaffEmailConfig {

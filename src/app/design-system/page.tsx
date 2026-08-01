@@ -314,7 +314,7 @@ export default function DesignSystemPage() {
           <Modal
             open={modalOpen}
             onClose={() => setModalOpen(false)}
-            title="Замовити дзвінок"
+            title="Приклад модального вікна"
           >
             <p className="type-body-sm text-text-muted">
               Modal content example.

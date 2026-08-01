@@ -26,13 +26,13 @@ describe("QuoteRequestForm", () => {
     );
 
     fireEvent.change(
-      screen.getByPlaceholderText(dictionary.callback.nameLabel),
+      screen.getByPlaceholderText(dictionary.leadFields.nameLabel),
       {
         target: { value: "Марко" },
       },
     );
     fireEvent.change(
-      screen.getByPlaceholderText(dictionary.callback.phonePlaceholder),
+      screen.getByPlaceholderText(dictionary.leadFields.phonePlaceholder),
       {
         target: { value: "+380671112233" },
       },
@@ -71,7 +71,7 @@ describe("QuoteRequestForm", () => {
     );
 
     expect(
-      await screen.findByText(dictionary.callback.requiredName),
+      await screen.findByText(dictionary.leadFields.requiredName),
     ).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
