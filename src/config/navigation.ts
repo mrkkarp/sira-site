@@ -102,13 +102,25 @@ export type MegaMenuKey = "catalog" | "collections" | "brand" | "designers";
 
 type PrimaryNavItem = { key: string; href: string; mega?: MegaMenuKey };
 
-/** Top-level header nav — `mega` names one of the menus above; omit for a plain link. */
+/**
+ * Top-level header nav — `mega` names one of the menus above; omit for a
+ * plain link.
+ *
+ * Four items, deliberately: the header is a row of fixed-width bordered
+ * cells, and a longer list either shrinks the cells below readability or
+ * wraps. Колекції, Кольори and Дизайнерам were removed at the owner's
+ * request. They are NOT gone from the site — `/collections` and `/colours`
+ * moved into `footerCatalogLinks`, `/designers` was already in
+ * `footerDesignerLinks`, and `src/components/header/mobile-menu.tsx` keeps
+ * its own hand-written links to all three. Adding an item back here means
+ * checking the cell row still fits at the `lg` breakpoint.
+ *
+ * `collectionsMenu` and `designersMenu` above are consequently no longer
+ * reachable from the desktop header; the mobile menu still renders both.
+ */
 export const primaryNav: PrimaryNavItem[] = [
   { key: "shop", href: "/shop", mega: "catalog" },
-  { key: "collections", href: "/collections", mega: "collections" },
-  { key: "colours", href: "/colours" },
   { key: "projects", href: "/projects" },
   { key: "brand", href: "/about", mega: "brand" },
-  { key: "designers", href: "/designers", mega: "designers" },
   { key: "contact", href: "/contact" },
 ];

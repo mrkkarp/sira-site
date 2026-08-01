@@ -15,11 +15,6 @@
     "resources": "Materiały",
     "contact": "Kontakt"
   },
-  "announcement": {
-    "message": "Większość produktów wykonujemy na zamówienie — czas realizacji od 3 tygodni. Potwierdź aktualny termin przed zamówieniem.",
-    "messageShort": "Realizacja — od 3 tygodni",
-    "cta": "Skontaktuj się"
-  },
   "megaMenu": {
     "catalog": {
       "categoriesHeading": "Kategorie",
@@ -33,6 +28,8 @@
       "outdoor": "Meble zewnętrzne",
       "custom": "Realizacje indywidualne",
       "samples": "Próbki materiałów",
+      "collections": "Kolekcje",
+      "colours": "Kolory",
       "sinkTypeHeading": "Umywalki wg typu",
       "sinkCountertop": "Nablatowe",
       "sinkWallMounted": "Naścienne",

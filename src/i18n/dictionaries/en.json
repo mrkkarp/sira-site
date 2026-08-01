@@ -15,11 +15,6 @@
     "resources": "Resources",
     "contact": "Contact"
   },
-  "announcement": {
-    "message": "Most pieces are made to order — lead time from 3 weeks. Confirm the current lead time before ordering.",
-    "messageShort": "Lead time — from 3 weeks",
-    "cta": "Get in touch"
-  },
   "megaMenu": {
     "catalog": {
       "categoriesHeading": "Categories",
@@ -33,6 +28,8 @@
       "outdoor": "Outdoor furniture",
       "custom": "Custom manufacturing",
       "samples": "Material samples",
+      "collections": "Collections",
+      "colours": "Colours",
       "sinkTypeHeading": "Sinks by type",
       "sinkCountertop": "Countertop",
       "sinkWallMounted": "Wall-mounted",

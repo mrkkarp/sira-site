@@ -4,19 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Locale } from "@/i18n/config";
+import { locales, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
-import { localeHref } from "@/lib/locale-href";
+import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
-import {
-  primaryNav,
-  collectionsMenu,
-  brandMenu,
-  designersMenu,
-} from "@/config/navigation";
+import { primaryNav, brandMenu } from "@/config/navigation";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-import { AnnouncementBar } from "@/components/header/announcement-bar";
 import { CatalogMenuContent } from "@/components/header/catalog-menu-content";
 import { SimpleMenuContent } from "@/components/header/simple-menu-content";
 import { CartButton } from "@/components/header/cart-button";
@@ -187,6 +181,40 @@ export function Header({
 
   const showTransparent = transparent && !anyOverlayOpen;
 
+  // The bar is a row of cells separated by hairline rules. Over a dark hero
+  // the bar has no background of its own, so the rules can't use
+  // `--color-border` (a light warm taupe, invisible on the hero photo) —
+  // they follow the inverted text colour instead, at low alpha so they read
+  // as dividers rather than a table.
+  const cellRule = showTransparent ? "border-current/30" : "border-border";
+  // Inverted fill for the current page / open menu, mirroring the reference
+  // header. It has to flip with the bar: over a dark hero the "ink" is the
+  // light colour, so filling with `--color-text` there would be invisible.
+  const cellActive = showTransparent
+    ? "bg-background text-text"
+    : "bg-text text-background";
+  const cellIdle = showTransparent
+    ? "hover:bg-background/15"
+    : "hover:bg-text/5";
+  const navCell =
+    "type-nav flex h-full items-center justify-center px-(--space-md) text-center uppercase tracking-[0.06em] whitespace-nowrap transition-colors duration-(--duration-fast)";
+
+  // A nav cell is "current" for its own page and anything nested under it, so
+  // /shop/sinks keeps Каталог lit. An open mega-menu also lights its own
+  // cell, which is why this is OR-ed with `openMenu` at each call site.
+  //
+  // Compare on the BARE path, never on `localeHref(locale, href)`. The uk
+  // locale is unprefixed in the address bar, but `src/proxy.ts` rewrites
+  // `/projects` to `/uk/projects` — so on a statically prerendered page
+  // `usePathname()` returns the prefixed form during SSR and the unprefixed
+  // form after hydration. Matching against the built href therefore missed
+  // every uk page in the server HTML (and would have flipped the highlight on
+  // hydration). Stripping the prefix makes both forms agree.
+  const barePath = stripLocaleFromPathname(pathname, locales);
+  function isCurrent(href: string) {
+    return barePath === href || barePath.startsWith(`${href}/`);
+  }
+
   return (
     <>
       <div ref={stackRef} className="sticky top-0 z-40">
@@ -196,19 +224,24 @@ export function Header({
             hidden && !anyOverlayOpen && "-translate-y-full",
           )}
         >
-          <AnnouncementBar locale={locale} dictionary={dictionary} />
           <div
             ref={barRef}
             onFocusCapture={() => setHidden(false)}
             className={cn(
-              "transition-colors duration-(--duration-normal)",
+              "border-b transition-colors duration-(--duration-normal)",
+              cellRule,
               showTransparent
                 ? "text-background bg-transparent"
-                : "bg-background text-text border-border border-b",
+                : "bg-background text-text",
             )}
           >
-            <div className="mx-auto grid h-20 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-6 px-6">
-              <div className="col-start-1 flex items-center gap-(--space-xs)">
+            <div className="mx-auto flex h-16 max-w-7xl items-stretch px-6">
+              <div
+                className={cn(
+                  "flex items-center gap-(--space-xs) border-r pr-(--space-md)",
+                  cellRule,
+                )}
+              >
                 <button
                   type="button"
                   aria-label={dictionary.mobileMenu.openLabel}
@@ -232,42 +265,37 @@ export function Header({
 
               <nav
                 aria-label={dictionary.header.menu}
-                className="col-start-2 hidden lg:flex lg:items-center lg:justify-center lg:gap-6"
+                className="hidden lg:flex lg:items-stretch"
               >
-                {primaryNav.map((item) =>
-                  item.mega ? (
+                {primaryNav.map((item) => {
+                  const label =
+                    dictionary.nav[item.key as keyof typeof dictionary.nav];
+                  const active = isCurrent(item.href) || openMenu === item.mega;
+
+                  return item.mega ? (
                     <MegaMenu
                       key={item.key}
                       menuKey={item.mega}
                       openKey={openMenu}
                       onOpenChange={setOpenMenu}
-                      label={
-                        dictionary.nav[item.key as keyof typeof dictionary.nav]
-                      }
+                      label={label}
                       width={item.mega === "catalog" ? "full" : "auto"}
+                      className={cn("border-r", cellRule)}
+                      triggerClassName={cn(
+                        navCell,
+                        active ? cellActive : cellIdle,
+                      )}
                     >
                       {item.mega === "catalog" ? (
                         <CatalogMenuContent
                           locale={locale}
                           dictionary={dictionary}
                         />
-                      ) : item.mega === "collections" ? (
-                        <SimpleMenuContent
-                          locale={locale}
-                          items={collectionsMenu}
-                          labels={dictionary.megaMenu.collections}
-                        />
-                      ) : item.mega === "brand" ? (
+                      ) : (
                         <SimpleMenuContent
                           locale={locale}
                           items={brandMenu}
                           labels={dictionary.megaMenu.brand}
-                        />
-                      ) : (
-                        <SimpleMenuContent
-                          locale={locale}
-                          items={designersMenu}
-                          labels={dictionary.megaMenu.designers}
                         />
                       )}
                     </MegaMenu>
@@ -275,20 +303,32 @@ export function Header({
                     <Link
                       key={item.key}
                       href={localeHref(locale, item.href)}
-                      className="type-nav py-(--space-xs) transition-colors duration-(--duration-fast) hover:opacity-70"
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        navCell,
+                        "border-r",
+                        cellRule,
+                        active ? cellActive : cellIdle,
+                      )}
                     >
-                      {dictionary.nav[item.key as keyof typeof dictionary.nav]}
+                      {label}
                     </Link>
-                  ),
-                )}
+                  );
+                })}
               </nav>
 
-              <div className="col-start-3 flex items-center justify-end gap-(--space-xs)">
+              <div className="flex-1" />
+
+              <div className="flex items-stretch">
                 <button
                   type="button"
                   aria-label={dictionary.search.openLabel}
                   onClick={() => setSearchOpen(true)}
-                  className="flex h-11 w-11 items-center justify-center"
+                  className={cn(
+                    "flex w-14 items-center justify-center border-l transition-colors duration-(--duration-fast)",
+                    cellRule,
+                    searchOpen ? cellActive : cellIdle,
+                  )}
                 >
                   <svg
                     aria-hidden="true"
@@ -313,10 +353,22 @@ export function Header({
                     />
                   </svg>
                 </button>
-                <div className="hidden lg:block">
+                <div
+                  className={cn(
+                    "hidden items-center border-l px-(--space-sm) lg:flex",
+                    cellRule,
+                  )}
+                >
                   <LocaleSwitcher locale={locale} />
                 </div>
-                <CartButton locale={locale} label={dictionary.header.cart} />
+                <div
+                  className={cn(
+                    "flex items-center justify-center border-l pl-(--space-3xs)",
+                    cellRule,
+                  )}
+                >
+                  <CartButton locale={locale} label={dictionary.header.cart} />
+                </div>
               </div>
             </div>
           </div>

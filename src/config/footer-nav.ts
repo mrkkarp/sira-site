@@ -25,6 +25,12 @@ export const footerCatalogLinks: NavLink[] = [
   { labelKey: "outdoor", href: "/shop/outdoor" },
   { labelKey: "custom", href: "/contact" },
   { labelKey: "samples", href: "/samples" },
+  // `/collections` and `/colours` live here, and only here, on desktop: both
+  // were dropped from `primaryNav` when the header was cut to four items, and
+  // the mobile menu (which is hand-written, not driven by `primaryNav`) still
+  // links them. Removing them from this column orphans both pages again.
+  { labelKey: "collections", href: "/collections" },
+  { labelKey: "colours", href: "/colours" },
   { labelKey: "allProducts", href: "/shop" },
 ];
 

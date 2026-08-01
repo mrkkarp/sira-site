@@ -95,9 +95,22 @@
 body {
   background: var(--color-background);
   color: var(--color-text);
-  /* Fallback before Header's ResizeObserver measures the real height on
-     mount — used only by hero sections' negative-margin trick below. */
-  --header-stack-height: 116px;
+}
+
+/* Fallback before Header's ResizeObserver measures the real height on mount —
+   used only by hero sections' negative-margin trick below. 65px = the bar's
+   `h-16` plus its 1px bottom border; it was 116px while an announcement bar
+   sat above the bar, and that bar has since been removed.
+
+   Declared on `:root` (i.e. <html>) and NOT on `body`, deliberately. Header
+   writes the measured height as an inline style on `document.documentElement`;
+   an inline style on <html> beats this rule, but a `body` rule would beat the
+   inherited value for everything inside <body> — which is the entire page, so
+   the measurement would silently never apply and this literal would be the
+   only value ever used. Keep the two in step anyway: this is what the first
+   paint uses, before any JS runs. */
+:root {
+  --header-stack-height: 65px;
 }
 
 * {

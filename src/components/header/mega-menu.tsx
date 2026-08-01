@@ -16,6 +16,8 @@ export function MegaMenu({
   onOpenChange,
   label,
   width = "auto",
+  className,
+  triggerClassName,
   children,
 }: {
   menuKey: string;
@@ -23,6 +25,13 @@ export function MegaMenu({
   onOpenChange: (key: string | null) => void;
   label: string;
   width?: "auto" | "full";
+  /** Applied to the positioning root — the header uses it to make this
+   *  trigger one bordered cell in the nav row. */
+  className?: string;
+  /** Applied to the trigger button. The header passes the cell's own
+   *  padding/alignment plus the inverted fill it uses for the open item, so
+   *  a mega-menu trigger and a plain nav link are visually identical cells. */
+  triggerClassName?: string;
   children: ReactNode;
 }) {
   const isOpen = openKey === menuKey;
@@ -74,14 +83,17 @@ export function MegaMenu({
   }, [isOpen]);
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className={cn("relative", className)}>
       <button
         ref={triggerRef}
         type="button"
         aria-expanded={isOpen}
         aria-controls={panelId}
         onClick={() => onOpenChange(isOpen ? null : menuKey)}
-        className="type-nav flex items-center gap-(--space-3xs) py-(--space-xs)"
+        className={cn(
+          "type-nav flex items-center gap-(--space-3xs)",
+          triggerClassName ?? "py-(--space-xs)",
+        )}
       >
         {label}
         <svg
