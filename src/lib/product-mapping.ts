@@ -96,16 +96,35 @@ export function parseDimensionsCm(fullDesc: string): {
  * invented. Products whose `fullDesc` has no "Характеристики" heading (every
  * category besides sinks, currently) simply yield an empty array.
  */
+/**
+ * Source label → stable spec key. Lets a legacy-parsed entry be filtered by
+ * key (`getInstallationSpecEntries`) instead of by its Ukrainian label, which
+ * stops working the moment labels are localized. Labels with no typed
+ * counterpart ("Колір", "Ширина / діаметр") are intentionally absent — the
+ * entry still renders, it just has no key.
+ */
+const SPEC_KEY_BY_SOURCE_LABEL: Record<string, string> = {
+  Матеріал: "material",
+  Висота: "height",
+  Ширина: "width",
+  Глибина: "depth",
+  Діаметр: "diameter",
+  Вага: "weight",
+  "Тип змішувача": "faucetType",
+  Монтаж: "mountType",
+  Підключення: "connection",
+};
+
 export function parseSpecEntries(
   fullDesc: string,
-): { label: string; value: string }[] {
+): { key?: string; label: string; value: string }[] {
   const headingIndex = fullDesc.indexOf("Характеристики");
   if (headingIndex === -1) return [];
 
   const afterHeading = fullDesc.slice(headingIndex + "Характеристики".length);
   const lines = afterHeading.split("\n").map((line) => line.trim());
 
-  const entries: { label: string; value: string }[] = [];
+  const entries: { key?: string; label: string; value: string }[] = [];
   for (const line of lines) {
     // Bare bullet markers ("-") separate entries but carry no data.
     if (line === "" || line === "-") continue;
@@ -113,7 +132,9 @@ export function parseSpecEntries(
     if (!match) continue;
     const label = match[1].trim();
     const value = match[2].trim();
-    if (label && value) entries.push({ label, value });
+    if (!label || !value) continue;
+    const key = SPEC_KEY_BY_SOURCE_LABEL[label];
+    entries.push(key ? { key, label, value } : { label, value });
   }
   return entries;
 }
@@ -179,11 +200,16 @@ function parseMeasurementValue(raw: string): ParsedMeasurement | undefined {
 /** Real "Label: value" -> Payload `specs.*` field keys this app actually has (Prompt 10 §7, verified live: material/height/diameter/weight/faucet-type/mount are the confirmed structured specs). */
 const TEXT_SPEC_LABEL_MAP: Record<
   string,
-  "material" | "faucetType" | "mountType"
+  "material" | "faucetType" | "mountType" | "connection"
 > = {
   Матеріал: "material",
   "Тип змішувача": "faucetType",
   Монтаж: "mountType",
+  // Lands in the dedicated combined `specs.connection` field (added
+  // alongside — not instead of — `wallConnection`/`floorConnection`) so the
+  // real source sentence stops being dropped on import. See the note on
+  // `mapSpecEntriesToPayloadSpecs`.
+  Підключення: "connection",
 };
 
 const MEASUREMENT_SPEC_LABEL_MAP: Record<
@@ -201,6 +227,8 @@ export interface MappedPayloadSpecs {
   material?: string;
   faucetType?: string;
   mountType?: string;
+  connection?: string;
+  colour?: string;
   height?: LengthMeasurement;
   width?: LengthMeasurement;
   depth?: LengthMeasurement;
@@ -211,21 +239,31 @@ export interface MappedPayloadSpecs {
 /**
  * Maps `parseSpecEntries()`'s real "Label: value" pairs onto the subset of
  * `Products.ts`'s typed `specs` fields this data can honestly fill
- * (Phase G, the Horoshop importer). Two real labels are deliberately left
- * unmapped rather than guessed:
- *  - "Колір" (colour) — already represented via the variant's own colour
- *    row/label, not a `specs` field.
- *  - "Підключення" (connection) — the source gives one combined free-text
- *    description (e.g. "можливе зі стіни або з підлоги", "приховане
- *    підлогове") that doesn't reliably split into the schema's separate
- *    `wallConnection`/`floorConnection` fields; forcing it into one would
- *    misrepresent which connection type the text actually describes.
+ * (Phase G, the Horoshop importer).
+ *
+ * Both previously-dropped labels are now carried, without guessing:
+ *  - "Підключення" (connection) → `specs.connection`, the dedicated combined
+ *    field. The source gives one free-text sentence (e.g. "можливе зі стіни
+ *    або з підлоги", "приховане підлогове") that does not reliably split
+ *    into the schema's separate `wallConnection`/`floorConnection` fields,
+ *    so it is stored verbatim in its own field rather than forced into one
+ *    of those two — which would misstate which connection the text means.
+ *  - "Колір" (colour) → `colour`, returned for the **caller** to route onto
+ *    the variant's colour axis. It is deliberately NOT a `specs.*` field:
+ *    colour varies per variant, while `specs` is product-level, so writing
+ *    it into `specs` would claim a single colour for a product that has two
+ *    colourways.
  */
 export function mapSpecEntriesToPayloadSpecs(
   entries: { label: string; value: string }[],
 ): MappedPayloadSpecs {
   const out: MappedPayloadSpecs = {};
   for (const { label, value } of entries) {
+    if (label === "Колір") {
+      // Returned separately (not a `specs.*` key) — see the note above.
+      out.colour = value;
+      continue;
+    }
     if (label === "Вага") {
       const measurement = parseMeasurementValue(value);
       if (measurement && measurement.unit === "kg") out.weight = measurement;

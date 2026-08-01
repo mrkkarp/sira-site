@@ -310,6 +310,23 @@ export const Products: CollectionConfig = {
         },
         { name: "wallConnection", type: "text", localized: true },
         { name: "floorConnection", type: "text", localized: true },
+        {
+          // The source export writes ONE combined "Підключення" sentence
+          // (e.g. "можливе зі стіни або з підлоги", "приховане підлогове")
+          // that does not reliably split into the separate
+          // `wallConnection`/`floorConnection` fields above — forcing it into
+          // either one would misstate which connection the text describes.
+          // So the verbatim sentence lands here, and the two typed fields
+          // stay available for when a product genuinely has separate,
+          // confirmed wall- and floor-connection facts.
+          name: "connection",
+          type: "text",
+          localized: true,
+          admin: {
+            description:
+              "Загальний опис підключення, як він поданий у джерелі (напр. «можливе зі стіни або з підлоги»). Використовуйте окремі поля вище лише коли підключення зі стіни й з підлоги описані різними, підтвердженими фактами.",
+          },
+        },
         { name: "drainage", type: "text", localized: true },
         { name: "fixingMethod", type: "text", localized: true },
         { name: "packagingType", type: "text", localized: true },

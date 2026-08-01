@@ -119,9 +119,22 @@ export const ProductVariantSchema = z.object({
 });
 export type ProductVariant = z.infer<typeof ProductVariantSchema>;
 
-/** A single real "Характеристики" entry parsed from `fullDesc` — see
- * `parseSpecEntries` in `product-mapping.ts`. Sinks only, so far. */
+/**
+ * A single real "Характеристики" entry.
+ *
+ * `label` is display text and is therefore **locale-dependent**: it is the
+ * verbatim Ukrainian source string when the entry came from the legacy
+ * snapshot, and the translated dictionary label when it was built from
+ * Payload's typed `specs` fields. So no logic may branch on `label`.
+ *
+ * `key` is the stable, locale-independent identifier of *which* spec this is
+ * (`material`, `connection`, `mountType`…) and is what filtering must use —
+ * see `getInstallationSpecEntries`. Optional because an entry parsed out of
+ * the legacy free-text block can carry a source label with no counterpart in
+ * the typed schema; those are displayed but not filterable by key.
+ */
 export const ProductSpecEntrySchema = z.object({
+  key: z.string().optional(),
   label: z.string(),
   value: z.string(),
 });

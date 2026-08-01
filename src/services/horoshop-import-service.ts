@@ -222,12 +222,83 @@ async function resolveCategoryId(
   return created.id;
 }
 
-function buildVariant(variant: SourceProduct["base"], customLabel?: string) {
+/**
+ * The one genuinely-named colour the Horoshop export actually contains
+ * ("Сірий базовий", on 31 of 67 source rows). The export's only other
+ * `color` value is "Свій колір", which is not a colour at all but the
+ * "custom RAL/NCS colour on request" signal — so it stays on the variant's
+ * free-text `custom` axis rather than becoming a Colour document. Nothing
+ * else is seeded: `src/data/product-colours.json`'s five further entries are
+ * all flagged `demo: true` (placeholders), and inventing Colour rows from
+ * them would put unconfirmed pigments in front of customers.
+ */
+const BASE_COLOUR_LABEL = "Сірий базовий";
+const BASE_COLOUR_SLUG = "siry-bazovyi";
+/** Screen approximation carried over from the demo palette file — the only
+ * hex we have for this colour. Flagged for workshop confirmation; the
+ * collection's own `disclaimer` already tells customers the on-screen value
+ * is indicative, so this is not presented as a guaranteed match. */
+const BASE_COLOUR_HEX = "#9e9d98";
+
+/**
+ * Finds (or, on a live run, creates) the Colour document for the export's
+ * base colourway, so `variants[].optionAxes.colour` becomes a real
+ * relationship instead of the colour being dropped entirely — which is what
+ * happened before: the base variant was built with no `optionAxes` at all,
+ * so "Сірий базовий" existed only in the retained JSON snapshot and never
+ * reached the database or the admin UI.
+ */
+async function resolveBaseColourId(
+  payload: Payload,
+  dryRun: boolean,
+): Promise<number | undefined> {
+  const existing = await payload.find({
+    collection: "colours",
+    where: { slug: { equals: BASE_COLOUR_SLUG } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  const existingDoc = existing.docs[0];
+  if (existingDoc) return existingDoc.id;
+  if (dryRun) return undefined;
+
+  const created = await payload.create({
+    collection: "colours",
+    locale: "uk",
+    overrideAccess: true,
+    draft: false,
+    data: {
+      _status: "published",
+      displayName: BASE_COLOUR_LABEL,
+      slug: BASE_COLOUR_SLUG,
+      digitalPreviewHex: BASE_COLOUR_HEX,
+      textMode: "dark",
+      physicalSampleAvailable: false,
+      disclaimer:
+        "Колір на екрані — орієнтовний. Точний відтінок бетону залежить від партії цементу та умов освітлення.",
+    },
+  });
+  return created.id;
+}
+
+function buildVariant(
+  variant: SourceProduct["base"],
+  customLabel?: string,
+  baseColourId?: number,
+) {
+  // A variant carries EITHER a real colour relationship (the base colourway)
+  // OR the free-text custom-colour signal — never both, since "Свій колір"
+  // means "pigment to be chosen", not a specific stocked colour.
+  const optionAxes = customLabel
+    ? { custom: customLabel }
+    : baseColourId != null
+      ? { colour: baseColourId }
+      : undefined;
   return {
     sku: variant.sku,
     price: variant.price,
     status: "madeToOrder" as const,
-    optionAxes: customLabel ? { custom: customLabel } : undefined,
+    optionAxes,
     leadTimeOverride:
       variant.leadTimeWeeks != null
         ? formatLeadTimeWeeksUk(variant.leadTimeWeeks)
@@ -252,6 +323,11 @@ export async function runHoroshopImport(
     ProductSourceFileSchema.parse(rawSource satisfies unknown[]);
   const products = groupProductSourceRows(rows);
   const rowBySku = new Map(rows.map((row) => [row.sku, row]));
+  /** Memoised across the run. The separate flag matters because a dry run
+   * legitimately resolves to `undefined` (it must not create the Colour
+   * document), and without it every product would re-run the lookup. */
+  let baseColourId: number | undefined;
+  let baseColourResolved = false;
 
   const batch = await payload.create({
     collection: "import-batches",
@@ -359,7 +435,14 @@ export async function runHoroshopImport(
         );
       }
 
-      const variants = [buildVariant(product.base)];
+      // Resolved lazily on the first product that needs it (and memoised for
+      // the rest of the run) so a dry run never creates the Colour document.
+      if (!baseColourResolved) {
+        baseColourId = await resolveBaseColourId(payload, dryRun);
+        baseColourResolved = true;
+      }
+
+      const variants = [buildVariant(product.base, undefined, baseColourId)];
       if (product.customColour)
         variants.push(
           buildVariant(product.customColour, product.customColour.colorLabel),
@@ -436,6 +519,15 @@ export async function runHoroshopImport(
         if (collected.length > 0) galleryIds = collected;
       }
 
+      // `colour` is returned by the mapper but is NOT a `specs.*` field:
+      // colour varies per variant while `specs` is product-level, so writing
+      // it there would claim one colour for a product that has two
+      // colourways. It is peeled off here — the variants above already carry
+      // the colour, via the real `optionAxes.colour` relationship for the
+      // base colourway and the free-text `custom` axis for "Свій колір".
+      const { colour: _sourceColour, ...payloadSpecs } =
+        mapSpecEntriesToPayloadSpecs(product.specEntries);
+
       const data = {
         name: product.name,
         slug: product.slug,
@@ -452,7 +544,7 @@ export async function runHoroshopImport(
         editorialStatus: "published" as const,
         stockStatus: "madeToOrder" as const,
         shortDescription: product.base.description,
-        specs: mapSpecEntriesToPayloadSpecs(product.specEntries),
+        specs: payloadSpecs,
         basePrice: product.base.price,
         ...(baseRow?.alias ? { oldUrl: `/${baseRow.alias}` } : {}),
         variants,

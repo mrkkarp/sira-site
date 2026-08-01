@@ -59,8 +59,16 @@ describe("ProductDetailsAccordion", () => {
       <ProductDetailsAccordion
         product={product({
           specEntries: [
-            { label: "Матеріал", value: "архітектурний бетон" },
-            { label: "Монтаж", value: "накладний на стільницю" },
+            {
+              key: "material",
+              label: "Матеріал",
+              value: "архітектурний бетон",
+            },
+            {
+              key: "mountType",
+              label: "Монтаж",
+              value: "накладний на стільницю",
+            },
           ],
         })}
         dictionary={dictionary}

@@ -60,3 +60,11 @@ _horoshop-export/
 
 # Content audit output — mirrors catalogue/pricing, never commit
 /_content-audit/
+
+# Database dumps taken before migrations/backfills. Full pg_dump of the live
+# Payload database — orders, leads, customer details. This repository is
+# public; these must never be committed.
+/_backups/
+
+# Local editor/agent launch config
+/.claude/

@@ -92,10 +92,20 @@ describe("parseSpecEntries", () => {
   it("parses each real 'Label: value' line, skipping bare bullet markers", () => {
     const desc =
       "Odri - раковина.\nХарактеристики\n-\nМатеріал: архітектурний бетон\n-\nВисота: 85 см\n-\nВага: ~100 кг";
+    // Each entry also carries its stable, locale-independent `key`, so
+    // downstream filtering (`getInstallationSpecEntries`) matches on that
+    // rather than on `label`, which is display text and gets localized.
     expect(parseSpecEntries(desc)).toEqual([
-      { label: "Матеріал", value: "архітектурний бетон" },
-      { label: "Висота", value: "85 см" },
-      { label: "Вага", value: "~100 кг" },
+      { key: "material", label: "Матеріал", value: "архітектурний бетон" },
+      { key: "height", label: "Висота", value: "85 см" },
+      { key: "weight", label: "Вага", value: "~100 кг" },
+    ]);
+  });
+
+  it("omits `key` for a source label with no typed-schema counterpart", () => {
+    const desc = "Опис.\nХарактеристики\n-\nОздоблення: шліфування";
+    expect(parseSpecEntries(desc)).toEqual([
+      { label: "Оздоблення", value: "шліфування" },
     ]);
   });
 
@@ -173,12 +183,26 @@ describe("mapSpecEntriesToPayloadSpecs", () => {
     });
   });
 
-  it("silently skips deliberately-unmapped labels ('Колір', 'Підключення') rather than guessing", () => {
-    const entries = [
-      { label: "Колір", value: "Сірий базовий" },
-      { label: "Підключення", value: "можливе зі стіни або з підлоги" },
-    ];
-    expect(mapSpecEntriesToPayloadSpecs(entries)).toEqual({});
+  it("carries 'Підключення' verbatim into the dedicated combined `connection` field", () => {
+    // Deliberately NOT split across `wallConnection`/`floorConnection`: the
+    // source sentence describes both possibilities at once, so assigning it
+    // to either would misstate which connection the product actually has.
+    expect(
+      mapSpecEntriesToPayloadSpecs([
+        { label: "Підключення", value: "можливе зі стіни або з підлоги" },
+      ]),
+    ).toEqual({ connection: "можливе зі стіни або з підлоги" });
+  });
+
+  it("returns 'Колір' separately from the specs, for the caller to put on the variant", () => {
+    // Colour varies per variant while `specs` is product-level, so it must
+    // not become a `specs.*` field — a product with two colourways would
+    // otherwise claim a single colour.
+    expect(
+      mapSpecEntriesToPayloadSpecs([
+        { label: "Колір", value: "Сірий базовий" },
+      ]),
+    ).toEqual({ colour: "Сірий базовий" });
   });
 
   it("returns an empty object for an empty entry list", () => {

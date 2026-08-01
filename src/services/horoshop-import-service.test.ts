@@ -10,7 +10,8 @@ import {
  * Hand-rolled in-memory fake `Payload` — same "no Payload, no Postgres"
  * approach as `order-service.test.ts`/`cart-service.test.ts`, generalised
  * across whichever collections the importer touches (`products`,
- * `categories`, `media`, `redirects`, `import-batches`, `import-warnings`).
+ * `categories`, `colours`, `media`, `redirects`, `import-batches`,
+ * `import-warnings`).
  * Only supports the exact `find`/`create`/`update` shapes
  * `horoshop-import-service.ts` actually calls (a `where: {field: {equals}}`
  * filter, `limit`, and plain `data` merges) — not a general Payload
@@ -20,6 +21,7 @@ function fakePayload(seed: Record<string, Record<string, unknown>[]> = {}) {
   const store: Record<string, Record<string, unknown>[]> = {
     products: [],
     categories: [],
+    colours: [],
     media: [],
     redirects: [],
     "import-batches": [],

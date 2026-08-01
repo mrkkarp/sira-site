@@ -10,6 +10,8 @@ import {
 } from "@/lib/schemas/product";
 import { groupProductSourceRows } from "@/lib/product-grouping";
 import { getPayloadClient } from "@/lib/payload-client";
+import { buildSpecEntriesFromPayload } from "@/lib/payload-spec-entries";
+import { getDictionary, type Dictionary } from "@/i18n/get-dictionary";
 import { defaultLocale, type Locale } from "@/i18n/config";
 import type {
   Product as PayloadProduct,
@@ -91,6 +93,8 @@ function resolveShopCategory(
 function payloadDocToFlatProduct(
   doc: PayloadProduct,
   snapshot: Product | undefined,
+  dictionary: Dictionary,
+  locale: Locale,
 ): Product {
   const payloadVariants = doc.variants ?? [];
   const baseVariant = payloadVariants[0];
@@ -131,6 +135,12 @@ function payloadDocToFlatProduct(
   const basePhoto = basePhotos[0] ?? snapshot?.base.photo ?? "";
 
   const description = doc.shortDescription ?? snapshot?.base.description ?? "";
+
+  const payloadSpecEntries = buildSpecEntriesFromPayload(
+    doc.specs,
+    dictionary,
+    locale,
+  );
 
   const base: ProductVariant = {
     sku: baseVariant?.sku ?? snapshot?.base.sku ?? doc.sku,
@@ -190,7 +200,19 @@ function payloadDocToFlatProduct(
     planterPlacement: snapshot?.planterPlacement,
     heightCm: snapshot?.heightCm,
     widthCm: snapshot?.widthCm,
-    specEntries: snapshot?.specEntries ?? [],
+    // Payload's typed `specs` group is authoritative, so editing a spec in
+    // the admin now actually changes the site and each locale renders its
+    // own translated labels/values. The retained snapshot block is used only
+    // as a fallback for a product Payload has NO specs for at all — that
+    // keeps the 22 legacy products whose characteristics still live only in
+    // the source `fullDesc` text from going blank mid-migration. It is a
+    // whole-block fallback on purpose: mixing translated Payload rows with
+    // verbatim Ukrainian snapshot rows in one table would look broken on
+    // `/en` and `/pl`.
+    specEntries:
+      payloadSpecEntries.length > 0
+        ? payloadSpecEntries
+        : (snapshot?.specEntries ?? []),
     base,
     customColour,
   });
@@ -211,6 +233,9 @@ export async function loadPayloadFlatProducts(
 ): Promise<Product[]> {
   const payload = await getPayloadClient();
   const enrichment = buildEnrichmentBySku();
+  // Spec *labels* live in the UI dictionaries (they are the same for every
+  // product), while spec *values* are per-product localized Payload fields.
+  const dictionary = await getDictionary(locale);
 
   const result = await payload.find({
     collection: "products",
@@ -222,6 +247,6 @@ export async function loadPayloadFlatProducts(
   });
 
   return (result.docs as PayloadProduct[]).map((doc) =>
-    payloadDocToFlatProduct(doc, enrichment.get(doc.sku)),
+    payloadDocToFlatProduct(doc, enrichment.get(doc.sku), dictionary, locale),
   );
 }

@@ -386,6 +386,10 @@ export interface Product {
     overflow?: string | null;
     wallConnection?: string | null;
     floorConnection?: string | null;
+    /**
+     * Загальний опис підключення, як він поданий у джерелі (напр. «можливе зі стіни або з підлоги»). Використовуйте окремі поля вище лише коли підключення зі стіни й з підлоги описані різними, підтвердженими фактами.
+     */
+    connection?: string | null;
     drainage?: string | null;
     fixingMethod?: string | null;
     packagingType?: string | null;
@@ -1201,6 +1205,7 @@ export interface ProductsSelect<T extends boolean = true> {
         overflow?: T;
         wallConnection?: T;
         floorConnection?: T;
+        connection?: T;
         drainage?: T;
         fixingMethod?: T;
         packagingType?: T;
