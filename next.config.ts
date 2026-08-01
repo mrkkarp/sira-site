@@ -36,21 +36,42 @@ const nextConfig: NextConfig = {
   // for this pass — noted here rather than shipping a broken or "unsafe-*"
   // CSP that gives false confidence.
   async headers() {
+    // Only the real production deployment may be indexed, and only while the
+    // SEO_NOINDEX kill-switch is off. Preview/development deployments (and the
+    // production deployment during the pre-launch window) get a site-wide
+    // `X-Robots-Tag: noindex` so Google never indexes staging/vercel.app URLs.
+    // This mirrors `isIndexable()` in `src/lib/seo/indexing.ts` — kept as a
+    // duplicated one-line env check because next.config is evaluated outside
+    // the app's module graph and cannot import from `src/`. A response header
+    // is used (not just `<meta robots>`) because it can't be overridden by a
+    // page's own generateMetadata, so it also covers explicitly-indexable
+    // routes like /contact and product pages.
+    const indexable =
+      process.env.SEO_NOINDEX !== "true" &&
+      process.env.VERCEL_ENV === "production";
+
+    const baseHeaders = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      // SAMEORIGIN rather than DENY: nothing in this app needs to be
+      // framed cross-origin, but Payload admin may frame same-origin
+      // previews internally.
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=()",
+      },
+    ];
+
     return [
       {
         source: "/:path*",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          // SAMEORIGIN rather than DENY: nothing in this app needs to be
-          // framed cross-origin, but Payload admin may frame same-origin
-          // previews internally.
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
-        ],
+        headers: indexable
+          ? baseHeaders
+          : [
+              ...baseHeaders,
+              { key: "X-Robots-Tag", value: "noindex, nofollow" },
+            ],
       },
     ];
   },

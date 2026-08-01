@@ -15,6 +15,7 @@ import { BackToTop } from "@/components/back-to-top";
 import { CookieConsent } from "@/components/cookie-consent";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { getSiteUrl } from "@/lib/site-url";
+import { robotsMetadata } from "@/lib/seo/indexing";
 
 const siteUrl = getSiteUrl();
 
@@ -49,13 +50,13 @@ export async function generateMetadata({
       template: `%s — ${dictionary.site.name}`,
     },
     description: dictionary.site.tagline,
-    robots: {
-      // No production domain/indexing decision has been confirmed yet —
-      // default to indexable so per-page metadata (added in a later pass,
-      // see README "what's next") can opt individual pages out as needed.
-      index: true,
-      follow: true,
-    },
+    // Indexable only on the real production deployment (and only while the
+    // SEO_NOINDEX kill-switch is off) — every non-production deploy is
+    // noindex. This `<meta robots>` agrees with the authoritative site-wide
+    // `X-Robots-Tag` header in next.config.ts; see src/lib/seo/indexing.ts.
+    // Individual routes still opt out via their own generateMetadata (e.g.
+    // placeholder pages, /search).
+    robots: robotsMetadata(),
     // Google Search Console "HTML tag" verification. Env-driven so no token is
     // invented here: set `GOOGLE_SITE_VERIFICATION` to the value GSC gives you
     // (see GOOGLE_SEARCH_CONSOLE_SETUP.md) and this emits the required
