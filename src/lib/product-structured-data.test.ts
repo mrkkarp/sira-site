@@ -9,7 +9,7 @@ function product(overrides: Partial<Product> = {}): Product {
     name: "Odri",
     sourceCategory: "Раковини/Підлогові",
     shopCategory: "sinks",
-    specEntries: [{ label: "Матеріал", value: "Бетон" }],
+    specEntries: [{ key: "material", label: "Матеріал", value: "Бетон" }],
     base: {
       sku: "Odri",
       colorLabel: "Сірий базовий",
@@ -39,9 +39,8 @@ describe("buildProductJsonLd", () => {
     expect(json.material).toBe("Бетон");
     expect(json.aggregateRating).toBeUndefined();
     expect(json.review).toBeUndefined();
-    expect(json.additionalProperty).toEqual([
-      { "@type": "PropertyValue", name: "Колір", value: "Сірий базовий" },
-    ]);
+    expect(json.color).toBe("Сірий базовий");
+    expect(json.additionalProperty).toBeUndefined();
     expect(json.offers).toMatchObject({
       url: "http://localhost:3000/products/odri",
       priceCurrency: "UAH",
@@ -51,7 +50,7 @@ describe("buildProductJsonLd", () => {
     });
   });
 
-  it("dedupes images and omits material/additionalProperty when the data doesn't have them", () => {
+  it("dedupes images and omits material/color when the data doesn't have them", () => {
     const p = product({
       specEntries: [],
       base: { sku: "SOLO", price: 9000, photo: "/solo.jpg", description: "" },
@@ -65,7 +64,41 @@ describe("buildProductJsonLd", () => {
     });
     expect(json.image).toEqual(["/solo.jpg"]);
     expect(json.material).toBeUndefined();
+    expect(json.color).toBeUndefined();
     expect(json.additionalProperty).toBeUndefined();
+  });
+
+  it("still finds the material once the spec label is translated (regression)", () => {
+    // The lookup used to match `label === "Матеріал"`, so translating the
+    // labels for /en and /pl silently dropped `material` from the structured
+    // data on exactly the pages that need it most.
+    const p = product({
+      specEntries: [
+        { key: "material", label: "Material", value: "architectural concrete" },
+      ],
+    });
+    const json = buildProductJsonLd({
+      product: p,
+      variant: p.base,
+      siteUrl: "http://localhost:3000",
+      path: "/en/products/odri",
+      brandName: "ODUDLAB",
+    });
+    expect(json.material).toBe("architectural concrete");
+  });
+
+  it("falls back to the Ukrainian label for legacy entries that carry no key", () => {
+    const p = product({
+      specEntries: [{ label: "Матеріал", value: "Бетон" }],
+    });
+    const json = buildProductJsonLd({
+      product: p,
+      variant: p.base,
+      siteUrl: "http://localhost:3000",
+      path: "/products/odri",
+      brandName: "ODUDLAB",
+    });
+    expect(json.material).toBe("Бетон");
   });
 
   it("includes the custom-colour photo alongside the base photo when selecting the custom variant", () => {

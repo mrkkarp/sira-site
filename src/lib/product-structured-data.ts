@@ -56,8 +56,13 @@ export function buildProductJsonLd({
     ),
   );
 
-  const materialEntry = product.specEntries.find(
-    (entry) => entry.label === "Матеріал",
+  // Match on the locale-independent `key`, never on `label`: the label is
+  // translated per locale ("Матеріал" / "Material" / "Materiał"), so matching
+  // it silently dropped `material` from the structured data on /en and /pl.
+  // The Ukrainian label is still accepted as a fallback for legacy entries
+  // parsed before `key` existed.
+  const materialEntry = product.specEntries.find((entry) =>
+    entry.key ? entry.key === "material" : entry.label === "Матеріал",
   );
   const [intro] = buildDescriptionSections(variant.description);
   const description = intro?.text || variant.description || undefined;
@@ -88,13 +93,11 @@ export function buildProductJsonLd({
   }
 
   if (variant.colorLabel) {
-    json.additionalProperty = [
-      {
-        "@type": "PropertyValue",
-        name: "Колір",
-        value: variant.colorLabel,
-      },
-    ];
+    // schema.org/Product has a first-class `color` property, so the colour no
+    // longer needs a custom PropertyValue whose *name* was the hardcoded
+    // Ukrainian "Колір" — that name shipped untranslated on /en and /pl, where
+    // Google reads the structured data in the page's own language.
+    json.color = variant.colorLabel;
   }
 
   return json;

@@ -17,6 +17,7 @@ import type {
   Product as PayloadProduct,
   Media,
   Category,
+  Colour,
 } from "@/payload-types";
 
 /**
@@ -74,6 +75,27 @@ function mediaUrl(
 function buildEnrichmentBySku(): Map<string, Product> {
   const rows = ProductSourceFileSchema.parse(rawSource satisfies unknown[]);
   return new Map(groupProductSourceRows(rows).map((p) => [p.sku, p]));
+}
+
+/**
+ * The base variant's colour name, in the requested locale.
+ *
+ * `optionAxes.colour` is a relationship to a Colour document whose
+ * `displayName` is localized, and the catalogue query runs at `depth: 1`, so a
+ * linked colour arrives populated and already resolved to the current locale.
+ * The snapshot's `colorLabel` is the Ukrainian string frozen at import time —
+ * it is only a fallback for the 7 products whose source export states no
+ * colour at all, where nothing better exists.
+ *
+ * Returns `undefined` for a bare id (relationship not populated), rather than
+ * silently falling back to Ukrainian, so a depth regression surfaces as a
+ * missing colour instead of an untranslated one.
+ */
+function colourLabelFromPayload(
+  colour: number | Colour | null | undefined,
+): string | undefined {
+  if (colour == null || typeof colour === "number") return undefined;
+  return colour.displayName || undefined;
 }
 
 function resolveShopCategory(
@@ -144,7 +166,9 @@ function payloadDocToFlatProduct(
 
   const base: ProductVariant = {
     sku: baseVariant?.sku ?? snapshot?.base.sku ?? doc.sku,
-    colorLabel: snapshot?.base.colorLabel,
+    colorLabel:
+      colourLabelFromPayload(baseVariant?.optionAxes?.colour) ??
+      snapshot?.base.colorLabel,
     price: baseVariant?.price ?? doc.basePrice ?? snapshot?.base.price ?? 0,
     photo: basePhoto,
     gallery: basePhotos.length > 0 ? basePhotos : undefined,
