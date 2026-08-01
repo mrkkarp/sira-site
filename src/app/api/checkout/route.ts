@@ -7,6 +7,7 @@ import { CheckoutRequestSchema } from "@/lib/schemas/checkout-request";
 import { isHoneypotTripped } from "@/lib/forms/honeypot";
 import { isRateLimited, clientKeyFromRequest } from "@/lib/forms/rate-limit";
 import { isSameOriginRequest } from "@/lib/forms/verify-same-origin";
+import { getOrderNotificationAdapter } from "@/lib/email/order-notification-adapter";
 import {
   buildLiqPayCheckoutPayload,
   type LiqPayCheckoutPayload,
@@ -84,6 +85,15 @@ export async function POST(request: NextRequest) {
     // hands a bot a signal that its submission was distinguished from
     // a real one. There is no real order to report, so a bare
     // placeholder response is the honest option here.
+    //
+    // Logged as a warning because, unlike a contact form, a false positive
+    // here costs a whole order: if an extension/password manager ever
+    // autofills the hidden field for real customers, this line is the only
+    // way to find out. The client refuses to render a confirmation for an
+    // empty order number, so such a customer sees an error and can retry.
+    console.warn(
+      "[checkout] honeypot tripped — no order was created for this submission",
+    );
     return NextResponse.json({
       ok: true,
       orderNumber: "",
@@ -140,6 +150,23 @@ export async function POST(request: NextRequest) {
     }
 
     const { order, payment } = result;
+
+    // Tell staff an order exists. Deliberately awaited (so a serverless
+    // instance can't be frozen before the request goes out) but never allowed
+    // to fail the response: the order is already committed to Postgres at this
+    // point, so turning a notification failure into a 500 would show the
+    // customer an error for an order that really was placed — and they'd
+    // re-submit it. A failure here is logged and left for the admin panel,
+    // which remains the source of truth.
+    try {
+      await getOrderNotificationAdapter().notifyNewOrder(order);
+    } catch (notificationError) {
+      console.error(
+        `[checkout] order ${order.orderNumber} was placed but the staff notification failed`,
+        notificationError,
+      );
+    }
+
     const locale = localeFromRequest(request);
     const serverBase =
       process.env.NEXT_PUBLIC_SERVER_URL ?? request.nextUrl.origin;

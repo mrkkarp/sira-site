@@ -24,23 +24,68 @@ type Status = "idle" | "submitting" | "success" | "error";
  * against the real `CustomerDetailsSchema`/`DeliveryMethodSchema` — same
  * "loose client guard, real domain schema is the source of truth" split
  * as the Phase E forms (see `callback-form.tsx`).
+ *
+ * The delivery fields are declared `optional()` because which ones apply
+ * depends on the selected delivery type, and the `superRefine` below then
+ * requires exactly the ones the server's `DeliveryMethodSchema` discriminated
+ * union requires for that type. Without that refinement the two schemas
+ * disagreed: the client happily submitted a blank city, the server rejected it
+ * with `min(1)`, and the customer got a generic "Не вдалося оформити
+ * замовлення" with no field marked — a dead end that silently costs orders.
  */
-const CheckoutFields = z.object({
-  fullName: z.string().trim().min(1),
-  phone: z.string().trim().min(7),
-  email: z.string().trim().email().optional().or(z.literal("")),
-  deliveryType: z.enum([
-    "novaPoshtaBranch",
-    "novaPoshtaCourier",
-    "courier",
-    "pickup",
-  ]),
-  cityName: z.string().trim().optional(),
-  branchNumber: z.string().trim().optional(),
-  address: z.string().trim().optional(),
-  stockistId: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
-});
+const CheckoutFields = z
+  .object({
+    fullName: z.string().trim().min(1),
+    phone: z.string().trim().min(7),
+    email: z.string().trim().email().optional().or(z.literal("")),
+    deliveryType: z.enum([
+      "novaPoshtaBranch",
+      "novaPoshtaCourier",
+      "courier",
+      "pickup",
+    ]),
+    cityName: z.string().trim().optional(),
+    branchNumber: z.string().trim().optional(),
+    address: z.string().trim().optional(),
+    stockistId: z.string().trim().optional(),
+    notes: z.string().trim().optional(),
+  })
+  .superRefine((fields, ctx) => {
+    /** Mirrors one `min(1)` branch of the server's `DeliveryMethodSchema`. */
+    const requireField = (key: keyof typeof fields) => {
+      if (!String(fields[key] ?? "").trim()) {
+        ctx.addIssue({ code: "custom", path: [key], message: "required" });
+      }
+    };
+
+    switch (fields.deliveryType) {
+      case "novaPoshtaBranch":
+        requireField("cityName");
+        requireField("branchNumber");
+        break;
+      case "novaPoshtaCourier":
+      case "courier":
+        requireField("cityName");
+        requireField("address");
+        break;
+      case "pickup":
+        requireField("stockistId");
+        break;
+    }
+  });
+
+/** Per-field messages shown inline; keys match `CheckoutFields` paths. */
+type FieldErrors = Partial<
+  Record<
+    | "fullName"
+    | "phone"
+    | "cityName"
+    | "branchNumber"
+    | "address"
+    | "stockistId",
+    string
+  >
+>;
 
 function buildDeliveryMethod(fields: z.infer<typeof CheckoutFields>) {
   switch (fields.deliveryType) {
@@ -110,7 +155,18 @@ export function CheckoutPageContent({
     stockistId: "",
     notes: "",
   });
+  /** DOM ids of the validated controls, so a failed submit can focus the first invalid one. Must stay in sync with the `FormField id={...}` props below. */
+  const fieldIds: Record<keyof FieldErrors, string> = {
+    fullName: `${baseId}-fullName`,
+    phone: `${baseId}-phone`,
+    cityName: `${baseId}-city`,
+    branchNumber: `${baseId}-branch`,
+    address: `${baseId}-address`,
+    stockistId: `${baseId}-stockist`,
+  };
+
   const [status, setStatus] = useState<Status>("idle");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<
     string | null
@@ -129,11 +185,42 @@ export function CheckoutPageContent({
     event.preventDefault();
     const parsed = CheckoutFields.safeParse(fields);
     if (!parsed.success) {
+      // Map each failed path to its own inline message so the customer can see
+      // *which* field to fix, then move focus to the first one — the same
+      // pattern the warranty form uses, and the only thing that makes a
+      // validation failure audible to a screen reader (SC 3.3.1), since the
+      // page's `aria-live` line only covers the network-failure path.
+      const nextErrors: FieldErrors = {};
+      const messages: Record<keyof FieldErrors, string> = {
+        fullName: copy.requiredFullName,
+        phone: copy.requiredPhone,
+        cityName: copy.requiredCity,
+        branchNumber: copy.requiredBranchNumber,
+        address: copy.requiredAddress,
+        stockistId: copy.requiredPickupLocation,
+      };
+
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as keyof FieldErrors;
+        if (key in messages && !nextErrors[key]) {
+          nextErrors[key] = messages[key];
+        }
+      }
+
+      setFieldErrors(nextErrors);
       setStatus("error");
       setErrorMessage(copy.invalidFormMessage);
+
+      const firstInvalid = (
+        Object.keys(messages) as (keyof FieldErrors)[]
+      ).find((key) => nextErrors[key]);
+      if (firstInvalid) {
+        document.getElementById(fieldIds[firstInvalid])?.focus();
+      }
       return;
     }
 
+    setFieldErrors({});
     setStatus("submitting");
     setErrorMessage(null);
 
@@ -168,7 +255,20 @@ export function CheckoutPageContent({
         return;
       }
 
-      setConfirmedOrderNumber(result.orderNumber ?? null);
+      // An `ok: true` with no order number is not a real order: the API
+      // returns exactly that shape for a honeypot-tripped submission, so bots
+      // can't tell they were filtered. A real visitor can hit it too (a
+      // password manager or extension autofilling the hidden `companyWebsite`
+      // input), and showing them "Замовлення прийнято" for an order that was
+      // never created is the one outcome worse than an error — they'd never
+      // follow up. Treat it as a failure so they retry or phone instead.
+      if (!result.orderNumber) {
+        setStatus("error");
+        setErrorMessage(copy.errorMessage);
+        return;
+      }
+
+      setConfirmedOrderNumber(result.orderNumber);
       setStatus("success");
     } catch {
       setStatus("error");
@@ -241,6 +341,7 @@ export function CheckoutPageContent({
         <FormField
           id={`${baseId}-fullName`}
           label={copy.fullNameLabel}
+          error={fieldErrors.fullName}
           required
         >
           {(props) => (
@@ -255,7 +356,12 @@ export function CheckoutPageContent({
             />
           )}
         </FormField>
-        <FormField id={`${baseId}-phone`} label={copy.phoneLabel} required>
+        <FormField
+          id={`${baseId}-phone`}
+          label={copy.phoneLabel}
+          error={fieldErrors.phone}
+          required
+        >
           {(props) => (
             <input
               {...props}
@@ -305,6 +411,7 @@ export function CheckoutPageContent({
           <FormField
             id={`${baseId}-stockist`}
             label={copy.pickupLocationLabel}
+            error={fieldErrors.stockistId}
             required
           >
             {(props) => (
@@ -320,7 +427,12 @@ export function CheckoutPageContent({
           </FormField>
         ) : (
           <>
-            <FormField id={`${baseId}-city`} label={copy.cityLabel} required>
+            <FormField
+              id={`${baseId}-city`}
+              label={copy.cityLabel}
+              error={fieldErrors.cityName}
+              required
+            >
               {(props) => (
                 <input
                   {...props}
@@ -336,6 +448,7 @@ export function CheckoutPageContent({
               <FormField
                 id={`${baseId}-branch`}
                 label={copy.branchNumberLabel}
+                error={fieldErrors.branchNumber}
                 required
               >
                 {(props) => (
@@ -355,6 +468,7 @@ export function CheckoutPageContent({
               <FormField
                 id={`${baseId}-address`}
                 label={copy.addressLabel}
+                error={fieldErrors.address}
                 required
               >
                 {(props) => (
