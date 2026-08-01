@@ -43,6 +43,21 @@ Environment Variables). See `.env.example` for the annotated list.
 | `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_ENDPOINT` | S3-compatible media storage. Unset → local disk (not durable on Vercel). |
 | `LIQPAY_PUBLIC_KEY`, `LIQPAY_PRIVATE_KEY`                                           | Online card payment at checkout. Unset → LiqPay path inactive.           |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`                                            | Telegram admin notifications.                                            |
+| `SEO_NOINDEX`                                                                       | Set to `true` on the **production** deploy to force `noindex` during the pre-launch window; unset at launch. See "Search-engine indexing" below. |
+
+### Search-engine indexing
+
+Indexing is gated automatically: the site is indexable **only** on the real
+production deployment (`VERCEL_ENV=production`, which Vercel sets on its own).
+Every preview/development deploy — and local dev — emits a site-wide
+`X-Robots-Tag: noindex, nofollow` response header **and** a matching
+`<meta name="robots">`, so staging/`*.vercel.app` URLs never enter Google's
+index (see `src/lib/seo/indexing.ts` and the header in `next.config.ts`).
+
+To keep the **production** deployment out of the index until the real domain is
+switched on, set `SEO_NOINDEX=true` on it; remove the variable at launch to open
+the site to indexing. No code change or redeploy logic is needed beyond the env
+var (a redeploy applies it).
 
 > On Vercel, uploaded media on local disk is **not** durable (the filesystem
 > is ephemeral per-invocation). Configure the S3 variables for any deploy
