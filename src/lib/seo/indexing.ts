@@ -1,4 +1,22 @@
 import type { Metadata } from "next";
+import type { Locale } from "@/i18n/config";
+
+/**
+ * The locales whose content is a real, human-authored translation and may
+ * therefore be indexed. The store's canonical content is Ukrainian; the `en`
+ * and `pl` routes currently resolve every product/page field to the Ukrainian
+ * source via Payload's localization fallback (there is no distinct EN/PL
+ * product copy yet). Indexing them would feed Google duplicate Ukrainian
+ * content under English/Polish URLs and dilute the `uk` pages' ranking, so
+ * only `uk` is advertised (hreflang, sitemap) and indexable. Add a locale here
+ * once its translations are actually authored.
+ */
+export const indexableLocales: readonly Locale[] = ["uk"];
+
+/** Whether a given locale's routes may be indexed (see {@link indexableLocales}). */
+export function isIndexableLocale(locale: Locale): boolean {
+  return indexableLocales.includes(locale);
+}
 
 /**
  * Single source of truth for "may search engines index this deployment?".
@@ -27,14 +45,23 @@ import type { Metadata } from "next";
  * cannot import this module (it is evaluated outside the app's module graph),
  * so the two intentionally duplicate one small `process.env` check.
  */
-export function isIndexable(): boolean {
+export function isIndexable(locale?: Locale): boolean {
   if (process.env.SEO_NOINDEX === "true") return false;
+  if (locale !== undefined && !isIndexableLocale(locale)) return false;
   return process.env.VERCEL_ENV === "production";
 }
 
-/** The `robots` value for Next `Metadata`, derived from {@link isIndexable}. */
-export function robotsMetadata(): Metadata["robots"] {
-  return isIndexable()
+/**
+ * The `robots` value for Next `Metadata`, derived from {@link isIndexable}.
+ *
+ * Pass the current `locale` so non-indexable locales (`en`/`pl`) emit
+ * `noindex` even on production — the root `[locale]/layout` does this, and
+ * because a page's own `generateMetadata` merges over the layout's `robots`,
+ * only pages that don't set their own `robots` inherit it. The override-proof
+ * `X-Robots-Tag` header still covers the deployment-level (preview) case.
+ */
+export function robotsMetadata(locale?: Locale): Metadata["robots"] {
+  return isIndexable(locale)
     ? { index: true, follow: true }
     : { index: false, follow: false };
 }

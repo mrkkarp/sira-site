@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isLocale, locales } from "@/i18n/config";
+import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { indexableLocales } from "@/lib/seo/indexing";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
 import { ShopCategorySchema } from "@/lib/schemas/product";
@@ -34,7 +35,7 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalPath,
       languages: Object.fromEntries(
-        locales.map((altLocale) => [
+        indexableLocales.map((altLocale) => [
           altLocale,
           localeHref(altLocale, `/shop/${category}`),
         ]),

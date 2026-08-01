@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { isIndexable, robotsMetadata } from "./indexing";
+import {
+  indexableLocales,
+  isIndexable,
+  isIndexableLocale,
+  robotsMetadata,
+} from "./indexing";
 
 describe("isIndexable", () => {
   const original = {
@@ -50,5 +55,31 @@ describe("isIndexable", () => {
 
     process.env.VERCEL_ENV = "preview";
     expect(robotsMetadata()).toEqual({ index: false, follow: false });
+  });
+
+  it("is NOT indexable for a non-indexable locale, even in production", () => {
+    process.env.VERCEL_ENV = "production";
+    expect(isIndexable("uk")).toBe(true);
+    expect(isIndexable("en")).toBe(false);
+    expect(isIndexable("pl")).toBe(false);
+  });
+
+  it("emits noindex robots metadata for non-indexable locales in production", () => {
+    process.env.VERCEL_ENV = "production";
+    expect(robotsMetadata("uk")).toEqual({ index: true, follow: true });
+    expect(robotsMetadata("en")).toEqual({ index: false, follow: false });
+    expect(robotsMetadata("pl")).toEqual({ index: false, follow: false });
+  });
+});
+
+describe("isIndexableLocale", () => {
+  it("only Ukrainian is indexable today (en/pl are Ukrainian fallback)", () => {
+    expect(isIndexableLocale("uk")).toBe(true);
+    expect(isIndexableLocale("en")).toBe(false);
+    expect(isIndexableLocale("pl")).toBe(false);
+  });
+
+  it("indexableLocales is exactly ['uk']", () => {
+    expect([...indexableLocales]).toEqual(["uk"]);
   });
 });

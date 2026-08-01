@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { locales } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
 import { getAllProductsAsync } from "@/lib/products";
 import { getAllCollections } from "@/lib/collections";
 import { shopCategories } from "@/lib/schemas/product";
 import { getInfoPageContent } from "@/content/info-pages";
+import { indexableLocales } from "@/lib/seo/indexing";
 
 /**
  * `sitemap.xml` (Prompt 9 §4 — SEO audit: "жоден sitemap не існує" gap).
@@ -36,14 +36,15 @@ import { getInfoPageContent } from "@/content/info-pages";
  *   so it appears in `staticPaths` below.
  * - `/admin`, `/design-system` — not part of the public site.
  *
- * Every all-locale URL is emitted once per locale (`localeHref` gives the
- * unprefixed `uk` path and the prefixed `en`/`pl` paths), with each entry's
- * `alternates.languages` pointing at its sibling-locale versions — this is
- * the sitemap-level counterpart to the `alternates.languages` (hreflang)
- * already set in each page's own `generateMetadata`. Locale-limited paths
- * follow the same shape but restrict both the emitted entries and their
- * `alternates.languages` to the locales that actually have an indexable
- * version.
+ * Every URL is emitted once per **indexable** locale (`indexableLocales` in
+ * `src/lib/seo/indexing.ts` — today `uk` only), with each entry's
+ * `alternates.languages` pointing at its sibling indexable-locale versions —
+ * this is the sitemap-level counterpart to the `alternates.languages`
+ * (hreflang) already set in each page's own `generateMetadata`. The `en`/`pl`
+ * routes render Ukrainian fallback content and are `noindex`, so they must
+ * never appear in the sitemap or as hreflang alternates. Locale-limited paths
+ * follow the same shape but further restrict to the locales that have an
+ * indexable version of that specific page.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -77,19 +78,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/care",
   ].map((path) => ({
     path,
-    locales: locales.filter((locale) =>
+    locales: indexableLocales.filter((locale) =>
       getInfoPageContent(path.slice(1), locale),
     ),
   }));
 
   const entries: MetadataRoute.Sitemap = [];
   for (const path of allPaths) {
-    for (const locale of locales) {
+    for (const locale of indexableLocales) {
       entries.push({
         url: new URL(localeHref(locale, path), siteUrl).toString(),
         alternates: {
           languages: Object.fromEntries(
-            locales.map((altLocale) => [
+            indexableLocales.map((altLocale) => [
               altLocale,
               new URL(localeHref(altLocale, path), siteUrl).toString(),
             ]),

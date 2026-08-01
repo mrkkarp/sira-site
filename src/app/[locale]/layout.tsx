@@ -56,7 +56,7 @@ export async function generateMetadata({
     // `X-Robots-Tag` header in next.config.ts; see src/lib/seo/indexing.ts.
     // Individual routes still opt out via their own generateMetadata (e.g.
     // placeholder pages, /search).
-    robots: robotsMetadata(),
+    robots: robotsMetadata(locale),
     // Google Search Console "HTML tag" verification. Env-driven so no token is
     // invented here: set `GOOGLE_SITE_VERIFICATION` to the value GSC gives you
     // (see GOOGLE_SEARCH_CONSOLE_SETUP.md) and this emits the required
