@@ -114,7 +114,19 @@ export async function POST(request: NextRequest) {
       issueDescription: parsed.data.issueDescription,
       photoIds: parsed.data.photoIds,
     });
-    await getLeadNotificationAdapter().notify(lead);
+    // Notifying staff must never fail the request: the lead is already
+    // committed, so a Resend outage answering 500 would tell a customer
+    // their enquiry failed when it didn't — they resubmit (duplicate
+    // leads) or give up entirely. Logged loudly instead so the missed
+    // notification is recoverable from the server log.
+    try {
+      await getLeadNotificationAdapter().notify(lead);
+    } catch (notificationError) {
+      console.error(
+        `[warranty] lead ${lead.id} was saved but the staff notification failed`,
+        notificationError,
+      );
+    }
     logFormSubmission({
       form: "warranty",
       outcome: "created",

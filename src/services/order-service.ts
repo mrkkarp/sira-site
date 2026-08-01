@@ -180,19 +180,76 @@ export async function placeOrder(
   const orderRepo = await resolveOrderRepository(deps);
   const order = await orderRepo.create(newOrder);
 
-  const paymentRepo = await resolvePaymentRepository(deps);
-  const payment = await paymentRepo.create({
-    orderId: order.id,
-    provider,
-    amount: total,
-    status: "pending",
-    externalId: undefined,
-    signatureVerified: false,
-    rawCallbackPayload: undefined,
-  });
+  // Past this point the order row exists, and the three writes below are
+  // NOT one transaction (Payload's local API would need a transactionID
+  // threaded through all four repositories). So each is compensated
+  // instead: whatever fails, the order must never be left in a state that
+  // *looks* like a live order but isn't. An order sitting at
+  // `awaitingPayment` with no payment row attached is exactly that — it
+  // would show up in the admin queue as real work, and staff would chase a
+  // payment that was never even attempted.
+  let payment: Payment;
+  try {
+    const paymentRepo = await resolvePaymentRepository(deps);
+    payment = await paymentRepo.create({
+      orderId: order.id,
+      provider,
+      amount: total,
+      status: "pending",
+      externalId: undefined,
+      signatureVerified: false,
+      rawCallbackPayload: undefined,
+    });
+  } catch (error) {
+    await markOrderFailed(orderRepo, order, "payment_create_failed");
+    throw error;
+  }
 
-  const orderWithPayment = await orderRepo.attachPayment(order.id, payment.id);
-  await cartRepo.deleteBySessionToken(sessionToken);
+  let orderWithPayment: Order;
+  try {
+    orderWithPayment = await orderRepo.attachPayment(order.id, payment.id);
+  } catch (error) {
+    await markOrderFailed(orderRepo, order, "attach_payment_failed");
+    throw error;
+  }
+
+  // Clearing the cart is deliberately last and deliberately non-fatal: the
+  // order is already committed, so throwing here would answer 500 to a
+  // customer whose order *was* placed — they'd re-submit and we'd have two.
+  // A cart that outlives its order is a visible annoyance; a duplicate
+  // order is a real one.
+  try {
+    await cartRepo.deleteBySessionToken(sessionToken);
+  } catch (error) {
+    console.error(
+      `[order-service] order ${order.orderNumber} was placed but its cart could not be cleared`,
+      error,
+    );
+  }
 
   return { status: "ok", order: orderWithPayment, payment };
+}
+
+/**
+ * Compensating write for a half-created order. Never throws: it runs on an
+ * error path that is about to rethrow the *original* failure, and masking
+ * that with a secondary one would lose the only useful diagnostic.
+ */
+async function markOrderFailed(
+  orderRepo: OrderRepository,
+  order: Order,
+  reason: string,
+): Promise<void> {
+  try {
+    await orderRepo.updateStatus(order.id, "failed");
+  } catch (compensationError) {
+    console.error(
+      `[order-service] order ${order.orderNumber} failed (${reason}) AND could not be marked failed — it is orphaned in the database`,
+      compensationError,
+    );
+    return;
+  }
+  console.error(
+    `[order-service] order ${order.orderNumber} marked failed: ${reason}`,
+  );
 }

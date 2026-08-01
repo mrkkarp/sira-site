@@ -7,6 +7,46 @@ import {
   decodeLiqPayCallbackData,
   mapLiqPayStatus,
 } from "@/lib/payments/liqpay-adapter";
+import {
+  moneyToDecimal,
+  MINOR_UNITS_PER_CURRENCY,
+} from "@/domain/shared/money";
+import type { Order } from "@/domain/ecommerce/order";
+
+type MappedStatus = NonNullable<ReturnType<typeof mapLiqPayStatus>>;
+
+/**
+ * Whether a mapped LiqPay status means money actually arrived.
+ *
+ * `sandbox` is LiqPay's *test* transaction status — no money moves. It
+ * counts as paid only outside production, where it's the normal way to
+ * exercise checkout end-to-end. On the real production deploy a sandbox
+ * callback must never mark an order paid: that would ship real goods
+ * against a test payment.
+ */
+function isPaidStatus(status: MappedStatus): boolean {
+  if (status === "success") return true;
+  return status === "sandbox" && process.env.VERCEL_ENV !== "production";
+}
+
+/**
+ * Compares what LiqPay says was paid against the order's own frozen total.
+ *
+ * LiqPay reports `amount` as a decimal (`20900.00`) while the domain stores
+ * integer minor units, so this converts the order's total *down* to decimal
+ * and back to cents rather than re-deriving any total from the lines.
+ */
+function callbackMatchesOrderTotal(
+  payload: Record<string, unknown>,
+  order: Order,
+): boolean {
+  const amount = Number(payload.amount);
+  if (!Number.isFinite(amount)) return false;
+  if (payload.currency !== order.total.currency) return false;
+  const factor = MINOR_UNITS_PER_CURRENCY[order.total.currency];
+  // Rounded, because `20900.00 * 100` is not exactly 2090000 in binary floating point.
+  return Math.round(amount * factor) === order.total.minorUnits;
+}
 
 /**
  * LiqPay's server-to-server payment callback (Prompt 8 §9/§13, Phase F).
@@ -92,10 +132,18 @@ export async function POST(request: NextRequest) {
   // Idempotency (§9/§13): a repeat callback for an already-processed
   // `externalId` (LiqPay retries webhooks) must be a no-op, never a
   // second state transition.
+  //
+  // The comparison is against `mappedStatus`, not a hard-coded "success":
+  // a refund/chargeback arrives as a `reversed` callback carrying the
+  // *same* `payment_id` as the original payment, so a guard keyed only on
+  // "this externalId is already success" would short-circuit it and the
+  // order would stay `paid` forever — money returned to the customer and
+  // nothing in the system saying so.
   if (
     externalId &&
     payment.externalId === externalId &&
-    payment.status === "success"
+    mappedStatus !== null &&
+    payment.status === mappedStatus
   ) {
     return NextResponse.json({ ok: true, outcome: "already_processed" });
   }
@@ -113,13 +161,44 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, outcome: "recorded" });
   }
 
+  // Only a callback that actually paid the order's own total may mark it
+  // paid. The signature already proves LiqPay sent this, so the threat
+  // isn't forgery — it's a *mismatch*: a partial payment, a payment in
+  // another currency, or a callback replayed against a different order
+  // would otherwise flip the order to `paid` for the wrong sum and the
+  // goods would ship. On mismatch the payload is still recorded (so staff
+  // can reconcile) but no state transition happens.
+  if (
+    isPaidStatus(mappedStatus) &&
+    !callbackMatchesOrderTotal(payload, order)
+  ) {
+    await paymentRepository.updateStatus(payment.id, payment.status, {
+      signatureVerified: true,
+      externalId,
+      rawCallbackPayload,
+    });
+    console.error(
+      "[liqpay-callback]",
+      JSON.stringify({
+        outcome: "amount_mismatch",
+        orderNumber,
+        expected: {
+          amount: moneyToDecimal(order.total),
+          currency: order.total.currency,
+        },
+        received: { amount: payload.amount, currency: payload.currency },
+      }),
+    );
+    return NextResponse.json({ ok: true, outcome: "amount_mismatch" });
+  }
+
   await paymentRepository.updateStatus(payment.id, mappedStatus, {
     signatureVerified: true,
     externalId,
     rawCallbackPayload,
   });
 
-  if (mappedStatus === "success" || mappedStatus === "sandbox") {
+  if (isPaidStatus(mappedStatus)) {
     await orderRepository.updateStatus(order.id, "paid");
   } else if (mappedStatus === "failure") {
     await orderRepository.updateStatus(order.id, "failed");

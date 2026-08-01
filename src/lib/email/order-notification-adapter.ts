@@ -2,6 +2,11 @@ import "server-only";
 import type { Order } from "@/domain/ecommerce/order";
 import { moneyToDecimal, type Money } from "@/domain/shared/money";
 import { resolveLocaleContent } from "@/domain/shared/locale-content";
+import {
+  resolveStaffEmailConfig,
+  sendStaffEmail,
+  type StaffEmailConfig,
+} from "./staff-email";
 
 /**
  * Adapter for notifying ODUDLAB staff that a **new order** was placed.
@@ -40,32 +45,19 @@ class ConsoleOrderNotificationAdapter implements OrderNotificationAdapter {
   }
 }
 
-/** Real adapter, calling Resend's plain HTTP API directly (no SDK needed for one endpoint). */
+/** Real adapter, sending through the shared Resend sender. */
 class ResendOrderNotificationAdapter implements OrderNotificationAdapter {
-  constructor(
-    private readonly apiKey: string,
-    private readonly to: string,
-    private readonly from: string,
-  ) {}
+  constructor(private readonly config: StaffEmailConfig) {}
 
   async notifyNewOrder(order: Order): Promise<void> {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: this.from,
-        to: this.to,
-        subject: `Нове замовлення ${order.orderNumber} — ${formatMoneyText(order.total)}`,
-        text: buildOrderSummaryText(order),
-      }),
+    await sendStaffEmail({
+      config: this.config,
+      // Order number and total go in the subject so staff can triage from
+      // the inbox list without opening the mail.
+      subject: `Нове замовлення ${order.orderNumber} — ${formatMoneyText(order.total)}`,
+      text: buildOrderSummaryText(order),
+      failureCode: "resend_order_notification_failed",
     });
-
-    if (!response.ok) {
-      throw new Error(`resend_order_notification_failed: ${response.status}`);
-    }
   }
 }
 
@@ -142,16 +134,10 @@ let cachedAdapter: OrderNotificationAdapter | null = null;
 export function getOrderNotificationAdapter(): OrderNotificationAdapter {
   if (cachedAdapter) return cachedAdapter;
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const to =
-    process.env.ORDER_NOTIFICATION_EMAIL ??
-    process.env.LEADS_NOTIFICATION_EMAIL;
-  const from = process.env.EMAIL_FROM;
-
-  cachedAdapter =
-    apiKey && to && from
-      ? new ResendOrderNotificationAdapter(apiKey, to, from)
-      : new ConsoleOrderNotificationAdapter();
+  const config = resolveStaffEmailConfig(process.env.ORDER_NOTIFICATION_EMAIL);
+  cachedAdapter = config
+    ? new ResendOrderNotificationAdapter(config)
+    : new ConsoleOrderNotificationAdapter();
   return cachedAdapter;
 }
 

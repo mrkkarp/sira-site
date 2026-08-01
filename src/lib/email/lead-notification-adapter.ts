@@ -1,5 +1,10 @@
 import "server-only";
 import type { LeadRequest } from "@/domain/leads/lead-request";
+import {
+  resolveStaffEmailConfig,
+  sendStaffEmail,
+  type StaffEmailConfig,
+} from "./staff-email";
 
 /**
  * Adapter for notifying ODUDLAB staff about a new lead (Prompt 8 §8 —
@@ -26,36 +31,17 @@ class ConsoleLeadNotificationAdapter implements LeadNotificationAdapter {
   }
 }
 
-/**
- * Real adapter, calling Resend's plain HTTP API directly (no SDK
- * dependency needed for one endpoint) — matches the `RESEND_API_KEY`
- * env var already anticipated in `.env.example`.
- */
+/** Real adapter, sending through the shared Resend sender. */
 class ResendLeadNotificationAdapter implements LeadNotificationAdapter {
-  constructor(
-    private readonly apiKey: string,
-    private readonly to: string,
-    private readonly from: string,
-  ) {}
+  constructor(private readonly config: StaffEmailConfig) {}
 
   async notify(lead: LeadRequest): Promise<void> {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: this.from,
-        to: this.to,
-        subject: `Нова заявка (${lead.type}): ${lead.name}`,
-        text: buildLeadSummaryText(lead),
-      }),
+    await sendStaffEmail({
+      config: this.config,
+      subject: `Нова заявка (${lead.type}): ${lead.name}`,
+      text: buildLeadSummaryText(lead),
+      failureCode: "resend_notification_failed",
     });
-
-    if (!response.ok) {
-      throw new Error(`resend_notification_failed: ${response.status}`);
-    }
   }
 }
 
@@ -108,14 +94,10 @@ let cachedAdapter: LeadNotificationAdapter | null = null;
 export function getLeadNotificationAdapter(): LeadNotificationAdapter {
   if (cachedAdapter) return cachedAdapter;
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.LEADS_NOTIFICATION_EMAIL;
-  const from = process.env.EMAIL_FROM;
-
-  cachedAdapter =
-    apiKey && to && from
-      ? new ResendLeadNotificationAdapter(apiKey, to, from)
-      : new ConsoleLeadNotificationAdapter();
+  const config = resolveStaffEmailConfig();
+  cachedAdapter = config
+    ? new ResendLeadNotificationAdapter(config)
+    : new ConsoleLeadNotificationAdapter();
   return cachedAdapter;
 }
 
