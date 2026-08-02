@@ -4,14 +4,13 @@ import { useState, useSyncExternalStore } from "react";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { readConsent, writeConsent } from "@/lib/cookie-consent";
+import {
+  readConsent,
+  subscribeConsent,
+  writeConsent,
+} from "@/lib/cookie-consent";
 
 type Panel = "banner" | "customize";
-
-function subscribeToConsent(onChange: () => void) {
-  window.addEventListener("storage", onChange);
-  return () => window.removeEventListener("storage", onChange);
-}
 
 function hasDecidedSnapshot() {
   return readConsent() !== null;
@@ -37,7 +36,7 @@ function hasDecidedServerSnapshot() {
  */
 export function CookieConsent({ dictionary }: { dictionary: Dictionary }) {
   const hasDecided = useSyncExternalStore(
-    subscribeToConsent,
+    subscribeConsent,
     hasDecidedSnapshot,
     hasDecidedServerSnapshot,
   );

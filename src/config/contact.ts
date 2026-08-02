@@ -31,9 +31,16 @@ export const contact = {
     handle: "@odudlab",
     url: "https://instagram.com/odudlab",
   },
-  /** Same primary number doubles as Viber and Telegram per the owner. */
+  /**
+   * Same primary number doubles as Viber and Telegram per the owner.
+   *
+   * The `+` in the Telegram href is load-bearing: `t.me/<digits>` is read as
+   * a *username* lookup and resolves to nothing (Telegram serves its generic
+   * landing page), while `t.me/+<E.164>` is the phone-number deep link. The
+   * link looked fine and quietly went nowhere.
+   */
   viberHref: "viber://chat?number=%2B380961545584",
-  telegramHref: "https://t.me/380961545584",
+  telegramHref: "https://t.me/+380961545584",
   /**
    * Not yet confirmed by the owner — keep `null` (never invent a URL).
    * Flip to a real, confirmed URL once available; the footer only renders

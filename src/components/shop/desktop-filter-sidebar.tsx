@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { ShopCategory } from "@/lib/schemas/product";
 import {
@@ -34,7 +33,6 @@ export function DesktopFilterSidebar({
   filters: FilterState;
 }) {
   const router = useRouter();
-  const [resetKey, setResetKey] = useState(0);
 
   function apply(next: FilterState) {
     router.push(buildFilterHref(basePath, next), { scroll: false });
@@ -47,18 +45,17 @@ export function DesktopFilterSidebar({
         {hasActiveFilters(filters) ? (
           <button
             type="button"
-            onClick={() => {
-              apply(clearAllFilters(filters));
-              setResetKey((k) => k + 1);
-            }}
+            onClick={() => apply(clearAllFilters(filters))}
             className="type-nav text-text-muted hover:text-text underline underline-offset-4 transition-colors duration-(--duration-fast)"
           >
             {dictionary.shop.filters.clearAll}
           </button>
         ) : null}
       </div>
+      {/* No `key` remount to reset the range inputs: `RangeField` now follows
+          its committed `range` prop directly, which is the only thing that
+          survives an async `router.push` landing after the remount. */}
       <FilterFieldsets
-        key={resetKey}
         dictionary={dictionary}
         category={category}
         facets={facets}

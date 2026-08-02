@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { ShopCategory } from "@/lib/schemas/product";
 import type {
@@ -196,6 +196,14 @@ export function FilterFieldsets({
   );
 }
 
+/** The committed range, as the two input strings that represent it. */
+function rangeToText(range: { min?: number; max?: number } | undefined) {
+  return {
+    min: range?.min === undefined ? "" : String(range.min),
+    max: range?.max === undefined ? "" : String(range.max),
+  };
+}
+
 function RangeField({
   legend,
   minPlaceholder,
@@ -215,6 +223,34 @@ function RangeField({
   // human copy (can repeat across categories/instances, e.g. "Ціна" on
   // every shop page, and isn't a valid id fragment if it contains spaces).
   const uid = useId();
+
+  // These were `defaultValue` inputs, which meant the number the visitor had
+  // typed survived every *external* clear: removing the price chip or hitting
+  // "Скинути всі" emptied the URL and re-ran the query, but the sidebar still
+  // read "від 5000" over a grid showing all nine products. `defaultValue` is
+  // only consulted on mount, and the host's `key` remount fired before the
+  // async `router.push` resolved, so it remounted with the *old* range.
+  //
+  // Controlled inputs plus React's "adjusting state when a prop changes"
+  // pattern instead. Two deliberate details:
+  //  - `synced` is compared by *value*, not object identity, so a parent
+  //    re-render that rebuilds an equal `range` object doesn't wipe a
+  //    half-typed number.
+  //  - the resync is per field, so when committing `min` triggers a
+  //    navigation the arriving state can't clear a `max` the visitor started
+  //    typing in the meantime — only a field whose committed value actually
+  //    changed gets overwritten.
+  const incoming = rangeToText(range);
+  const [draft, setDraft] = useState(incoming);
+  const [synced, setSynced] = useState(incoming);
+
+  if (incoming.min !== synced.min || incoming.max !== synced.max) {
+    setDraft({
+      min: incoming.min === synced.min ? draft.min : incoming.min,
+      max: incoming.max === synced.max ? draft.max : incoming.max,
+    });
+    setSynced(incoming);
+  }
 
   function commit(minRaw: string, maxRaw: string) {
     const min = minRaw === "" ? undefined : Number.parseFloat(minRaw);
@@ -242,10 +278,11 @@ function RangeField({
           min={bounds.min}
           max={bounds.max}
           placeholder={String(bounds.min)}
-          defaultValue={range?.min ?? ""}
-          onBlur={(event) =>
-            commit(event.currentTarget.value, String(range?.max ?? ""))
+          value={draft.min}
+          onChange={(event) =>
+            setDraft((prev) => ({ ...prev, min: event.target.value }))
           }
+          onBlur={() => commit(draft.min, draft.max)}
           className="type-body-sm border-border-strong h-10 w-full min-w-0 border px-(--space-2xs)"
         />
         <span aria-hidden="true" className="text-text-muted">
@@ -261,10 +298,11 @@ function RangeField({
           min={bounds.min}
           max={bounds.max}
           placeholder={String(bounds.max)}
-          defaultValue={range?.max ?? ""}
-          onBlur={(event) =>
-            commit(String(range?.min ?? ""), event.currentTarget.value)
+          value={draft.max}
+          onChange={(event) =>
+            setDraft((prev) => ({ ...prev, max: event.target.value }))
           }
+          onBlur={() => commit(draft.min, draft.max)}
           className="type-body-sm border-border-strong h-10 w-full min-w-0 border px-(--space-2xs)"
         />
       </div>

@@ -748,6 +748,8 @@
     "phoneLabel": "Phone",
     "submitCta": "Check status",
     "submittingCta": "Checking…",
+    "requiredOrderNumber": "Enter your order number.",
+    "invalidFormMessage": "Please check the fields you've filled in.",
     "notFoundMessage": "Order not found. Please check the order number and phone number.",
     "errorMessage": "We couldn't check the status. Please try again later.",
     "resultHeading": "Order",

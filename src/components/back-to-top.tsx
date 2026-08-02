@@ -2,15 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { IconButton } from "@/components/ui/icon-button";
+import { useCookieBannerUndecided } from "@/lib/use-cookie-banner";
 
 /**
  * Appears only after the visitor has scrolled a meaningful distance (past
  * ~1.5 viewport heights) — not shown on short pages where it wouldn't add
  * value. Scroll behaviour respects `prefers-reduced-motion` via the global
  * rule in globals.css (which forces `scroll-behavior: auto`).
+ *
+ * Also stands down while the cookie banner is undecided. The banner is
+ * `z-[45]` and spans the full bottom edge; this button was `z-40` in the
+ * same corner, so it rendered *underneath* the banner and every click
+ * landed on the banner instead. It looked enabled and did nothing — worse
+ * than being absent. `MobileStickyCta` already yielded the bottom edge the
+ * same way; this one had simply been missed.
  */
 export function BackToTop({ label }: { label: string }) {
   const [visible, setVisible] = useState(false);
+  const cookieBannerUndecided = useCookieBannerUndecided();
 
   useEffect(() => {
     function onScroll() {
@@ -21,7 +30,7 @@ export function BackToTop({ label }: { label: string }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (!visible) return null;
+  if (!visible || cookieBannerUndecided) return null;
 
   return (
     <IconButton

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
@@ -20,7 +14,7 @@ import { buildVariantHref } from "@/lib/variant-url";
 import { buildGalleryMedia } from "@/lib/gallery-media";
 import { buildQuoteContext } from "@/lib/quote-context";
 import { formatTemplate } from "@/lib/format-template";
-import { readConsent } from "@/lib/cookie-consent";
+import { useCookieBannerUndecided } from "@/lib/use-cookie-banner";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductCoreInfo } from "@/components/product/product-core-info";
 import { ProductTrustDetails } from "@/components/product/product-trust-details";
@@ -29,11 +23,6 @@ import { AddToCartButton } from "@/components/product/add-to-cart-button";
 import { QuoteRequestForm } from "@/components/product/quote-request-form";
 import { MobileStickyCta } from "@/components/product/mobile-sticky-cta";
 import { Button } from "@/components/ui/button";
-
-function subscribeToConsentDecision(onChange: () => void) {
-  window.addEventListener("storage", onChange);
-  return () => window.removeEventListener("storage", onChange);
-}
 
 /**
  * Product page's single interactive "island" (Prompt 6 §1/§4/§5/§6/§14) —
@@ -135,11 +124,11 @@ export function ProductExperience({
     return () => observer.disconnect();
   }, []);
 
-  const cookieBannerUndecided = useSyncExternalStore(
-    subscribeToConsentDecision,
-    () => readConsent() === null,
-    () => false,
-  );
+  // Shared with `BackToTop` — both yield the bottom edge to the banner.
+  // (The local subscription this replaced listened to `storage` only, which
+  // never fires in the tab that made the change, so the sticky CTA stayed
+  // hidden after accepting cookies until the visitor reloaded.)
+  const cookieBannerUndecided = useCookieBannerUndecided();
 
   return (
     <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-x-(--space-lg)">

@@ -22,6 +22,32 @@ if (!("IntersectionObserver" in globalThis)) {
   globalThis.IntersectionObserver =
     NoopObserver as unknown as typeof IntersectionObserver;
 }
+// `window.localStorage` here is a bare `{}` — no `getItem`/`setItem`/`clear`
+// at all (Node 25 defines the global without a backing store, and jsdom
+// defers to it). Anything reading it fails silently through the `try/catch`
+// in `src/lib/cookie-consent.ts`, so consent would read as permanently
+// undecided, and anything *writing* throws outright. A minimal in-memory
+// Storage keeps localStorage-backed state (cookie consent, and whatever
+// comes next) testable at its real API instead of via module mocks.
+if (typeof globalThis.localStorage?.getItem !== "function") {
+  const entries = new Map<string, string>();
+  const memoryStorage: Storage = {
+    get length() {
+      return entries.size;
+    },
+    key: (index) => [...entries.keys()][index] ?? null,
+    getItem: (key) => entries.get(String(key)) ?? null,
+    setItem: (key, value) => void entries.set(String(key), String(value)),
+    removeItem: (key) => void entries.delete(String(key)),
+    clear: () => entries.clear(),
+  };
+  Object.defineProperty(globalThis, "localStorage", {
+    value: memoryStorage,
+    configurable: true,
+    writable: true,
+  });
+}
+
 if (!globalThis.matchMedia) {
   globalThis.matchMedia = ((query: string) => ({
     matches: false,

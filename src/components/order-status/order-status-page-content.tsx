@@ -11,7 +11,10 @@ import { Divider } from "@/components/ui/divider";
 import { moneyToDecimal } from "@/domain/shared/money";
 import type { OrderStatusResponse } from "@/app/api/order-status/route";
 
-type Status = "idle" | "submitting" | "found" | "notFound" | "error";
+type Status =
+  "idle" | "invalid" | "submitting" | "found" | "notFound" | "error";
+
+type FieldErrors = Partial<Record<"orderNumber" | "phone", string>>;
 
 /**
  * Real `/order-status` page content (Prompt 8 §2.3/§11, Phase F),
@@ -34,9 +37,15 @@ export function OrderStatusPageContent({
   const [orderNumber, setOrderNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [order, setOrder] = useState<
     Extract<OrderStatusResponse, { ok: true }>["order"] | null
   >(null);
+
+  const fieldIds = {
+    orderNumber: `${baseId}-orderNumber`,
+    phone: `${baseId}-phone`,
+  } as const;
 
   const statusLabels: Record<string, string> = {
     pending: copy.statusPending,
@@ -52,8 +61,32 @@ export function OrderStatusPageContent({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!orderNumber.trim() || !phone.trim()) return;
 
+    // This used to be a bare `if (…) return;`: submitting an empty form did
+    // nothing at all — no message, no focus move, no visible state change —
+    // so the page read as broken rather than as "you missed a field". The
+    // form is `noValidate`, so the browser's own required-field bubble is
+    // suppressed too and nothing else filled the gap.
+    //
+    // Same pattern as checkout and the warranty form: one inline message per
+    // offending field (announced on focus via `FormField`'s `aria-describedby`
+    // + `aria-invalid`), one `aria-live` summary, and focus moved to the first
+    // invalid field — SC 3.3.1 needs the error to be both identified *and*
+    // reachable, not merely rendered somewhere on the page.
+    const nextErrors: FieldErrors = {};
+    if (!orderNumber.trim()) nextErrors.orderNumber = copy.requiredOrderNumber;
+    if (!phone.trim()) nextErrors.phone = dictionary.leadFields.requiredPhone;
+
+    if (nextErrors.orderNumber || nextErrors.phone) {
+      setFieldErrors(nextErrors);
+      setStatus("invalid");
+      setOrder(null);
+      const firstInvalid = nextErrors.orderNumber ? "orderNumber" : "phone";
+      document.getElementById(fieldIds[firstInvalid])?.focus();
+      return;
+    }
+
+    setFieldErrors({});
     setStatus("submitting");
     try {
       const response = await fetch(`/api/order-status?locale=${locale}`, {
@@ -93,9 +126,10 @@ export function OrderStatusPageContent({
         className="flex flex-col gap-(--space-sm) sm:max-w-sm"
       >
         <FormField
-          id={`${baseId}-orderNumber`}
+          id={fieldIds.orderNumber}
           label={copy.orderNumberLabel}
           required
+          error={fieldErrors.orderNumber}
         >
           {(props) => (
             <input
@@ -108,7 +142,12 @@ export function OrderStatusPageContent({
             />
           )}
         </FormField>
-        <FormField id={`${baseId}-phone`} label={copy.phoneLabel} required>
+        <FormField
+          id={fieldIds.phone}
+          label={copy.phoneLabel}
+          required
+          error={fieldErrors.phone}
+        >
           {(props) => (
             <input
               {...props}
@@ -129,6 +168,9 @@ export function OrderStatusPageContent({
         </Button>
 
         <p aria-live="polite" className="type-caption min-h-[1.4em]">
+          {status === "invalid" ? (
+            <span className="text-error">{copy.invalidFormMessage}</span>
+          ) : null}
           {status === "notFound" ? (
             <span className="text-error">{copy.notFoundMessage}</span>
           ) : null}

@@ -748,6 +748,8 @@
     "phoneLabel": "Telefon",
     "submitCta": "Sprawdź status",
     "submittingCta": "Sprawdzanie…",
+    "requiredOrderNumber": "Podaj numer zamówienia.",
+    "invalidFormMessage": "Sprawdź, proszę, wypełnione pola.",
     "notFoundMessage": "Nie znaleziono zamówienia. Sprawdź numer zamówienia i telefon.",
     "errorMessage": "Nie udało się sprawdzić statusu. Spróbuj ponownie później.",
     "resultHeading": "Zamówienie",
