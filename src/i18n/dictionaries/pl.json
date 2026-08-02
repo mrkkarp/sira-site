@@ -246,7 +246,8 @@
       "body": "Wybór modeli z różnych kategorii — umywalki, donice, stoły i wyroby do przestrzeni miejskiej.",
       "viewAllCta": "Wszystkie produkty",
       "prevLabel": "Poprzedni produkt",
-      "nextLabel": "Następny produkt"
+      "nextLabel": "Następny produkt",
+      "goToLabel": "Przejdź do produktu"
     },
     "colours": {
       "eyebrow": "Kolor w masie",
@@ -440,7 +441,8 @@
     "phonePlaceholder": "+380 __ ___ __ __",
     "requiredName": "Podaj imię.",
     "requiredPhone": "Podaj numer telefonu.",
-    "invalidPhone": "Podaj prawidłowy numer telefonu."
+    "invalidPhone": "Podaj prawidłowy numer telefonu.",
+    "invalidEmail": "Podaj prawidłowy adres e-mail."
   },
   "cookieConsent": {
     "heading": "Używamy plików cookie",
@@ -531,6 +533,7 @@
     "allCategoriesHeading": "Wszystkie produkty",
     "allCategoriesIntro": "Umywalki, donice, stoliki, panele ścienne i meble ogrodowe z architektonicznego betonu ręcznej roboty — własna produkcja, kolor w masie.",
     "resultsCount": "Znaleziono produktów: {count}",
+    "gridHeading": "Produkty",
     "categoryNavHeading": "Kategorie",
     "filtersButton": "Filtry",
     "filtersButtonWithCount": "Filtry ({count})",

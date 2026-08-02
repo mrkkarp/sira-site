@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
+import { formatTemplate } from "@/lib/format-template";
 import { shopCategories } from "@/lib/schemas/product";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
+import { Price } from "@/components/ui/price";
 import type { SearchResponse } from "@/app/api/search/route";
 
 const RECENT_SEARCHES_KEY = "odudlab:recent-searches";
@@ -51,6 +54,7 @@ export function SearchDrawer({
   const [recent, setRecent] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<Element | null>(null);
+  const router = useRouter();
   const s = dictionary.search;
 
   useEffect(() => {
@@ -104,6 +108,23 @@ export function SearchDrawer({
     setRecent(saveRecentSearch(value.trim()));
   }
 
+  /**
+   * Enter used to call `commitSearch` and stop there — it wrote the term to
+   * the recent-searches list and did nothing else. The drawer stayed open on
+   * the same truncated preview, so pressing Enter in a search box read as
+   * "nothing happened", and the only way to the full results page was to
+   * notice the small "View all" link at the bottom of the list. Enter now
+   * goes where the visitor plainly meant it to go — the same destination as
+   * that link.
+   */
+  function submitSearch(value: string) {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    commitSearch(trimmed);
+    onClose();
+    router.push(localeHref(locale, `/search?q=${encodeURIComponent(trimmed)}`));
+  }
+
   return (
     <div className="fixed inset-0 z-50">
       {/* Prompt 9 §6 (visual consistency audit) — same dismissible-overlay
@@ -154,7 +175,10 @@ export function SearchDrawer({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Enter") commitSearch(query);
+              if (event.key === "Enter") {
+                event.preventDefault();
+                submitSearch(query);
+              }
             }}
             placeholder={s.placeholder}
             className="type-body text-text placeholder:text-text-muted h-full flex-1 bg-transparent outline-none"
@@ -190,6 +214,28 @@ export function SearchDrawer({
             </svg>
           </button>
         </div>
+
+        {/* Search-as-you-type replaces the result list without moving focus,
+            so a screen-reader user gets no indication that anything happened —
+            WCAG 4.1.3 (Status Messages). This is the status message: an empty
+            live region that is present from the moment the drawer opens (a
+            region inserted at the same time as its text is often not announced
+            at all) and only ever holds the count. `aria-atomic` so the whole
+            sentence is re-read rather than just the changed digits. The copy
+            already existed for the full search page — no new strings. */}
+        <p aria-live="polite" aria-atomic="true" className="sr-only">
+          {hasQuery
+            ? hasResults
+              ? formatTemplate(s.resultsCount, {
+                  count:
+                    results.products.length +
+                    results.collections.length +
+                    results.projects.length +
+                    results.pages.length,
+                })
+              : s.noResultsHeading
+            : ""}
+        </p>
 
         <div className="flex-1 p-(--space-md)">
           {!hasQuery ? (
@@ -271,12 +317,11 @@ export function SearchDrawer({
                               {product.category}
                             </span>
                           </span>
-                          <span className="type-price text-text">
-                            {new Intl.NumberFormat(locale).format(
-                              product.price,
-                            )}{" "}
-                            ₴
-                          </span>
+                          {/* Was a one-off `Intl.NumberFormat` + a bare "₴",
+                              the only place on the site that used the symbol.
+                              `Price` is the single source of truth for how a
+                              price looks. */}
+                          <Price amount={product.price} locale={locale} />
                         </Link>
                       </li>
                     ))}

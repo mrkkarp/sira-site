@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PhoneNumber } from "../shared/phone";
 
 /**
  * `CustomerDetails` (Prompt 8 §2.3) — the buyer info captured at
@@ -10,7 +11,7 @@ import { z } from "zod";
  */
 export const CustomerDetailsSchema = z.object({
   fullName: z.string().min(1),
-  phone: z.string().min(1),
+  phone: PhoneNumber,
   email: z.string().email().optional(),
   companyName: z.string().optional(),
   notes: z.string().optional(),

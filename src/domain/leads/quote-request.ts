@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ProductId, VariantId } from "../shared/ids";
+import { PhoneNumber } from "../shared/phone";
 import { leadCommonFields } from "./lead-common";
 
 /**
@@ -14,7 +15,7 @@ export const QuoteRequestSchema = z.object({
   ...leadCommonFields,
   type: z.literal("quote"),
   name: z.string().min(1),
-  phone: z.string().min(1),
+  phone: PhoneNumber,
   email: z.string().email().optional(),
   productId: ProductId.optional(),
   variantId: VariantId.optional(),

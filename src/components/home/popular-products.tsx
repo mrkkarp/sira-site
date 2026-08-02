@@ -137,7 +137,12 @@ export function PopularProducts({
                   key={product.slug}
                   type="button"
                   aria-current={index === active}
-                  aria-label={`${copy.nextLabel} ${index + 1}`}
+                  // Every dot used to be labelled from `nextLabel`, so the
+                  // third one announced "Наступний виріб 3" — three separate
+                  // controls all claiming to be "next", none of which is. A
+                  // dot jumps *to* a slide; `goToLabel` says so (and matches
+                  // `hero-carousel.tsx`, which already had the right key).
+                  aria-label={`${copy.goToLabel} ${index + 1}`}
                   onClick={() => scrollToIndex(index)}
                   className="flex h-6 w-6 items-center justify-center"
                 >

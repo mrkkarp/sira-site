@@ -34,6 +34,7 @@ import { ShopEmptyState } from "@/components/shop/shop-empty-state";
 import { CategoryNav } from "@/components/shop/category-nav";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Pagination } from "@/components/ui/pagination";
+import { currencySuffix } from "@/components/ui/price";
 import { BreadcrumbStructuredData } from "@/components/seo/breadcrumb-structured-data";
 import { CollectionStructuredData } from "@/components/seo/collection-structured-data";
 
@@ -161,7 +162,7 @@ export async function ShopCatalog({
               Object.fromEntries(
                 getAllCollections().map((c) => [c.slug, c.name]),
               ),
-              { price: "грн", width: "см", height: "см" },
+              { price: currencySuffix[locale], width: "см", height: "см" },
             )
           }
         />
@@ -190,6 +191,11 @@ export async function ShopCatalog({
               />
             ) : (
               <>
+                {/* Visually hidden, but a real level-2 heading: the cards are
+                    `h3`, so without it the page jumped `h1` → `h3` and someone
+                    navigating by heading had no marker for where the filter
+                    sidebar ends and the results begin. */}
+                <h2 className="sr-only">{dictionary.shop.gridHeading}</h2>
                 <ProductGrid
                   products={pageItems}
                   locale={locale}
@@ -200,6 +206,8 @@ export async function ShopCatalog({
                     currentPage={currentPage}
                     totalPages={totalPages}
                     label={dictionary.shop.pagination.label}
+                    prevLabel={dictionary.shop.pagination.prevLabel}
+                    nextLabel={dictionary.shop.pagination.nextLabel}
                     getHref={(page) =>
                       buildFilterHref(basePath, { ...filters, page })
                     }

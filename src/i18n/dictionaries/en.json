@@ -246,7 +246,8 @@
       "body": "A selection across categories — sinks, planters, tables and outdoor pieces.",
       "viewAllCta": "All products",
       "prevLabel": "Previous product",
-      "nextLabel": "Next product"
+      "nextLabel": "Next product",
+      "goToLabel": "Go to product"
     },
     "colours": {
       "eyebrow": "Colour cast through the mass",
@@ -440,7 +441,8 @@
     "phonePlaceholder": "+380 __ ___ __ __",
     "requiredName": "Enter your name.",
     "requiredPhone": "Enter your phone number.",
-    "invalidPhone": "Enter a valid phone number."
+    "invalidPhone": "Enter a valid phone number.",
+    "invalidEmail": "Enter a valid email address."
   },
   "cookieConsent": {
     "heading": "We use cookies",
@@ -531,6 +533,7 @@
     "allCategoriesHeading": "All products",
     "allCategoriesIntro": "Sinks, planters, tables, wall panels and outdoor pieces in handmade architectural concrete — our own production, colour cast into the material.",
     "resultsCount": "{count} products found",
+    "gridHeading": "Products",
     "categoryNavHeading": "Categories",
     "filtersButton": "Filters",
     "filtersButtonWithCount": "Filters ({count})",

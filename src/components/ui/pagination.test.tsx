@@ -9,6 +9,12 @@ import { Pagination } from "@/components/ui/pagination";
  * render nothing when there is only one page (rather than a useless
  * single-page control).
  */
+const labels = {
+  label: "Сторінки каталогу",
+  prevLabel: "Попередня сторінка",
+  nextLabel: "Наступна сторінка",
+};
+
 describe("Pagination", () => {
   it("renders nothing when there is only one page", () => {
     const { container } = render(
@@ -16,6 +22,7 @@ describe("Pagination", () => {
         currentPage={1}
         totalPages={1}
         getHref={(page) => `/shop?page=${page}`}
+        {...labels}
       />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -27,6 +34,7 @@ describe("Pagination", () => {
         currentPage={2}
         totalPages={3}
         getHref={(page) => `/shop?page=${page}`}
+        {...labels}
       />,
     );
     expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
@@ -49,6 +57,7 @@ describe("Pagination", () => {
         currentPage={2}
         totalPages={3}
         getHref={(page) => `/shop?page=${page}`}
+        {...labels}
       />,
     );
     expect(screen.getByRole("link", { name: "2" })).toHaveAttribute(
@@ -60,51 +69,70 @@ describe("Pagination", () => {
     );
   });
 
-  it("disables Prev on the first page and Next on the last page", () => {
+  /**
+   * The ends used to stay `<a href>`s with `aria-disabled` and
+   * `pointer-events-none` — which blocks the mouse and nothing else. They
+   * remained in the tab order and Enter still navigated, so "Prev" on page 1
+   * announced itself as disabled and then reloaded page 1. Asserting on the
+   * *link* role is the point: at an end there must be no link at all.
+   */
+  it("offers no focusable control at either end of the range", () => {
     const { rerender } = render(
       <Pagination
         currentPage={1}
         totalPages={3}
         getHref={(page) => `/shop?page=${page}`}
+        {...labels}
       />,
     );
-    expect(screen.getByRole("link", { name: "Prev" })).toHaveAttribute(
-      "aria-disabled",
-      "true",
-    );
-    expect(screen.getByRole("link", { name: "Next" })).toHaveAttribute(
-      "aria-disabled",
-      "false",
-    );
+    expect(
+      screen.queryByRole("link", { name: labels.prevLabel }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: labels.nextLabel }),
+    ).toHaveAttribute("href", "/shop?page=2");
 
     rerender(
       <Pagination
         currentPage={3}
         totalPages={3}
         getHref={(page) => `/shop?page=${page}`}
-      />,
-    );
-    expect(screen.getByRole("link", { name: "Next" })).toHaveAttribute(
-      "aria-disabled",
-      "true",
-    );
-    expect(screen.getByRole("link", { name: "Prev" })).toHaveAttribute(
-      "aria-disabled",
-      "false",
-    );
-  });
-
-  it("uses a distinguishing aria-label so multiple paginations on a page stay distinct", () => {
-    render(
-      <Pagination
-        currentPage={1}
-        totalPages={2}
-        getHref={(page) => `/shop?page=${page}`}
-        label="Custom pagination label"
+        {...labels}
       />,
     );
     expect(
-      screen.getByRole("navigation", { name: "Custom pagination label" }),
+      screen.queryByRole("link", { name: labels.nextLabel }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: labels.prevLabel }),
+    ).toHaveAttribute("href", "/shop?page=2");
+  });
+
+  /**
+   * The ends were hardcoded "Prev"/"Next" in the markup, so every locale —
+   * including the Ukrainian default — shipped English controls while
+   * `shop.pagination.prevLabel`/`nextLabel` sat unused in all three
+   * dictionaries.
+   */
+  it("takes every visible string from the caller, with no English fallback", () => {
+    render(
+      <Pagination
+        currentPage={2}
+        totalPages={3}
+        getHref={(page) => `/shop?page=${page}`}
+        {...labels}
+      />,
+    );
+    expect(
+      screen.getByRole("navigation", { name: labels.label }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: labels.prevLabel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: labels.nextLabel }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Prev")).not.toBeInTheDocument();
+    expect(screen.queryByText("Next")).not.toBeInTheDocument();
   });
 });

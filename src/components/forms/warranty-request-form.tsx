@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { z } from "zod";
+import { PhoneNumber } from "@/domain/shared/phone";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { Button } from "@/components/ui/button";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
@@ -33,7 +34,7 @@ interface PendingPhoto {
 /** Loose client-side guard, mirrors `WarrantyFormInput` in `/api/warranty/route.ts`. */
 const WarrantyFormFields = z.object({
   name: z.string().trim().min(1),
-  phone: z.string().trim().min(7),
+  phone: PhoneNumber,
   email: z.string().trim().email().optional().or(z.literal("")),
   issueDescription: z.string().trim().min(1),
 });
@@ -152,9 +153,11 @@ export function WarrantyRequestForm({
       const nextErrors: FieldErrors = {};
       for (const issue of parsed.error.issues) {
         if (issue.path[0] === "name" && !nextErrors.name) {
-          nextErrors.name = name.trim()
-            ? dictionary.leadFields.invalidPhone
-            : dictionary.leadFields.requiredName;
+          // `name` is `min(1)` after a trim, so the only way it fails is
+          // by being empty. The old ternary here also had an
+          // `invalidPhone` arm, which was both unreachable and, had it
+          // ever fired, about the wrong field entirely.
+          nextErrors.name = dictionary.leadFields.requiredName;
         }
         if (issue.path[0] === "phone" && !nextErrors.phone) {
           nextErrors.phone = phone.trim()
@@ -162,7 +165,10 @@ export function WarrantyRequestForm({
             : dictionary.leadFields.requiredPhone;
         }
         if (issue.path[0] === "email" && !nextErrors.email) {
-          nextErrors.email = dictionary.leadFields.invalidPhone;
+          // Was `invalidPhone`: mistyping your email told you to check
+          // your phone number. Email is optional here, so a failure can
+          // only mean a malformed address — there is no "required" arm.
+          nextErrors.email = dictionary.leadFields.invalidEmail;
         }
         if (
           issue.path[0] === "issueDescription" &&
@@ -251,6 +257,14 @@ export function WarrantyRequestForm({
           ref={nameRef}
           id={`${baseId}-name`}
           type="text"
+          // `required` on a `noValidate` form is purely a semantic
+          // announcement — the browser bubble stays suppressed and
+          // `handleSubmit` remains the only validator. Without it, name,
+          // phone and the issue description were indistinguishable from the
+          // genuinely optional email and order number: this form has no
+          // visible "*" either, so requiredness reached nobody at all
+          // (WCAG 3.3.2). Deliberately not on `email`/`order-number`.
+          required
           autoComplete="name"
           value={name}
           onChange={(event) => setName(event.target.value)}
@@ -278,6 +292,7 @@ export function WarrantyRequestForm({
           ref={phoneRef}
           id={`${baseId}-phone`}
           type="tel"
+          required
           autoComplete="tel"
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
@@ -347,6 +362,7 @@ export function WarrantyRequestForm({
           ref={issueRef}
           id={`${baseId}-issue`}
           rows={4}
+          required
           value={issueDescription}
           onChange={(event) => setIssueDescription(event.target.value)}
           placeholder={w.issuePlaceholder}

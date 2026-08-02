@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { z } from "zod";
+import { PhoneNumber } from "@/domain/shared/phone";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { Button } from "@/components/ui/button";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
@@ -15,7 +16,7 @@ type FieldErrors = { name?: string; phone?: string };
 /** Loose client-side guard, mirrors `QuoteFormInput` in `/api/quote/route.ts`. */
 const QuoteFormFields = z.object({
   name: z.string().trim().min(1),
-  phone: z.string().trim().min(7),
+  phone: PhoneNumber,
 });
 
 /**
@@ -62,9 +63,10 @@ export function QuoteRequestForm({
       const nextErrors: FieldErrors = {};
       for (const issue of parsed.error.issues) {
         if (issue.path[0] === "name" && !nextErrors.name) {
-          nextErrors.name = name.trim()
-            ? dictionary.leadFields.invalidPhone
-            : dictionary.leadFields.requiredName;
+          // `name` is `min(1)` after a trim, so the only failure is an
+          // empty one. The old ternary's other arm was `invalidPhone` —
+          // unreachable, and about a different field.
+          nextErrors.name = dictionary.leadFields.requiredName;
         }
         if (issue.path[0] === "phone" && !nextErrors.phone) {
           nextErrors.phone = phone.trim()
@@ -129,6 +131,12 @@ export function QuoteRequestForm({
           ref={nameRef}
           id={`${baseId}-name`}
           type="text"
+          // Both fields are required and neither said so to anyone but a
+          // sighted user reading the error after the fact — this form has no
+          // visible "*" and, being `noValidate`, no browser prompt either.
+          // `required` is semantics only here; `handleSubmit` still does all
+          // the validating (WCAG 3.3.2).
+          required
           autoComplete="name"
           value={name}
           onChange={(event) => setName(event.target.value)}
@@ -156,6 +164,7 @@ export function QuoteRequestForm({
           ref={phoneRef}
           id={`${baseId}-phone`}
           type="tel"
+          required
           autoComplete="tel"
           value={phone}
           onChange={(event) => setPhone(event.target.value)}

@@ -246,7 +246,8 @@
       "body": "Вибірка моделей з різних категорій — умивальники, вазони, столи та вуличні об'єкти.",
       "viewAllCta": "Усі вироби",
       "prevLabel": "Попередній виріб",
-      "nextLabel": "Наступний виріб"
+      "nextLabel": "Наступний виріб",
+      "goToLabel": "Перейти до виробу"
     },
     "colours": {
       "eyebrow": "Колір у масі",
@@ -440,7 +441,8 @@
     "phonePlaceholder": "+380 __ ___ __ __",
     "requiredName": "Вкажіть ім'я.",
     "requiredPhone": "Вкажіть номер телефону.",
-    "invalidPhone": "Введіть коректний номер телефону."
+    "invalidPhone": "Введіть коректний номер телефону.",
+    "invalidEmail": "Введіть коректну електронну адресу."
   },
   "cookieConsent": {
     "heading": "Ми використовуємо файли cookie",
@@ -531,6 +533,7 @@
     "allCategoriesHeading": "Усі вироби",
     "allCategoriesIntro": "Умивальники, вазони, столи, стінові панелі та вуличні об'єкти з архітектурного бетону ручної роботи — власне виробництво, колір у масі.",
     "resultsCount": "Знайдено виробів: {count}",
+    "gridHeading": "Вироби",
     "categoryNavHeading": "Категорії",
     "filtersButton": "Фільтри",
     "filtersButtonWithCount": "Фільтри ({count})",

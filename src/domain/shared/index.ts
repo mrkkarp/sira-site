@@ -1,6 +1,7 @@
 export * from "./ids";
 export * from "./locale-content";
 export * from "./money";
+export * from "./phone";
 export * from "./measurement";
 export * from "./lead-time";
 export * from "./inventory-status";

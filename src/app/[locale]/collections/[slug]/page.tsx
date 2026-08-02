@@ -194,6 +194,12 @@ export default async function CollectionPage({
       {products.length > 0 ? (
         <Section spacing="lg">
           <Container>
+            {/* Visually hidden, but a real level-2 heading. `ProductCard`
+                renders `h3`, so this section jumped straight from the
+                collection's `h1` to `h3` and someone navigating by heading
+                had nothing marking where the products begin. `shop-catalog`
+                already carries the same marker for the same reason. */}
+            <h2 className="sr-only">{dictionary.shop.gridHeading}</h2>
             <ProductGrid
               products={products}
               locale={locale}

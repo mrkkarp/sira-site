@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { z } from "zod";
+import { PhoneNumber } from "@/domain/shared/phone";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
@@ -36,7 +37,7 @@ type Status = "idle" | "submitting" | "success" | "error";
 const CheckoutFields = z
   .object({
     fullName: z.string().trim().min(1),
-    phone: z.string().trim().min(7),
+    phone: PhoneNumber,
     email: z.string().trim().email().optional().or(z.literal("")),
     deliveryType: z.enum([
       "novaPoshtaBranch",
@@ -79,6 +80,7 @@ type FieldErrors = Partial<
   Record<
     | "fullName"
     | "phone"
+    | "email"
     | "cityName"
     | "branchNumber"
     | "address"
@@ -159,6 +161,7 @@ export function CheckoutPageContent({
   const fieldIds: Record<keyof FieldErrors, string> = {
     fullName: `${baseId}-fullName`,
     phone: `${baseId}-phone`,
+    email: `${baseId}-email`,
     cityName: `${baseId}-city`,
     branchNumber: `${baseId}-branch`,
     address: `${baseId}-address`,
@@ -193,7 +196,21 @@ export function CheckoutPageContent({
       const nextErrors: FieldErrors = {};
       const messages: Record<keyof FieldErrors, string> = {
         fullName: copy.requiredFullName,
-        phone: copy.requiredPhone,
+        // Phone is the only required field with a *shape* rule as well as
+        // a presence one (`PhoneNumber`, shared with the API). Answering
+        // "12" with "enter your phone number" reads as if the box were
+        // still blank, so the two cases get different words — the same
+        // split the warranty and quote forms already make.
+        phone: fields.phone.trim()
+          ? dictionary.leadFields.invalidPhone
+          : copy.requiredPhone,
+        // Email is optional, so its only failure is a malformed address.
+        // It had no entry here at all, which meant a typo'd email failed
+        // the whole submit while marking no field and moving no focus —
+        // the customer saw the generic "щось пішло не так" and had
+        // nothing to go on. Exactly the dead end the schema's own doc
+        // comment above describes for the delivery fields.
+        email: dictionary.leadFields.invalidEmail,
         cityName: copy.requiredCity,
         branchNumber: copy.requiredBranchNumber,
         address: copy.requiredAddress,
@@ -374,7 +391,11 @@ export function CheckoutPageContent({
             />
           )}
         </FormField>
-        <FormField id={`${baseId}-email`} label={copy.emailLabel}>
+        <FormField
+          id={`${baseId}-email`}
+          label={copy.emailLabel}
+          error={fieldErrors.email}
+        >
           {(props) => (
             <input
               {...props}
