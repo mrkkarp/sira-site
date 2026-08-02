@@ -135,7 +135,7 @@ export default function DesignSystemPage() {
             <p className="type-label text-text">Label</p>
             <p className="type-eyebrow text-text-muted">Eyebrow</p>
             <p className="type-caption text-text-muted">Caption</p>
-            <p className="type-price text-text">1 250 ₴ · Price</p>
+            <p className="type-price text-text">1 250 грн · Price</p>
             <p className="type-nav text-text">Navigation</p>
             <p className="type-technical-value text-text">
               85 см · Technical value
@@ -261,6 +261,9 @@ export default function DesignSystemPage() {
               currentPage={2}
               totalPages={5}
               getHref={(page) => `#page-${page}`}
+              label="Сторінки каталогу"
+              prevLabel="Попередня сторінка"
+              nextLabel="Наступна сторінка"
             />
             <EmptyState
               heading="Нічого не знайдено"
