@@ -161,8 +161,17 @@ describe("ProductExperience", () => {
     );
 
     // Now the inline lead form (with its submit button) is present.
+    //
+    // `find*` rather than `get*` because the form is a `next/dynamic` import:
+    // it is the only thing on the product page that pulls zod into the
+    // browser, and it is behind two deliberate gates (a custom colour, then a
+    // click), so it is fetched on demand instead of shipped to every visitor.
+    // What is under test here is unchanged — the form appears only after an
+    // explicit click, never on its own — but "appears" is now a tick later.
     expect(
-      screen.getByRole("button", { name: dictionary.product.requestQuoteCta }),
+      await screen.findByRole("button", {
+        name: dictionary.product.requestQuoteCta,
+      }),
     ).toBeInTheDocument();
   });
 

@@ -1,39 +1,34 @@
 import { z } from "zod";
+import {
+  outdoorTypes,
+  planterPlacements,
+  shopCategories,
+  sinkTypes,
+} from "./product-categories";
 
 /**
- * Top-level shop categories — these map 1:1 to the `/shop/[category]` routes.
+ * The vocabularies themselves live in `./product-categories.ts`, which imports
+ * nothing — a client component that needs the list of categories (the search
+ * drawer's chips) must not drag zod's runtime into the shared bundle to get
+ * seven strings. They are re-exported here so this module stays the single
+ * import site for everything product-shaped on the server.
  */
-export const shopCategories = [
-  "sinks",
-  "planters",
-  "tables",
-  "wall-modules",
-  "wall-panels",
-  "wall-art",
-  "outdoor",
-] as const;
+export {
+  outdoorTypes,
+  planterPlacements,
+  shopCategories,
+  sinkTypes,
+} from "./product-categories";
+
 export const ShopCategorySchema = z.enum(shopCategories);
 export type ShopCategory = z.infer<typeof ShopCategorySchema>;
 
-/** Sink mounting type — only meaningful when category is "sinks". */
-export const sinkTypes = [
-  "freestanding",
-  "countertop",
-  "wall-mounted",
-] as const;
 export const SinkTypeSchema = z.enum(sinkTypes);
 export type SinkType = z.infer<typeof SinkTypeSchema>;
 
-/** Outdoor product type — only meaningful when category is "outdoor". Not
- * currently derivable from the source export (see `mapCategory` in
- * `src/lib/product-mapping.ts`) — kept for forward compatibility only. */
-export const outdoorTypes = ["bench", "bin", "tree-grate", "bollard"] as const;
 export const OutdoorTypeSchema = z.enum(outdoorTypes);
 export type OutdoorType = z.infer<typeof OutdoorTypeSchema>;
 
-/** Planter placement — only meaningful when category is "planters". Real,
- * derived from the source category split ("Вазони/До дому" vs "Вазони/Вуличні"). */
-export const planterPlacements = ["indoor", "outdoor"] as const;
 export const PlanterPlacementSchema = z.enum(planterPlacements);
 export type PlanterPlacement = z.infer<typeof PlanterPlacementSchema>;
 

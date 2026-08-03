@@ -1,22 +1,26 @@
 import { z } from "zod";
+import { currencyCodes, MINOR_UNITS_PER_CURRENCY } from "./money-units";
 
 /**
  * `Price`/`Money` (Prompt 8 §2.1, §3.2) — always integer minor units,
  * never floating point, per the spec's explicit rule ("не зберігай
  * гроші у floating-point"). For UAH, `minorUnits` is kopecks
- * (1 UAH = 100 kopecks). Only UAH is supported today (matches
- * `pricing.currency` being fixed/read-only in `src/collections/
- * Products.ts` from the previous phase) — the `CurrencyCode` enum is
- * intentionally a single-value union so adding a currency later is a
- * type-checked, one-line change rather than a silent runtime surprise.
+ * (1 UAH = 100 kopecks).
+ *
+ * The currency list, the minor-unit table and `moneyToDecimal` live in
+ * `./money-units.ts`, which imports nothing: they are needed by client
+ * components that only *display* a total, and reaching them through this
+ * module put zod in the browser. They are re-exported here so this stays the
+ * single import site for anything money-shaped on the server.
  */
-export const CurrencyCode = z.enum(["UAH"]);
+export const CurrencyCode = z.enum(currencyCodes);
 export type CurrencyCode = z.infer<typeof CurrencyCode>;
 
-/** Minor units per major unit, by currency — used to convert to/from a display amount. UAH: 100 kopecks per hryvnia. */
-export const MINOR_UNITS_PER_CURRENCY: Record<CurrencyCode, number> = {
-  UAH: 100,
-};
+export {
+  currencyCodes,
+  MINOR_UNITS_PER_CURRENCY,
+  moneyToDecimal,
+} from "./money-units";
 
 export const MoneySchema = z.object({
   currency: CurrencyCode,
@@ -42,11 +46,6 @@ export function moneyFromDecimal(
     );
   }
   return money(currency, minorUnits);
-}
-
-/** Convert a `Money` value back to a decimal major-unit amount (e.g. for display or for sending to LiqPay, which expects a decimal amount). */
-export function moneyToDecimal(value: Money): number {
-  return value.minorUnits / MINOR_UNITS_PER_CURRENCY[value.currency];
 }
 
 export function addMoney(a: Money, b: Money): Money {

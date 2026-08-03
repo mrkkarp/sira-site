@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
@@ -20,9 +21,33 @@ import { ProductCoreInfo } from "@/components/product/product-core-info";
 import { ProductTrustDetails } from "@/components/product/product-trust-details";
 import { ColourSelector } from "@/components/product/colour-selector";
 import { AddToCartButton } from "@/components/product/add-to-cart-button";
-import { QuoteRequestForm } from "@/components/product/quote-request-form";
 import { MobileStickyCta } from "@/components/product/mobile-sticky-cta";
 import { Button } from "@/components/ui/button";
+
+/**
+ * The consultation form is revealed only when a shopper picks a custom colour
+ * *and* then clicks the CTA, so a static import made every visitor to every
+ * product page download it — and, because it validates the phone number in the
+ * browser, zod's whole runtime with it: ~277 kB uncompressed, for a form most
+ * visitors never open. This is the case `lazy-loading.md` names outright
+ * ("defer loading a modal until a user clicks to open it").
+ *
+ * `preloadQuoteForm` is the other half. A code split trades bytes for a delay
+ * at the moment of the click, which is the worst moment to add one; calling the
+ * same `import()` on hover/focus starts the fetch while the pointer is still
+ * travelling, so the chunk is usually in the module cache before the click
+ * lands. It is the identical specifier, so the bundler resolves both to one
+ * chunk and a second call is a no-op.
+ */
+const QuoteRequestForm = dynamic(() =>
+  import("@/components/product/quote-request-form").then(
+    (module) => module.QuoteRequestForm,
+  ),
+);
+
+const preloadQuoteForm = () => {
+  void import("@/components/product/quote-request-form");
+};
 
 /**
  * Product page's single interactive "island" (Prompt 6 §1/§4/§5/§6/§14) —
@@ -210,6 +235,8 @@ export function ProductExperience({
                     type="button"
                     variant="primary-dark"
                     className="self-start"
+                    onPointerEnter={preloadQuoteForm}
+                    onFocus={preloadQuoteForm}
                     onClick={() => setShowQuoteForm(true)}
                   >
                     {dictionary.product.contactColourCta}

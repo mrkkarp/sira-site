@@ -7,7 +7,10 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { formatTemplate } from "@/lib/format-template";
-import { shopCategories } from "@/lib/schemas/product";
+// The zod-free module, deliberately: this component is in the header, so it is
+// on every page, and importing the same seven strings from `./product` would
+// put zod's whole runtime into the shared client bundle.
+import { shopCategories } from "@/lib/schemas/product-categories";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
 import { Price } from "@/components/ui/price";
 import type { SearchResponse } from "@/app/api/search/route";

@@ -1,10 +1,14 @@
-import {
-  sinkTypes,
-  planterPlacements,
-  type Product,
-  type SinkType,
-  type PlanterPlacement,
+import type {
+  Product,
+  SinkType,
+  PlanterPlacement,
 } from "@/lib/schemas/product";
+// Values, not types, so this import decides what ships to the browser: the
+// filter sidebar and the mobile filter drawer are client components, and
+// reaching these two tuples through `./product` (which imports zod) put zod's
+// entire runtime into `/shop`'s bundle. Types above are erased and cost
+// nothing, so they can keep coming from the schema module.
+import { sinkTypes, planterPlacements } from "@/lib/schemas/product-categories";
 
 /**
  * URL-state filter engine for `/shop` and `/shop/[category]`. Pure functions

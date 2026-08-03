@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Price } from "@/components/ui/price";
 import { Divider } from "@/components/ui/divider";
-import { moneyToDecimal } from "@/domain/shared/money";
+// `money-units`, not `money` — this page divides two totals by 100 to display
+// them and validates nothing, but `money.ts` opens with `import { z } from
+// "zod"`, so importing the same function from there put zod's whole runtime in
+// the browser for a division. Server code should keep using `@/domain/shared/
+// money`, which re-exports this.
+import { moneyToDecimal } from "@/domain/shared/money-units";
 import type { OrderStatusResponse } from "@/app/api/order-status/route";
 
 type Status =
