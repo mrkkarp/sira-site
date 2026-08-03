@@ -5,8 +5,25 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { locales, localeLabels, type Locale } from "@/i18n/config";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
+import { cn } from "@/lib/cn";
+
+type Props = {
+  locale: Locale;
+  inverted?: boolean;
+};
 
 /**
+ * UK / EN / PL as three peers: the current one carries a permanent rule
+ * beneath it, the others draw that same rule on hover. The rule *is* the
+ * state — an inactive locale is distinguished by a colour step, never by being
+ * faded out, so it reads identically over the light bar and over a dark hero.
+ * (The previous version used `opacity-60 → 100`, which disappears entirely on
+ * a photographic background.)
+ *
+ * `inverted` is the over-hero case: there is no fixed "muted" ink to step down
+ * to there, because the bar's ink is whatever contrasts with the photo behind
+ * it, so the inactive state is derived from `currentColor` instead.
+ *
  * ## Why the query string is read on click, not on render
  *
  * The switcher used to build its hrefs from `usePathname()` alone, so it
@@ -38,7 +55,7 @@ import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
  * so "open in new tab" keeps working; those get the plain href, which is a
  * reasonable destination rather than a broken one.
  */
-export function LocaleSwitcher({ locale }: { locale: Locale }) {
+export function LocaleSwitcher({ locale, inverted = false }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const bare = stripLocaleFromPathname(pathname, locales);
@@ -61,23 +78,44 @@ export function LocaleSwitcher({ locale }: { locale: Locale }) {
   }
 
   return (
-    <ul className="type-label flex items-center gap-2">
+    <ul className="type-label flex items-center">
       {locales.map((candidate) => {
+        const isCurrent = candidate === locale;
         const href = localeHref(candidate, bare);
         return (
           <li key={candidate}>
+            {/* `size-11` is the 44px minimum target (WCAG 2.5.5). A two-letter
+                code padded to its text width measured 33×26, which is the sort
+                of control that is technically hittable and practically not.
+                The box grows; the type does not move, because it stays
+                centred. The rule then has to hang off an inner span — anchored
+                to the 44px box it would draw itself well below the letters. */}
             <Link
               href={href}
               onClick={(event) => keepQuery(event, href)}
-              aria-current={candidate === locale ? "true" : undefined}
+              aria-current={isCurrent ? "true" : undefined}
               title={localeLabels[candidate]}
-              className={
-                candidate === locale
-                  ? "font-medium"
-                  : "opacity-60 transition-opacity duration-(--duration-fast) hover:opacity-100"
-              }
+              className={cn(
+                "group flex size-11 items-center justify-center uppercase transition-colors duration-(--duration-normal) ease-(--ease-nav)",
+                isCurrent
+                  ? "text-current"
+                  : inverted
+                    ? "text-current/55 hover:text-current"
+                    : "text-text-muted hover:text-text",
+              )}
             >
-              {candidate}
+              <span className="relative">
+                {candidate}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute inset-x-0 -bottom-(--space-3xs) h-px origin-left bg-current transition-transform duration-(--duration-normal) ease-(--ease-nav)",
+                    isCurrent
+                      ? "scale-x-100"
+                      : "scale-x-0 group-hover:scale-x-100 group-focus-visible:scale-x-100",
+                  )}
+                />
+              </span>
             </Link>
           </li>
         );

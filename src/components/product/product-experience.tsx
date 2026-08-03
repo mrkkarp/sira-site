@@ -104,7 +104,10 @@ export function ProductExperience({
 
   function revealQuoteForm() {
     setShowQuoteForm(true);
-    quoteFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    quoteFormRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   }
 
   const ctaSentinelRef = useRef<HTMLDivElement>(null);
@@ -155,6 +158,7 @@ export function ProductExperience({
             selectedId={resolved.selection.colour}
             onSelect={(choiceId) => handleSelect("colour", choiceId)}
             dictionary={dictionary}
+            locale={locale}
             brokenImageLabel={brokenImageLabel}
           />
         ) : null}

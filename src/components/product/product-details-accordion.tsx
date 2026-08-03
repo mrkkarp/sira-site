@@ -1,9 +1,14 @@
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { Product } from "@/lib/schemas/product";
 import { getInstallationSpecEntries } from "@/lib/product-installation";
+import {
+  getDimensionSpecEntries,
+  withoutDimensionSpecEntries,
+} from "@/lib/product-dimensions";
 import { getProductDocuments } from "@/lib/product-documents";
 import { Accordion, type AccordionItemData } from "@/components/ui/accordion";
 import { ProductSpecs } from "@/components/product/product-specs";
+import { ProductDimensions } from "@/components/product/product-dimensions";
 
 /**
  * Product page accordion — Prompt 6 §11 (Характеристики / Доставка / Монтаж
@@ -11,6 +16,9 @@ import { ProductSpecs } from "@/components/product/product-specs";
  *
  * Every section here is backed by real data:
  * - Характеристики: the product's own parsed spec entries (omitted when empty).
+ * - Розміри: the measured axes, lifted out of Характеристики so the same
+ *   number is not printed twice on one page (omitted when there are none —
+ *   most of the catalogue was published without measurements).
  * - Доставка / Гарантія / Догляд: the same real, confirmed company-wide
  *   payment/delivery/warranty/care copy already used on the footer and
  *   customer-care pages (`dictionary.customerCare`) — not re-invented here.
@@ -36,11 +44,21 @@ export function ProductDetailsAccordion({
 
   const items: AccordionItemData[] = [];
 
-  if (product.specEntries.length > 0) {
+  const remainingSpecEntries = withoutDimensionSpecEntries(product.specEntries);
+  if (remainingSpecEntries.length > 0) {
     items.push({
       id: "specs",
       trigger: copy.accordionSpecs,
-      content: <ProductSpecs specEntries={product.specEntries} />,
+      content: <ProductSpecs specEntries={remainingSpecEntries} />,
+    });
+  }
+
+  const dimensionEntries = getDimensionSpecEntries(product.specEntries);
+  if (dimensionEntries.length > 0) {
+    items.push({
+      id: "dimensions",
+      trigger: copy.accordionDimensions,
+      content: <ProductDimensions entries={dimensionEntries} />,
     });
   }
 
@@ -111,5 +129,5 @@ export function ProductDetailsAccordion({
     content: <p>{care.warrantyBody}</p>,
   });
 
-  return <Accordion items={items} />;
+  return <Accordion items={items} indexed />;
 }

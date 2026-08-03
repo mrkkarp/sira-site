@@ -38,6 +38,7 @@ async function renderSelector(
       selectedId="base"
       onSelect={onSelect}
       dictionary={dictionary}
+      locale="uk"
       brokenImageLabel="broken"
       {...overrides}
     />,
@@ -75,5 +76,4 @@ describe("ColourSelector", () => {
       screen.getByText(dictionary.product.colourCustomNote),
     ).toBeInTheDocument();
   });
-
 });

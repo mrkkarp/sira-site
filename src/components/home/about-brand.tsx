@@ -3,6 +3,7 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { Section, Container } from "@/components/layout";
 import { LinkButton } from "@/components/ui/link-button";
+import { CoordinateLabel, drawingIndex } from "@/components/technical-drawing";
 
 /**
  * "Про бренд" (Prompt 4 §7) — the in-house-production story. The original
@@ -33,9 +34,20 @@ export function AboutBrand({
           <p className="type-body-lg text-text-muted mt-(--space-sm)">
             {copy.intro}
           </p>
-          <ul className="type-body text-text-muted mt-(--space-md) flex flex-col gap-(--space-xs)">
-            {copy.bullets.map((bullet) => (
-              <li key={bullet} className="border-border border-t pt-(--space-xs)">
+          <ul className="type-body text-text-muted relative mt-(--space-md) flex flex-col gap-(--space-sm)">
+            {/* One construction line the whole process hangs from, rather than
+                a rule per row: the steps are a single run of work, and six
+                separate borders drew them as six unrelated facts. The numbers
+                interrupt the line the way stations interrupt a station line. */}
+            <span
+              aria-hidden="true"
+              className="bg-drawing-line-subtle absolute inset-y-0 left-3 w-(--drawing-stroke)"
+            />
+            {copy.bullets.map((bullet, index) => (
+              <li key={bullet} className="flex items-baseline gap-(--space-sm)">
+                <CoordinateLabel className="bg-background relative w-6 shrink-0 py-(--space-3xs) text-center">
+                  {drawingIndex(index + 1)}
+                </CoordinateLabel>
                 {bullet}
               </li>
             ))}

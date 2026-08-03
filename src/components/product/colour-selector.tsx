@@ -1,49 +1,65 @@
 "use client";
 
 import { useRef } from "react";
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
+import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { VariantChoice } from "@/lib/variant-model";
 import { ProductImage } from "@/components/product/product-image";
+import { Price } from "@/components/ui/price";
+import { DrawingMarker } from "@/components/technical-drawing";
 import { cn } from "@/lib/cn";
 
 /**
- * Colour selector (Phase B redesign). Presents the colour choice as one
- * accessible `radiogroup` split into two clearly labeled sections:
+ * Colour selector (Phase B redesign, restyled onto the drawing system).
+ * Presents the colour choice as one accessible `radiogroup` of numbered
+ * option plates:
  *
  *  - **Standard colours** — a real photo swatch + the real `colorLabel` for
- *    each catalogued colourway. Selecting one drives the normal buy flow.
- *  - **Custom colour** — a single, visually distinct option card (palette
- *    chip, never a duplicate product photo) that states up-front how its
- *    price differs (a real surcharge when we have one, otherwise
- *    "calculated separately") and carries the RAL/NCS matching note. This
- *    is the option that routes to the consultation CTA upstream.
+ *    each catalogued colourway, stated as carrying no surcharge.
+ *  - **Custom colour** — a visually distinct plate (palette chip, never a
+ *    duplicate product photo) that states up-front how its price differs (the
+ *    real surcharge when we have one) and carries the RAL/NCS matching note.
+ *    This is the option that routes to the consultation CTA upstream — an
+ *    inline one, never a popup.
+ *
+ * Each plate is a position number, a category label, a rule and the choice
+ * itself: the anatomy of a row in the specification table on ODUDLAB's own
+ * drawings. Selection is signalled three ways at once — ink border, filled
+ * position marker, and the rule drawing itself across the plate — because the
+ * brief rules out both bulky rounded cards and selection-by-tint. All three
+ * are paint or transform on a box whose border width never changes, so
+ * choosing a colour never nudges the layout.
  *
  * Semantics: `role="radiogroup"` with `role="radio"` + `aria-checked`,
  * roving `tabIndex` (only the active choice is tab-stoppable), and
  * arrow-key navigation that moves selection — the standard WAI-ARIA radio
- * group pattern. No option is ever hidden or left stale after a switch; the
- * active choice always has a strong visible border + label emphasis, plus
- * hover/focus-visible affordances.
+ * group pattern. No option is ever hidden or left stale after a switch.
+ *
+ * A plate carries no `aria-label`. Naming it just "Сірий базовий" while it
+ * visibly reads "Стандартний колір / Сірий базовий / Без доплати" breaks Label
+ * in Name (WCAG 2.5.3): someone driving the page by voice would say what they
+ * see and hit nothing. The marker, the rule and the swatch are all
+ * `aria-hidden`, so letting the plate name itself yields exactly its three
+ * real lines — category, colour, price consequence.
  */
 export function ColourSelector({
   choices,
   selectedId,
   onSelect,
   dictionary,
+  locale,
   brokenImageLabel,
 }: {
   choices: VariantChoice[];
   selectedId: string | undefined;
   onSelect: (choiceId: string) => void;
   dictionary: Dictionary;
+  locale: Locale;
   brokenImageLabel: string;
 }) {
   const t = dictionary.product;
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  const standardChoices = choices.filter((choice) => choice.kind === "standard");
-  const customChoices = choices.filter((choice) => choice.kind === "custom");
 
   const activeId =
     selectedId && choices.some((choice) => choice.id === selectedId)
@@ -86,117 +102,139 @@ export function ColourSelector({
       <div
         role="radiogroup"
         aria-label={t.colourSectionTitle}
-        className="flex flex-col gap-(--space-sm)"
+        className="flex flex-col gap-(--space-2xs)"
         onKeyDown={handleKeyDown}
       >
-        {standardChoices.length > 0 ? (
-          <div className="flex flex-col gap-(--space-2xs)">
-            <p className="type-caption text-text-muted">
-              {t.colourStandardLabel}
-            </p>
-            <div className="flex flex-wrap gap-(--space-sm)">
-              {standardChoices.map((choice) => {
-                const isSelected = choice.id === activeId;
-                return (
-                  <button
-                    key={choice.id}
-                    ref={(el) => {
-                      buttonRefs.current[choice.id] = el;
-                    }}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    aria-label={choice.label}
-                    tabIndex={isSelected ? 0 : -1}
-                    disabled={!choice.available}
-                    onClick={() => onSelect(choice.id)}
-                    className="group flex flex-col items-center gap-(--space-3xs) outline-none disabled:opacity-40"
-                  >
-                    <span
-                      className={cn(
-                        "bg-surface-muted relative block h-14 w-14 shrink-0 overflow-hidden border-2 transition-colors",
-                        isSelected
-                          ? "border-text"
-                          : "border-transparent group-hover:border-border-strong group-focus-visible:border-text",
-                      )}
-                    >
-                      {choice.photo ? (
-                        <ProductImage
-                          src={choice.photo}
-                          alt=""
-                          sizes="56px"
-                          className="object-cover"
-                          brokenLabel={brokenImageLabel}
-                        />
-                      ) : null}
-                    </span>
-                    <span
-                      className={cn(
-                        "type-caption max-w-[6rem] text-center",
-                        isSelected ? "text-text" : "text-text-muted",
-                      )}
-                    >
-                      {choice.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
+        {choices.map((choice, index) => {
+          const isSelected = choice.id === activeId;
+          const isCustom = choice.kind === "custom";
 
-        {customChoices.length > 0 ? (
-          <div className="flex flex-col gap-(--space-2xs)">
-            <p className="type-caption text-text-muted">{t.colourCustomLabel}</p>
-            <div className="flex flex-col gap-(--space-2xs)">
-              {customChoices.map((choice) => {
-                const isSelected = choice.id === activeId;
-                return (
-                  <button
-                    key={choice.id}
-                    ref={(el) => {
-                      buttonRefs.current[choice.id] = el;
+          return (
+            <button
+              key={choice.id}
+              ref={(el) => {
+                buttonRefs.current[choice.id] = el;
+              }}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              tabIndex={isSelected ? 0 : -1}
+              disabled={!choice.available}
+              onClick={() => onSelect(choice.id)}
+              className={cn(
+                "group flex w-full flex-col gap-(--space-2xs) border p-(--space-sm) text-left transition-colors duration-(--duration-normal) ease-(--ease-nav) outline-none disabled:opacity-40",
+                isSelected
+                  ? "border-text"
+                  : "border-drawing-line-subtle hover:border-drawing-line",
+              )}
+            >
+              <span className="flex items-center gap-(--drawing-gap)">
+                <DrawingMarker filled={isSelected}>{index + 1}</DrawingMarker>
+                <span className="type-drawing-label text-drawing-text">
+                  {isCustom ? t.colourCustomLabel : t.colourStandardLabel}
+                </span>
+              </span>
+
+              {/* The plate's rule. Always present as construction weight, with
+                  an ink overlay that draws itself across on hover and stays
+                  drawn while selected — the "animated line" the brief asks for,
+                  as a transform, so it costs one composited frame. */}
+              <span
+                aria-hidden="true"
+                className="bg-drawing-line-subtle relative block h-(--drawing-stroke) w-full"
+              >
+                <span
+                  className={cn(
+                    "bg-text absolute inset-0 origin-left transition-transform duration-(--duration-normal) ease-(--ease-nav)",
+                    isSelected
+                      ? "scale-x-100"
+                      : "scale-x-0 group-hover:scale-x-100 group-focus-visible:scale-x-100",
+                  )}
+                />
+              </span>
+
+              <span className="flex items-center gap-(--space-sm)">
+                {isCustom ? (
+                  /* Palette chip — deliberately NOT a product photo, so the
+                   * custom option can never duplicate a standard swatch and
+                   * reads instantly as "any RAL/NCS colour". */
+                  <span
+                    aria-hidden="true"
+                    className="border-drawing-line-subtle block h-14 w-14 shrink-0 border"
+                    style={{
+                      background:
+                        "conic-gradient(from 90deg, #d98c8c, #d9c48c, #a9d98c, #8cb8d9, #b08cd9, #d98c8c)",
                     }}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    aria-label={t.colourCustomOptionTitle}
-                    tabIndex={isSelected ? 0 : -1}
-                    disabled={!choice.available}
-                    onClick={() => onSelect(choice.id)}
-                    className={cn(
-                      "flex w-full items-center gap-(--space-sm) border-2 p-(--space-2xs) text-left outline-none transition-colors disabled:opacity-40",
-                      isSelected
-                        ? "border-text bg-surface-muted"
-                        : "border-border hover:border-border-strong focus-visible:border-text",
-                    )}
-                  >
-                    {/* Palette chip — deliberately NOT a product photo, so the
-                     * custom option can never duplicate a standard swatch and
-                     * reads instantly as "any RAL/NCS colour". */}
-                    <span
-                      aria-hidden="true"
-                      className="border-border block h-14 w-14 shrink-0 border"
-                      style={{
-                        background:
-                          "conic-gradient(from 90deg, #d98c8c, #d9c48c, #a9d98c, #8cb8d9, #b08cd9, #d98c8c)",
-                      }}
-                    />
-                    <span className="flex min-w-0 flex-col gap-(--space-3xs)">
-                      <span className="type-body-sm text-text">
-                        {t.colourCustomOptionTitle}
-                      </span>
-                      <span className="type-caption text-text-muted">
-                        {t.colourCustomNote}
-                      </span>
+                  />
+                ) : (
+                  <span className="bg-surface-muted border-drawing-line-subtle relative block h-14 w-14 shrink-0 overflow-hidden border">
+                    {choice.photo ? (
+                      <ProductImage
+                        src={choice.photo}
+                        alt=""
+                        sizes="56px"
+                        className="object-cover"
+                        brokenLabel={brokenImageLabel}
+                      />
+                    ) : null}
+                  </span>
+                )}
+
+                <span className="flex min-w-0 flex-col gap-(--space-3xs)">
+                  <span className="type-body-sm text-text">
+                    {isCustom ? t.colourCustomOptionTitle : choice.label}
+                  </span>
+                  <ColourPriceNote
+                    choice={choice}
+                    locale={locale}
+                    noSurchargeLabel={t.colourNoSurcharge}
+                  />
+                  {isCustom ? (
+                    <span className="type-caption text-text-muted">
+                      {t.colourCustomNote}
                     </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
+                  ) : null}
+                </span>
+              </span>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
+}
+
+/**
+ * The one line on the plate that has to be unambiguous before anyone clicks:
+ * what this choice does to the price. A real surcharge is shown as a real
+ * figure; no surcharge is stated outright rather than left blank, because a
+ * blank reads as "unknown" on the option whose whole reputation problem is
+ * being priced on application. Custom colours that genuinely have no fixed
+ * surcharge fall through to the RAL/NCS note, which says so in words.
+ */
+function ColourPriceNote({
+  choice,
+  locale,
+  noSurchargeLabel,
+}: {
+  choice: VariantChoice;
+  locale: Locale;
+  noSurchargeLabel: string;
+}): ReactNode {
+  if (choice.surcharge > 0) {
+    return (
+      <span className="type-technical-value text-text flex items-baseline gap-(--space-3xs)">
+        <span aria-hidden="true">+</span>
+        <Price amount={choice.surcharge} locale={locale} />
+      </span>
+    );
+  }
+  if (choice.kind === "standard") {
+    return (
+      <span className="type-drawing-label text-drawing-text">
+        {noSurchargeLabel}
+      </span>
+    );
+  }
+  return null;
 }

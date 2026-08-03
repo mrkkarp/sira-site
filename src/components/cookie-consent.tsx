@@ -62,11 +62,22 @@ export function CookieConsent({ dictionary }: { dictionary: Dictionary }) {
     setDismissed(true);
   }
 
+  // `z-[45]` is deliberately between the header stack (40) and the modal tier
+  // (50). At z-50 the banner tied with the fullscreen mobile menu, the search
+  // drawer and every `DialogPrimitive`, and `layout.tsx` renders
+  // `CookieConsent` *after* `Header`, so the tie broke in the banner's favour:
+  // it painted over the bottom 188px of an open modal — hiding "Про нас",
+  // "Дизайнерам" and the language switcher on a 375px viewport — and stayed
+  // hit-testable above a dialog whose own content was not. That also
+  // contradicted the dialog's `aria-modal="true"`, which tells assistive tech
+  // everything outside it is unavailable. A notice is page furniture, not an
+  // overlay: it belongs under the modal tier, and above the sticky bars
+  // (back-to-top, mobile CTA) that it must not be buried by.
   return (
     <div
       role="region"
       aria-label={dictionary.cookieConsent.heading}
-      className="bg-footer text-background border-background/10 fixed inset-x-0 bottom-0 z-50 border-t"
+      className="bg-footer text-background border-background/10 fixed inset-x-0 bottom-0 z-[45] border-t"
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-(--space-sm) px-(--space-sm) py-(--space-sm) sm:flex-row sm:items-center sm:justify-between">
         {panel === "banner" ? (
@@ -81,17 +92,15 @@ export function CookieConsent({ dictionary }: { dictionary: Dictionary }) {
             </div>
             <div className="flex flex-wrap gap-(--space-2xs)">
               <Button
-                variant="ghost"
+                variant="ghost-light"
                 size="sm"
-                className="text-background hover:text-background/70"
                 onClick={() => setPanel("customize")}
               >
                 {dictionary.cookieConsent.customize}
               </Button>
               <Button
-                variant="outline"
+                variant="outline-light"
                 size="sm"
-                className="border-background/40 text-background hover:bg-background/10"
                 onClick={rejectOptional}
               >
                 {dictionary.cookieConsent.rejectOptional}
@@ -143,9 +152,8 @@ export function CookieConsent({ dictionary }: { dictionary: Dictionary }) {
 
             <div className="flex flex-wrap gap-(--space-2xs)">
               <Button
-                variant="ghost"
+                variant="ghost-light"
                 size="sm"
-                className="text-background hover:text-background/70"
                 onClick={() => setPanel("banner")}
               >
                 {dictionary.cookieConsent.back}

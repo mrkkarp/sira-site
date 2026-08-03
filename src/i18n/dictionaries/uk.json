@@ -15,6 +15,24 @@
     "resources": "Матеріали",
     "contact": "Контакти"
   },
+  "catalogNav": {
+    "eyebrow": "Каталог",
+    "allProducts": "Усі вироби",
+    "previewEyebrow": "Категорія",
+    "viewCategory": "Перейти до категорії",
+    "sinks": "Раковини",
+    "sinksFreestanding": "Підлогові",
+    "sinksCountertop": "Накладні",
+    "planters": "Вазони",
+    "plantersOutdoor": "Вуличні",
+    "plantersIndoor": "Для дому",
+    "tables": "Столики",
+    "outdoorFurniture": "Вуличні меблі",
+    "panels": "Панелі",
+    "modules": "Бетонні модулі",
+    "wallArt": "Панно",
+    "custom": "Індивідуальні вироби"
+  },
   "megaMenu": {
     "catalog": {
       "categoriesHeading": "Категорії",
@@ -117,7 +135,7 @@
   "mobileMenu": {
     "openLabel": "Відкрити меню",
     "closeLabel": "Закрити меню",
-    "back": "Назад",
+    "dialogLabel": "Навігація",
     "language": "Мова"
   },
   "shopCategories": {
@@ -488,6 +506,7 @@
     "socialHeading": "Соцмережі",
     "regionLabel": "Регіон",
     "regionValue": "Україна",
+    "cityValue": "Київ",
     "languageLabel": "Мова",
     "copyright": "Усі права захищено.",
     "backToTop": "Нагору",
@@ -633,6 +652,7 @@
     "colourCustomLabel": "Індивідуальний колір",
     "colourCustomOptionTitle": "Індивідуальний колір (RAL / NCS)",
     "colourCustomNote": "Підбір за палітрами RAL / NCS. Вартість може відрізнятися.",
+    "colourNoSurcharge": "Без доплати",
     "contactColourCta": "Уточнити індивідуальний колір",
     "contactColourIntro": "Індивідуальний колір підбираємо за RAL / NCS — залиште контакти, і ми узгодимо колір та вартість.",
     "trustConsultation": "Консультація: телефон, Viber, Telegram",
@@ -648,6 +668,7 @@
     "documentsHeading": "Документи",
     "noDocuments": "Документація для цього виробу поки не завантажена.",
     "accordionSpecs": "Характеристики",
+    "accordionDimensions": "Розміри",
     "accordionDelivery": "Доставка",
     "accordionInstallation": "Монтаж",
     "accordionCare": "Догляд",
@@ -665,6 +686,7 @@
     "relatedInThisColour": "У цьому кольорі",
     "relatedCompleteTheSet": "Доповніть комплект",
     "galleryLabel": "Галерея зображень",
+    "galleryViewCaption": "Вигляд",
     "editorialCraftHeading": "Ідея та матеріал",
     "editorialColourHeading": "Колір під замовлення",
     "specLabels": {

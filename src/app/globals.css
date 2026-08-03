@@ -61,7 +61,166 @@
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
   --stagger-small: 60ms;
+
+  /* ---- Navigation motion (header rebuild) ----
+     One extra easing and two extra durations, added for the header only.
+     `--ease-nav` is the strong ease-out the reference navigation
+     (lyon-beton.com) uses for every one of its transitions; it is a hair
+     flatter on the way out than `--ease-entrance`, which is what makes a
+     panel look like it *settles* rather than springs. Reveal/dismiss are
+     asymmetric on purpose: a menu should open with weight and get out of
+     the way quickly. Both sit inside the brief's 350–600 / faster-close
+     window. Everything the header animates uses one of these — no
+     component invents its own timing. */
+  --ease-nav: cubic-bezier(0.2, 1, 0.2, 1);
+  --duration-reveal: 460ms;
+  --duration-dismiss: 280ms;
+
+  /* ---- Technical drawing system ----
+     Derived from ODUDLAB's own production drawings (see
+     src/components/technical-drawing/). Everything the drawing layer paints
+     reads from these seven values, so its weight across the whole site is
+     tuned here and nowhere else — no component hardcodes a hairline colour
+     or a marker diameter.
+
+     The two line roles are the real distinction on a technical sheet, not a
+     decorative gradient: `--drawing-line` is *object* geometry (contours,
+     dimension lines, marker circles) and has to be legible; the site's
+     3:1-compliant `--color-border-strong` already is. `--drawing-line-subtle`
+     is *construction* geometry (guides, extension lines, leaders) — the
+     scaffolding a draughtsman leaves visible but never asks you to read.
+
+     `--drawing-stroke` stays 1 CSS px: on a 2× display that is 2 device
+     pixels, so an axis-aligned border or background bar lands exactly on the
+     device grid and needs no half-pixel nudging. Any fraction of a pixel
+     would blur it back into a grey smear, which is the one thing a drawing
+     line must never look like. */
+  --drawing-stroke: 1px;
+  --drawing-line: var(--color-border-strong);
+  --drawing-line-subtle: var(--color-border);
+  --drawing-text: var(--color-text-muted);
+  /* 22px — the source drawing's position circles are ~2.2× their digit
+     height, and the label size below is 11px. Under 44px, so any marker that
+     is also a control needs its own target padding; none currently is. */
+  --drawing-marker-size: 1.375rem;
+  /* The clearance a real extension line leaves between the object and where
+     the line starts. Also the marker→leader and leader→label gap, so the
+     whole system breathes on one rhythm. */
+  --drawing-gap: 0.5rem;
+  --drawing-label-size: 0.6875rem;
 }
+
+/* Staggered entrance for mega-menu / mobile-menu rows. The delay is read
+   from a per-item `--i` custom property set inline by the renderer, so the
+   stagger costs one CSS rule instead of one inline style per row. Both
+   properties animated here (opacity + transform) are compositor-only. */
+@keyframes nav-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fullscreen mobile menu entrance. The drawer unmounts on close (so there is
+   only ever an entrance to play), and it wipes down from the top edge rather
+   than sliding, which keeps the header bar it grew out of visually anchored. */
+@keyframes menu-reveal {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Cart badge acknowledgement — fires only when the count actually changes
+   (the badge is keyed on the count), never on mount. */
+@keyframes cart-count-in {
+  0% {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Route-change hairline: a left-to-right sweep, then a fade. Purely an
+   acknowledgement — it never gates or delays the navigation itself. */
+@keyframes route-sweep {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  70% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+/* ---- Technical drawing motion ----
+   A drawing is *constructed*, so its elements arrive in the order a
+   draughtsman would put them down: the line is drawn, then the marker is
+   placed, then the annotation is written. All three are compositor-only
+   except `stroke-dashoffset`, which is the only honest way to draw a curved
+   or angled SVG path and is cheap on the handful of short paths we use it
+   for. Nothing overshoots — a construction line that springs past its
+   endpoint and settles back is the opposite of the feeling being built. */
+@keyframes drawing-line-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes drawing-line-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* `--drawing-dash` is set by the component to the path's own length, so one
+   keyframe serves paths of any length at the same apparent speed. */
+@keyframes drawing-stroke-draw {
+  from {
+    stroke-dashoffset: var(--drawing-dash, 100);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawing-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* The page-content reveal on navigation deliberately lives *outside* this
+   file: it is driven by the Web Animations API in
+   src/components/page-transition.tsx, because a CSS animation can only be
+   replayed by remounting the subtree or by forcing a reflow, and neither is
+   worth paying for on the frame a new page is painting. */
 
 @theme inline {
   --color-background: var(--color-background);
@@ -89,6 +248,15 @@
   --font-sans: var(--font-interface-sans);
   --font-serif: var(--font-editorial-serif);
 
+  /* Exposed as colours so the drawing layer uses ordinary utilities
+     (`border-drawing-line`, `bg-drawing-line-subtle`, `text-drawing-text`)
+     instead of arbitrary-value escapes. The `:root` declarations above stay
+     the single source of truth; these only teach Tailwind to generate the
+     utilities. */
+  --color-drawing-line: var(--drawing-line);
+  --color-drawing-line-subtle: var(--drawing-line-subtle);
+  --color-drawing-text: var(--drawing-text);
+
   --radius-none: 0px;
 }
 
@@ -98,9 +266,10 @@ body {
 }
 
 /* Fallback before Header's ResizeObserver measures the real height on mount —
-   used only by hero sections' negative-margin trick below. 65px = the bar's
-   `h-16` plus its 1px bottom border; it was 116px while an announcement bar
-   sat above the bar, and that bar has since been removed.
+   used only by hero sections' negative-margin trick below. 74px = the floating
+   stack's 8px gutter, the bar's 1px top border, its `h-14`, its 1px bottom
+   border and the 8px gutter again (8 + 1 + 56 + 1 + 8). It was 65px while the
+   bar was flush to the viewport edge with a single bottom rule.
 
    Declared on `:root` (i.e. <html>) and NOT on `body`, deliberately. Header
    writes the measured height as an inline style on `document.documentElement`;
@@ -110,11 +279,25 @@ body {
    only value ever used. Keep the two in step anyway: this is what the first
    paint uses, before any JS runs. */
 :root {
-  --header-stack-height: 65px;
+  --header-stack-height: 74px;
 }
 
-* {
-  border-color: var(--color-border);
+/* Tailwind v4 defaults `border-color` to `currentColor`; this restores the v3
+   behaviour of defaulting to the theme's border colour.
+
+   It MUST stay inside `@layer base`. Unlayered CSS outranks every `@layer` in
+   the cascade, and v4 emits all utilities into `@layer utilities` — so as a
+   bare top-level rule this `*` selector (specificity 0,0,0) silently beat
+   every `border-*` colour utility on the site (0,1,0). `border-t-transparent`,
+   `border-b-current/30`, `border-border-strong` and the header's own
+   `border-current/30` cell rules all computed to `--color-border` regardless
+   of what they asked for; the floating bar drew a full box over the hero
+   instead of the single bottom hairline it specifies. Inside `base`, the
+   layer order does the work the specificity was never going to do. */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
 }
 
 /* The header stack is `position: sticky` (not `fixed`, deliberately — see
@@ -125,10 +308,16 @@ body {
    renders <HeroBoundary /> (src/components/header/hero-boundary.tsx) at the
    end of its hero `Section`, and gives that hero section:
      margin-top: calc(-1 * var(--header-stack-height));
-     padding-top: var(--header-stack-height);
    The negative margin pulls the hero's *background* up to visually sit
-   behind the header (which turns transparent while the hero is in view);
-   the matching padding-top keeps the hero's own text clear of the header. */
+   behind the header, which turns transparent — and flips its ink to the
+   light-on-dark treatment — while the hero is in view.
+
+   The clearance for the hero's own text goes on the hero's *copy container*,
+   NOT as `padding-top` on the section. Padding on the section sits inside the
+   pulled-up border box, so it pushes the artwork back down below the bar and
+   leaves a strip of ordinary page background behind a header whose ink has
+   already gone light: light on light, i.e. invisible navigation. See
+   src/components/home/hero-carousel.tsx for the working shape. */
 
 /* Consistent, visible keyboard focus everywhere — never remove without replacing. */
 :focus-visible {
@@ -142,9 +331,81 @@ body {
   *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+    /* Without this the header's staggered menu rows would still appear one
+       by one over ~half a second: zeroing the *duration* alone leaves the
+       per-row `animation-delay` intact, and `animation-fill-mode: both`
+       pins each row at its (opacity: 0) start frame until its delay
+       elapses. Reduced motion means the whole panel is simply there. */
+    animation-delay: 0ms !important;
     transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================
+   Navigation motion utilities. Kept here rather than inline so
+   the header's several staggered lists share one definition.
+   ============================================================ */
+
+/** Staggered row entrance. Set `--i` (row index) inline on each row; the
+ *  parent decides nothing else. Only runs while the panel is open — the
+ *  header re-mounts its rows via a `key` on open so the animation replays
+ *  every time rather than only on first paint. */
+@utility nav-row {
+  animation: nav-row-in var(--duration-reveal) var(--ease-nav) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-small));
+}
+
+/* ============================================================
+   Technical drawing system. Tokens live in `:root`; these are
+   the two things a token can't express — a type role and the
+   construction animations.
+   ============================================================ */
+
+/** The annotation voice of the whole drawing layer: sheet numbers, position
+ *  markers, dimension values, coordinate letters, sheet captions. Tabular
+ *  figures because these are almost always numerals that sit in a column and
+ *  must not shuffle sideways as they change. */
+@utility type-drawing-label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--drawing-label-size);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+/** Line draws itself left-to-right. Set `--i` for a staggered set. */
+@utility drawing-draw-x {
+  transform-origin: left center;
+  animation: drawing-line-x var(--duration-reveal) var(--ease-nav) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-small));
+}
+
+/** Vertical guide, drawn top-to-bottom. */
+@utility drawing-draw-y {
+  transform-origin: center top;
+  animation: drawing-line-y var(--duration-reveal) var(--ease-nav) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-small));
+}
+
+/** Marker is placed after its line has arrived — hence the extra beat of
+ *  delay on top of the same per-item stagger. */
+@utility drawing-mark {
+  animation: drawing-mark-in var(--duration-normal) var(--ease-nav) both;
+  animation-delay: calc(
+    var(--i, 0) * var(--stagger-small) + var(--duration-normal)
+  );
+}
+
+/** SVG path draw. The component sets `--drawing-dash` to the path length and
+ *  the matching `stroke-dasharray`; without it the fallback simply means a
+ *  long path finishes early rather than not animating at all. */
+@utility drawing-stroke-in {
+  animation: drawing-stroke-draw var(--duration-reveal) var(--ease-nav) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-small));
 }
 
 /* ============================================================

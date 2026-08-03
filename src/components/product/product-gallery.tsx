@@ -9,6 +9,13 @@ import { ProductImage } from "@/components/product/product-image";
 import { DialogPrimitive } from "@/components/ui/dialog-primitive";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/cn";
+import {
+  CoordinateLabel,
+  DrawingFrame,
+  TechnicalCaption,
+  TechnicalLine,
+  drawingIndex,
+} from "@/components/technical-drawing";
 
 const SWIPE_THRESHOLD_PX = 40;
 
@@ -33,6 +40,24 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
  * thumbnails, swipe on touch, a focus-trapping fullscreen lightbox, and a
  * counter. Broken images never show a broken-image icon — `ProductImage`
  * swaps to a labelled fallback instead.
+ *
+ * ## The drawing layer
+ *
+ * The photo is treated as a *view placed on a sheet*: four registration ticks
+ * at its corners, and an annotation band below it carrying the view caption at
+ * one edge and the frame readout at the other, over a ruled line. The band
+ * replaces the pill that used to float over the bottom of the photograph — an
+ * annotation belongs beside the view, not on top of it.
+ *
+ * Two things the brief allows here that are deliberately absent:
+ *
+ *  - **No view name.** The caption reads `01 — ВИГЛЯД` / `01 — VIEW` /
+ *    `01 — WIDOK`, never `FRONT VIEW`. Nothing in the catalogue records which
+ *    side of an object a given photograph shows, and a drawing that labels a
+ *    three-quarter shot "front elevation" is simply wrong.
+ *  - **No scale mark.** A scale bar is a measurement. These are photographs at
+ *    unknown and varying distances, so any bar drawn across one would be
+ *    decoration impersonating data.
  */
 export function ProductGallery({
   media,
@@ -103,47 +128,66 @@ export function ProductGallery({
 
   return (
     <div className="flex flex-col gap-(--space-xs)">
-      <div
-        data-testid="gallery-active"
-        className="bg-surface-muted relative aspect-square w-full"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {active.type === "video" ? (
-          <video
-            src={active.src}
-            controls
-            className="h-full w-full object-cover"
-            aria-label={active.alt}
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setLightboxOpen(true)}
-            aria-label={dictionary.product.galleryOpenLightbox}
-            className="absolute inset-0 h-full w-full"
-          >
-            <ProductImage
+      {/* The ticks sit in an 8px margin rather than on the photograph: on a
+          dark image a mark drawn over the corner would simply disappear, and
+          on a sheet the registration marks belong to the frame, not the view. */}
+      <DrawingFrame className="p-(--space-2xs)">
+        <div
+          data-testid="gallery-active"
+          className="bg-surface-muted relative aspect-square w-full"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {active.type === "video" ? (
+            <video
               src={active.src}
-              alt={active.alt}
-              priority
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              className="object-cover"
-              brokenLabel={brokenImageLabel}
+              controls
+              className="h-full w-full object-cover"
+              aria-label={active.alt}
             />
-          </button>
-        )}
+          ) : (
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              aria-label={dictionary.product.galleryOpenLightbox}
+              className="absolute inset-0 h-full w-full"
+            >
+              <ProductImage
+                src={active.src}
+                alt={active.alt}
+                priority
+                sizes="(min-width: 1024px) 60vw, 100vw"
+                className="object-cover"
+                brokenLabel={brokenImageLabel}
+              />
+            </button>
+          )}
+        </div>
+      </DrawingFrame>
 
-        {media.length > 1 ? (
-          <div className="absolute inset-x-0 bottom-(--space-sm) flex items-center justify-center gap-(--space-2xs)">
-            <span className="type-caption bg-background/80 text-text px-(--space-2xs) py-(--space-3xs)">
-              {formatTemplate(dictionary.product.galleryCounter, {
-                current: safeIndex + 1,
-                total: media.length,
-              })}
-            </span>
-          </div>
-        ) : null}
+      {/* Annotation band. The caption is real content; the `NN / NN` readout
+          beside it is the drawing's way of writing the same fact, so it is
+          hidden from assistive tech and the sentence form is kept for it. */}
+      <div>
+        <div className="flex items-end justify-between gap-(--space-sm) pb-(--space-3xs)">
+          <TechnicalCaption index={safeIndex + 1}>
+            {dictionary.product.galleryViewCaption}
+          </TechnicalCaption>
+          {media.length > 1 ? (
+            <>
+              <CoordinateLabel>
+                {drawingIndex(safeIndex + 1)} / {drawingIndex(media.length)}
+              </CoordinateLabel>
+              <span className="sr-only">
+                {formatTemplate(dictionary.product.galleryCounter, {
+                  current: safeIndex + 1,
+                  total: media.length,
+                })}
+              </span>
+            </>
+          ) : null}
+        </div>
+        <TechnicalLine />
       </div>
 
       {media.length > 1 ? (

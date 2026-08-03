@@ -122,7 +122,9 @@ describe("ProductExperience", () => {
     // The lead form is NOT auto-shown — its submit button only appears after
     // the shopper explicitly opens the consultation CTA.
     expect(
-      screen.queryByRole("button", { name: dictionary.product.requestQuoteCta }),
+      screen.queryByRole("button", {
+        name: dictionary.product.requestQuoteCta,
+      }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(dictionary.shop.productCard.fromPricePrefix),
@@ -149,7 +151,9 @@ describe("ProductExperience", () => {
     );
     // No form yet.
     expect(
-      screen.queryByRole("button", { name: dictionary.product.requestQuoteCta }),
+      screen.queryByRole("button", {
+        name: dictionary.product.requestQuoteCta,
+      }),
     ).not.toBeInTheDocument();
 
     fireEvent.click(
@@ -182,9 +186,8 @@ describe("ProductExperience", () => {
     const selected = within(screen.getByRole("radiogroup")).getByRole("radio", {
       checked: true,
     });
-    expect(selected).toHaveAttribute(
-      "aria-label",
-      dictionary.product.colourCustomOptionTitle,
+    expect(selected).toHaveAccessibleName(
+      expect.stringContaining(dictionary.product.colourCustomOptionTitle),
     );
   });
 

@@ -30,6 +30,7 @@ export function ProductGrid({
           locale={locale}
           dictionary={dictionary}
           priority={index < 4}
+          index={index}
         />
       ))}
     </div>

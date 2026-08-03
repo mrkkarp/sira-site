@@ -65,7 +65,7 @@ export function CustomerCareSummary({
 
         <Link
           href={localeHref(locale, warrantyReadMoreHref)}
-          className="type-body-sm text-background decoration-background/40 hover:decoration-background mt-(--space-2xs) inline-block underline underline-offset-4"
+          className="type-body-sm text-background decoration-background/40 hover:decoration-background mt-(--space-3xs) inline-block py-(--space-3xs) underline underline-offset-4"
         >
           {dictionary.customerCare.readMore}
         </Link>

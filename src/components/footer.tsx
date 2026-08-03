@@ -15,9 +15,14 @@ import { CustomerCareSummary } from "@/components/footer/customer-care-summary";
 import { Accordion } from "@/components/ui/accordion";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import type { AccordionItemData } from "@/components/ui/accordion";
+import { drawingIndex } from "@/components/technical-drawing";
 
+// `inline-block` + padding, because vertical padding on an inline box does not
+// grow the line: a 19px-tall link is under the 24px minimum target (WCAG 2.5.8)
+// and every footer list failed it on a phone. The padding is invisible and the
+// lists lose the same 4px from their gap, so the type does not move.
 const linkClass =
-  "text-background/85 hover:text-background transition-colors duration-(--duration-fast)";
+  "text-background/85 hover:text-background transition-colors duration-(--duration-fast) inline-block py-(--space-3xs)";
 
 function resolveLinks(
   links: NavLink[],
@@ -33,15 +38,26 @@ function LinkColumn({
   heading,
   links,
   locale,
+  index,
 }: {
   heading: string;
   links: Array<{ label: string; href: string }>;
   locale: Locale;
+  index: number;
 }) {
   return (
     <div>
-      <h2 className="type-technical-label text-background/60">{heading}</h2>
-      <ul className="type-body-sm mt-(--space-sm) flex flex-col gap-(--space-xs)">
+      <h2 className="type-technical-label text-background/60 flex items-center gap-(--drawing-gap)">
+        {/* Column number in the drawing's voice. `aria-hidden` so the heading
+            is still announced as just the section name, and set in the same ink
+            as the name — on the sheet a position number is not a fainter mark,
+            it is the same ink held apart by the gap. Tinting it down was worth
+            2.9:1 on this band, which is a number you can only find if you
+            already know it is there. */}
+        <span aria-hidden="true">{drawingIndex(index)}</span>
+        {heading}
+      </h2>
+      <ul className="type-body-sm mt-(--space-sm) flex flex-col gap-(--space-3xs)">
         {links.map((link) => (
           <li key={link.href + link.label}>
             <Link href={localeHref(locale, link.href)} className={linkClass}>
@@ -175,7 +191,7 @@ export function Footer({
       id: "catalog",
       trigger: dictionary.footerNav.catalogHeading,
       content: (
-        <ul className="type-body-sm flex flex-col gap-(--space-xs)">
+        <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
           {catalogLinks.map((link) => (
             <li key={link.href + link.label}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
@@ -190,7 +206,7 @@ export function Footer({
       id: "customers",
       trigger: dictionary.footerNav.customersHeading,
       content: (
-        <ul className="type-body-sm flex flex-col gap-(--space-xs)">
+        <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
           {customerLinks.map((link) => (
             <li key={link.href + link.label}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
@@ -205,7 +221,7 @@ export function Footer({
       id: "designers",
       trigger: dictionary.footerNav.designersHeading,
       content: (
-        <ul className="type-body-sm flex flex-col gap-(--space-xs)">
+        <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
           {designerLinks.map((link) => (
             <li key={link.href + link.label}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
@@ -220,7 +236,7 @@ export function Footer({
       id: "brand",
       trigger: dictionary.footerNav.brandHeading,
       content: (
-        <ul className="type-body-sm flex flex-col gap-(--space-xs)">
+        <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
           {brandLinks.map((link) => (
             <li key={link.href + link.label}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
@@ -235,7 +251,7 @@ export function Footer({
       id: "legal",
       trigger: dictionary.footerNav.legalHeading,
       content: (
-        <ul className="type-body-sm flex flex-col gap-(--space-xs)">
+        <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
           {legalLinks.map((link) => (
             <li key={link.href + link.label}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
@@ -259,6 +275,8 @@ export function Footer({
             items={accordionItems}
             allowMultiple
             defaultOpenIds={["catalog"]}
+            indexed
+            tone="onDark"
           />
         </div>
 
@@ -268,26 +286,31 @@ export function Footer({
             heading={dictionary.footerNav.catalogHeading}
             links={catalogLinks}
             locale={locale}
+            index={1}
           />
           <LinkColumn
             heading={dictionary.footerNav.customersHeading}
             links={customerLinks}
             locale={locale}
+            index={2}
           />
           <LinkColumn
             heading={dictionary.footerNav.designersHeading}
             links={designerLinks}
             locale={locale}
+            index={3}
           />
           <LinkColumn
             heading={dictionary.footerNav.brandHeading}
             links={brandLinks}
             locale={locale}
+            index={4}
           />
           <LinkColumn
             heading={dictionary.footerNav.legalHeading}
             links={legalLinks}
             locale={locale}
+            index={5}
           />
         </div>
       </div>
@@ -305,8 +328,21 @@ export function Footer({
             {dictionary.footerNav.copyright}
           </p>
           <div className="flex flex-wrap items-center gap-(--space-sm)">
-            <span>{dictionary.footerNav.regionValue}</span>
-            <LocaleSwitcher locale={locale} />
+            {/* The sheet's origin line, in the drawing's voice. Deliberately
+                not a title block: three real values on one line, no revision
+                or sheet-number fields, and no version string — nothing here
+                generates one, and inventing a build number would make the
+                footer claim something the site cannot back up. */}
+            <span className="type-drawing-label">
+              {dictionary.site.name} / {dictionary.footerNav.cityValue} /{" "}
+              {dictionary.footerNav.regionValue}
+            </span>
+            {/* `inverted` derives both states from `currentColor`, so it needs
+                one that belongs to this band: inheriting the row's `/50` put
+                the two unselected locales at 2.8:1 on the dark footer. */}
+            <span className="text-background">
+              <LocaleSwitcher locale={locale} inverted />
+            </span>
           </div>
         </div>
         {/*

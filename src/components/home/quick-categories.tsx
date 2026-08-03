@@ -66,31 +66,35 @@ export function QuickCategories({
                   spanClass[category.size],
                 )}
               >
+                {/* No wrapper between the frame and its child: `MediaFrame`
+                    crops with `[&>img]:object-cover`, a direct-child selector,
+                    so an intermediate div silently drops the image to
+                    `object-fit: fill` — the portrait "Вазони" shot was being
+                    squashed from 2:3 into a square. The frame already supplies
+                    `relative`, `overflow-hidden` and a definite height. */}
                 <MediaFrame ratio={isLarge ? "editorial-portrait" : "square"}>
-                  <div className="h-full w-full overflow-hidden">
-                    {image ? (
-                      <ProductImage
-                        src={image}
-                        alt={label}
-                        sizes={
-                          isLarge
-                            ? "(min-width: 1024px) 50vw, 100vw"
-                            : "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw"
-                        }
-                        brokenLabel={
-                          dictionary.megaMenu.catalog.editorialImageAlt
-                        }
-                        className="transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]"
-                      />
-                    ) : (
-                      // The custom "Індивідуальні вироби" card has no single
-                      // representative product photo. Rather than a "Фото
-                      // очікується" placeholder, it gets a deliberate dark
-                      // concrete tile that reads as an intentional
-                      // consultation entry point (the label sits below).
-                      <div className="bg-footer h-full w-full transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]" />
-                    )}
-                  </div>
+                  {image ? (
+                    <ProductImage
+                      src={image}
+                      alt={label}
+                      sizes={
+                        isLarge
+                          ? "(min-width: 1024px) 50vw, 100vw"
+                          : "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw"
+                      }
+                      brokenLabel={
+                        dictionary.megaMenu.catalog.editorialImageAlt
+                      }
+                      className="transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]"
+                    />
+                  ) : (
+                    // The custom "Індивідуальні вироби" card has no single
+                    // representative product photo. Rather than a "Фото
+                    // очікується" placeholder, it gets a deliberate dark
+                    // concrete tile that reads as an intentional
+                    // consultation entry point (the label sits below).
+                    <div className="bg-footer h-full w-full transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]" />
+                  )}
                 </MediaFrame>
                 <div className="mt-(--space-xs) flex items-start justify-between gap-(--space-sm)">
                   <div>

@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,21 +15,24 @@ import { locales, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
-import { primaryNav, brandMenu } from "@/config/navigation";
+import { primaryNav } from "@/config/navigation";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import {
+  getHeroBoundary,
+  getHeroBoundaryServerSnapshot,
+  subscribeHeroBoundary,
+} from "@/components/header/hero-boundary";
 import { CatalogMenuContent } from "@/components/header/catalog-menu-content";
-import { SimpleMenuContent } from "@/components/header/simple-menu-content";
 import { CartButton } from "@/components/header/cart-button";
+import { RollingLabel } from "@/components/header/rolling-label";
 
-// Prompt 9 §5 (performance audit) — every page renders `Header`, so these
-// three are code-split out of its main client bundle rather than statically
-// imported. `MegaMenu` still needs its default SSR (its trigger button *is*
-// the always-visible primary-nav label, e.g. "Каталог" — that must stay in
-// the server-rendered HTML). `SearchDrawer`/`MobileMenu` render `null`
-// whenever their `open` prop is false (true on first paint), so `ssr:
-// false` costs nothing today and skips server-rendering markup no one can
-// see yet.
+// Every page renders `Header`, so these three are code-split out of its main
+// client bundle rather than statically imported. `MegaMenu` keeps its default
+// SSR — its trigger button *is* the always-visible primary-nav label
+// ("Каталог"), which must be in the server-rendered HTML. `SearchDrawer` and
+// `MobileMenu` render `null` while closed (true on first paint), so `ssr:
+// false` costs nothing and skips markup no one can see yet.
 const MegaMenu = dynamic(() =>
   import("@/components/header/mega-menu").then((mod) => mod.MegaMenu),
 );
@@ -36,6 +46,54 @@ const MobileMenu = dynamic(
   { ssr: false },
 );
 
+/** Scroll distance after which the bar stops reading as part of the page and
+ *  starts reading as a plane floating over it. Deliberately short — the state
+ *  change should land on the first deliberate scroll, not halfway down. */
+const DETACH_AT = 24;
+
+/**
+ * The floating navigation bar.
+ *
+ * ## Geometry, and why nothing about it moves vertically
+ *
+ * The outer stack is `position: sticky`, not `fixed` (BRAND_VISUAL_GUIDE §12 —
+ * sticky sidesteps iOS Safari's fixed-position quirks and still occupies its
+ * own space in normal flow, so ordinary pages need no compensating padding).
+ * Inside it, the bar is inset on all four sides by a constant gutter, which is
+ * what produces the floating-plane look without giving up sticky's mechanics.
+ *
+ * That gutter, the bar's height and its border box are **fixed**. They have
+ * to be: the stack's measured height is published as `--header-stack-height`
+ * and consumed by hero sections' negative-margin trick and by two sticky
+ * sidebars. Anything that changed the stack's height on scroll would move
+ * every one of them — the definition of layout shift. So the scrolled state
+ * is expressed entirely in paint: the bar gains its full border box and a
+ * lighter surface, and the hairlines between cells gain contrast. The border
+ * is always 1px on all four sides and only its *colour* changes, so even that
+ * costs no reflow.
+ *
+ * For the same reason there is no hide-on-scroll. The reference navigation
+ * never hides either, and the brief is explicit that navigation must not
+ * disappear unpredictably.
+ *
+ * ## Closing overlays
+ *
+ * Three independent guarantees, because one is not enough:
+ *
+ *  1. `pathname` change — covers internal links, the logo, category and
+ *     product selections, and browser Back/Forward between different paths.
+ *  2. `popstate` — covers Back/Forward between two URLs that differ only by
+ *     query string (`/shop/sinks` → `/shop/sinks?mount=countertop`), which
+ *     leaves `pathname` untouched and would otherwise slip through (1).
+ *     Listening for the event avoids pulling `useSearchParams()` into the
+ *     header, which would push the whole tree behind a Suspense boundary.
+ *  3. Each overlay closes itself on link activation, Escape and outside
+ *     pointerdown, so the panel is gone before the route even commits.
+ *
+ * Closing flows through the same three `useState`s in every case, so every
+ * overlay's own cleanup runs too: scroll-lock release, backdrop fade,
+ * `aria-expanded` → false, `inert` restored, focus returned to the trigger.
+ */
 export function Header({
   locale,
   dictionary,
@@ -43,27 +101,24 @@ export function Header({
   locale: Locale;
   dictionary: Dictionary;
 }) {
-  const stackRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
+  const stackRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
 
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
-  const [transparent, setTransparent] = useState(false);
+  const [detached, setDetached] = useState(false);
+  const [overHero, setOverHero] = useState(false);
 
   const anyOverlayOpen = Boolean(openMenu) || searchOpen || mobileOpen;
 
-  // Close every overlay the moment the route changes. This is the catch-all
-  // that guarantees no menu can survive a navigation: it covers internal-link
-  // clicks inside the mega-menu / mobile drawer / search, the logo, a
-  // category/product selection, AND browser Back/Forward — every one of which
-  // changes `pathname`. (Escape and outside-click are still handled
-  // per-overlay for the no-navigation case.) Setting all three closed also
-  // triggers each overlay's own cleanup — body scroll-lock release, backdrop
-  // removal, `aria-expanded` → false, focus restore — so nothing invisible is
-  // left stacked over the page. Skips the very first run so it never fights
+  const closeAll = useCallback(() => {
+    setOpenMenu(null);
+    setSearchOpen(false);
+    setMobileOpen(false);
+  }, []);
+
+  // (1) Route-change catch-all. Skips the very first run so it never fights
   // the initial (already-closed) state or flashes on first paint.
   const isInitialPath = useRef(true);
   useEffect(() => {
@@ -71,18 +126,20 @@ export function Header({
       isInitialPath.current = false;
       return;
     }
-    setOpenMenu(null);
-    setSearchOpen(false);
-    setMobileOpen(false);
-  }, [pathname]);
+    closeAll();
+  }, [pathname, closeAll]);
 
-  // Measure the announcement bar + header bar together so the hero
-  // negative-margin trick can offset by the real (responsive) height.
-  // Belt-and-suspenders: a direct rect measurement on mount/resize (in case
-  // ResizeObserver's own initial callback is delayed or throttled by the
-  // host environment) plus the observer for content-driven changes
-  // (font swap, announcement text wrapping, etc.) that a resize event alone
-  // wouldn't catch.
+  // (2) Back/Forward that only changes the query string.
+  useEffect(() => {
+    window.addEventListener("popstate", closeAll);
+    return () => window.removeEventListener("popstate", closeAll);
+  }, [closeAll]);
+
+  // Publish the stack's real height so hero sections and the two sticky
+  // sidebars can offset by it. Belt-and-suspenders: a direct measurement on
+  // mount/resize (in case ResizeObserver's initial callback is delayed or
+  // throttled by the host) plus the observer for content-driven changes a
+  // resize event alone wouldn't catch (font swap, etc.).
   useEffect(() => {
     const node = stackRef.current;
     if (!node) return;
@@ -106,23 +163,16 @@ export function Header({
     };
   }, []);
 
-  // Hide on scroll-down, show on scroll-up. Never hide near the top, while
-  // an overlay is open, or while focus is inside the header.
+  // Detached-on-scroll. Passive listener, rAF-throttled, and it only ever
+  // *writes* a boolean — it never reads layout, so there is nothing here to
+  // thrash. React bails out of the re-render when the boolean is unchanged,
+  // which is almost every frame.
   useEffect(() => {
-    let lastY = window.scrollY;
     let ticking = false;
 
     function update() {
       ticking = false;
-      const y = window.scrollY;
-      if (anyOverlayOpen || y < 80) {
-        setHidden(false);
-      } else if (y > lastY) {
-        setHidden(true);
-      } else if (y < lastY) {
-        setHidden(false);
-      }
-      lastY = y;
+      setDetached(window.scrollY > DETACH_AT);
     }
 
     function onScroll() {
@@ -131,28 +181,40 @@ export function Header({
       requestAnimationFrame(update);
     }
 
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [anyOverlayOpen]);
+  }, []);
 
-  // Transparent-over-hero: watch the page's optional `#hero-boundary`
-  // sentinel. Re-run on route change since it's page content, not layout.
-  // Includes a direct rect check on mount (belt-and-suspenders alongside
-  // the observer — see the height-measurement effect above for why).
-  useEffect(() => {
-    const sentinel = document.getElementById("hero-boundary");
-    if (!sentinel) {
-      const timeout = setTimeout(() => setTransparent(false), 0);
-      return () => clearTimeout(timeout);
-    }
+  // Transparent-over-hero. The hero sentinel publishes itself on mount and
+  // unmount (see `hero-boundary.tsx` for why the header must not go looking
+  // for it), so this re-runs exactly when a hero appears or disappears —
+  // never on a guess about when the incoming route's content has landed.
+  const heroBoundary = useSyncExternalStore(
+    subscribeHeroBoundary,
+    getHeroBoundary,
+    getHeroBoundaryServerSnapshot,
+  );
 
-    // The header stack is sticky at the top, so it keeps covering the hero
-    // until the hero's bottom edge (`#hero-boundary`) scrolls *under* it.
-    // Offset the observer's root by the header height so `transparent` (white
-    // text) flips back to the solid header the instant the header stops
-    // covering the dark hero. Without this, the light text lingers over the
-    // light content directly below the hero and turns invisible — most
-    // visibly when the auto-hidden header slides back in on scroll-up.
+  // A *layout* effect, deliberately. `overHero` can only be read from the DOM,
+  // so the server-rendered markup always starts un-inverted. Correcting that
+  // in a passive effect meant the homepage painted one frame of the opaque
+  // light bar and then visibly cross-faded it to the inverted treatment over
+  // `--duration-reveal` — motion announcing a state that was true all along.
+  // Landing it before paint means the bar simply starts out right, and the
+  // transition is reserved for the one change that is real: scrolling past
+  // the hero's bottom edge.
+  useLayoutEffect(() => {
+    // No hero on this route: nothing to observe, and nothing to reset either —
+    // `inverted` below already requires a live sentinel, so a stale `true`
+    // from the previous route cannot leak through.
+    if (!heroBoundary) return;
+
+    // The stack is sticky at the top, so it keeps covering the hero until the
+    // hero's bottom edge scrolls under it. Offset the observer's root by the
+    // stack height so the inverted ink flips back the instant the bar stops
+    // sitting over the dark hero — otherwise light text lingers over the
+    // light content below and goes invisible.
     const measured = stackRef.current?.getBoundingClientRect().height;
     const cssVar = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue(
@@ -163,177 +225,190 @@ export function Header({
       measured ?? (Number.isFinite(cssVar) ? cssVar : 0),
     );
 
-    const timeout = setTimeout(() => {
-      const rect = sentinel.getBoundingClientRect();
-      setTransparent(rect.top > headerH && rect.top < window.innerHeight);
-    }, 0);
+    // The question is only ever "is the hero's bottom edge still below the
+    // bar?", so that is the whole predicate. Two tempting variants are both
+    // wrong here, and each one silently fails on the most ordinary hero there
+    // is — a full-viewport `h-svh` one, whose sentinel lands *exactly* on the
+    // fold:
+    //
+    //  - Bounding the check above by `rect.top < innerHeight` reads a sentinel
+    //    at `top === innerHeight` as "not over the hero" (744 < 744 is false),
+    //    and would also mis-report any hero taller than the viewport, where
+    //    the sentinel legitimately starts below the fold.
+    //  - `entry.isIntersecting` fails the same case for the same reason: a 1px
+    //    sentinel flush against the root's bottom edge intersects it over zero
+    //    area, and `threshold: 0` means *ratio greater than zero*.
+    //
+    // Reading `boundingClientRect.top` off the entry instead makes the
+    // callback agree with the initial measurement by construction, and the
+    // shrunken root is still what schedules the callback at the moment the
+    // edge passes under the bar.
+    const isOver = (top: number) => top > headerH;
+
+    setOverHero(isOver(heroBoundary.getBoundingClientRect().top));
 
     const observer = new IntersectionObserver(
-      ([entry]) => setTransparent(entry.isIntersecting),
+      ([entry]) => setOverHero(isOver(entry.boundingClientRect.top)),
       { rootMargin: `-${headerH}px 0px 0px 0px`, threshold: 0 },
     );
-    observer.observe(sentinel);
-    return () => {
-      clearTimeout(timeout);
-      observer.disconnect();
-    };
-  }, [pathname]);
+    observer.observe(heroBoundary);
+    return () => observer.disconnect();
+  }, [heroBoundary]);
 
-  const showTransparent = transparent && !anyOverlayOpen;
+  // An open overlay always wins: the panel behind it needs a solid, legible
+  // bar, not the inverted hero treatment. Requiring a live `heroBoundary` (and
+  // not just the last measured `overHero`) is what makes leaving a hero page
+  // instant — the sentinel unmounts, so the light ink cannot linger over the
+  // incoming light page waiting for an observer callback.
+  const inverted = Boolean(heroBoundary) && overHero && !anyOverlayOpen;
 
-  // The bar is a row of cells separated by hairline rules. Over a dark hero
-  // the bar has no background of its own, so the rules can't use
-  // `--color-border` (a light warm taupe, invisible on the hero photo) —
-  // they follow the inverted text colour instead, at low alpha so they read
-  // as dividers rather than a table.
-  const cellRule = showTransparent ? "border-current/30" : "border-border";
-  // Inverted fill for the current page / open menu, mirroring the reference
-  // header. It has to flip with the bar: over a dark hero the "ink" is the
-  // light colour, so filling with `--color-text` there would be invisible.
-  const cellActive = showTransparent
+  // Hairline rules between cells. Over a dark hero `--color-border` (a light
+  // warm taupe) is invisible against the photo, so the rules follow the
+  // inverted ink instead, at low alpha so they read as dividers, not a table.
+  const cellRule = inverted ? "border-current/30" : "border-border";
+  // Inverted fill for the current page / open menu. It has to flip with the
+  // bar: over a dark hero the "ink" is the light colour, so filling with
+  // `--color-text` there would be invisible.
+  const cellActive = inverted
     ? "bg-background text-text"
     : "bg-text text-background";
-  const cellIdle = showTransparent
-    ? "hover:bg-background/15"
-    : "hover:bg-text/5";
+  const cellIdle = inverted ? "hover:bg-background/15" : "hover:bg-text/5";
   const navCell =
-    "type-nav flex h-full items-center justify-center px-(--space-md) text-center uppercase tracking-[0.06em] whitespace-nowrap transition-colors duration-(--duration-fast)";
+    "type-nav relative flex h-full items-center justify-center px-(--space-md) text-center uppercase tracking-[0.06em] whitespace-nowrap transition-colors duration-(--duration-normal) ease-(--ease-nav)";
+  const utilityCell =
+    "group relative flex h-full w-14 items-center justify-center transition-colors duration-(--duration-normal) ease-(--ease-nav)";
 
   // A nav cell is "current" for its own page and anything nested under it, so
-  // /shop/sinks keeps Каталог lit. An open mega-menu also lights its own
-  // cell, which is why this is OR-ed with `openMenu` at each call site.
+  // /shop/sinks keeps Каталог lit. An open mega-menu lights its own cell too,
+  // which is why this is OR-ed with `openMenu` at each call site.
   //
-  // Compare on the BARE path, never on `localeHref(locale, href)`. The uk
-  // locale is unprefixed in the address bar, but `src/proxy.ts` rewrites
-  // `/projects` to `/uk/projects` — so on a statically prerendered page
-  // `usePathname()` returns the prefixed form during SSR and the unprefixed
-  // form after hydration. Matching against the built href therefore missed
-  // every uk page in the server HTML (and would have flipped the highlight on
-  // hydration). Stripping the prefix makes both forms agree.
+  // Compare on the BARE path, never on `localeHref(locale, href)`. uk is
+  // unprefixed in the address bar, but `src/proxy.ts` rewrites `/projects` to
+  // `/uk/projects` — so on a statically prerendered page `usePathname()`
+  // returns the prefixed form during SSR and the unprefixed form after
+  // hydration. Matching against the built href therefore missed every uk page
+  // in the server HTML. Stripping the prefix makes both forms agree.
   const barePath = stripLocaleFromPathname(pathname, locales);
   function isCurrent(href: string) {
     return barePath === href || barePath.startsWith(`${href}/`);
   }
 
+  // The bar is two clusters, not one row with a hole in it. Mega-menu items
+  // lead, hard against the wordmark; plain links trail, next to the utilities.
+  // Splitting on `mega` rather than slicing at a fixed index keeps the rule
+  // declarative — a second mega-menu would join the leading cluster on its
+  // own, and an all-plain nav degrades to "everything right" without a guard.
+  const leadNav = primaryNav.filter((item) => item.mega);
+  const trailNav = primaryNav.filter((item) => !item.mega);
+
+  // `isLead` suppresses a cell's left-hand rule. The logo cell already draws a
+  // `border-r`, so the first cell after it must not draw its own: two abutting
+  // hairlines paint as one 2px line, which reads as a mistake next to every
+  // other 1px divider in the bar.
+  function renderNavItem(item: (typeof primaryNav)[number], isLead: boolean) {
+    const label = dictionary.nav[item.key as keyof typeof dictionary.nav];
+    const active = isCurrent(item.href) || openMenu === item.mega;
+    const rule = isLead ? undefined : cn("border-l", cellRule);
+
+    return item.mega ? (
+      <MegaMenu
+        key={item.key}
+        menuKey={item.mega}
+        openKey={openMenu}
+        onOpenChange={setOpenMenu}
+        label={label}
+        className={rule}
+        triggerClassName={cn(navCell, active ? cellActive : cellIdle)}
+        panelClassName="inset-x-(--space-2xs)"
+      >
+        <CatalogMenuContent
+          locale={locale}
+          dictionary={dictionary}
+          open={openMenu === item.mega}
+        />
+      </MegaMenu>
+    ) : (
+      <Link
+        key={item.key}
+        href={localeHref(locale, item.href)}
+        aria-current={active ? "page" : undefined}
+        className={cn(navCell, "group", rule, active ? cellActive : cellIdle)}
+      >
+        <RollingLabel>{label}</RollingLabel>
+      </Link>
+    );
+  }
+
   return (
     <>
-      <div ref={stackRef} className="sticky top-0 z-40">
+      {/* A real `<header>`, so the bar is the document's `banner` landmark.
+          It was a bare `<div>`: the page exposed `main`, `contentinfo` and
+          several `navigation` landmarks but no banner, which costs screen-
+          reader users the one shortcut that jumps straight to site-wide
+          navigation. The element carries no styles of its own, so swapping the
+          tag changes nothing about layout — including the measured height
+          published as `--header-stack-height` below. */}
+      <header ref={stackRef} className="sticky top-0 z-40 p-(--space-2xs)">
         <div
           className={cn(
-            "transition-transform duration-(--duration-normal) ease-(--ease-standard)",
-            hidden && !anyOverlayOpen && "-translate-y-full",
+            // Border width is constant on all four sides; only the colour
+            // changes between states, so the bar's box never resizes.
+            "border transition-colors duration-(--duration-reveal) ease-(--ease-nav)",
+            inverted
+              ? "text-background border-x-transparent border-t-transparent border-b-current/30 bg-transparent"
+              : detached
+                ? "bg-surface text-text border-border-strong"
+                : "bg-background text-text border-b-border border-x-transparent border-t-transparent",
           )}
         >
-          <div
-            ref={barRef}
-            onFocusCapture={() => setHidden(false)}
-            className={cn(
-              "border-b transition-colors duration-(--duration-normal)",
-              cellRule,
-              showTransparent
-                ? "text-background bg-transparent"
-                : "bg-background text-text",
-            )}
-          >
-            <div className="mx-auto flex h-16 max-w-7xl items-stretch px-6">
-              <div
-                className={cn(
-                  "flex items-center gap-(--space-xs) border-r pr-(--space-md)",
-                  cellRule,
-                )}
-              >
-                <button
-                  type="button"
-                  aria-label={dictionary.mobileMenu.openLabel}
-                  onClick={() => setMobileOpen(true)}
-                  className="flex h-11 w-11 items-center justify-center lg:hidden"
-                >
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    className="h-5 w-5"
-                  >
-                    <path
-                      d="M3 6h18M3 12h18M3 18h18"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button>
-                <Logo locale={locale} />
-              </div>
+          <div className="mx-auto flex h-14 max-w-[100rem] items-stretch">
+            <div
+              className={cn(
+                "flex items-center border-r pr-(--space-md) pl-(--space-sm)",
+                cellRule,
+              )}
+            >
+              <Logo locale={locale} />
+            </div>
 
-              <nav
-                aria-label={dictionary.header.menu}
-                className="hidden lg:flex lg:items-stretch"
-              >
-                {primaryNav.map((item) => {
-                  const label =
-                    dictionary.nav[item.key as keyof typeof dictionary.nav];
-                  const active = isCurrent(item.href) || openMenu === item.mega;
-
-                  return item.mega ? (
-                    <MegaMenu
-                      key={item.key}
-                      menuKey={item.mega}
-                      openKey={openMenu}
-                      onOpenChange={setOpenMenu}
-                      label={label}
-                      width={item.mega === "catalog" ? "full" : "auto"}
-                      className={cn("border-r", cellRule)}
-                      triggerClassName={cn(
-                        navCell,
-                        active ? cellActive : cellIdle,
-                      )}
-                    >
-                      {item.mega === "catalog" ? (
-                        <CatalogMenuContent
-                          locale={locale}
-                          dictionary={dictionary}
-                        />
-                      ) : (
-                        <SimpleMenuContent
-                          locale={locale}
-                          items={brandMenu}
-                          labels={dictionary.megaMenu.brand}
-                        />
-                      )}
-                    </MegaMenu>
-                  ) : (
-                    <Link
-                      key={item.key}
-                      href={localeHref(locale, item.href)}
-                      aria-current={active ? "page" : undefined}
-                      className={cn(
-                        navCell,
-                        "border-r",
-                        cellRule,
-                        active ? cellActive : cellIdle,
-                      )}
-                    >
-                      {label}
-                    </Link>
-                  );
-                })}
-              </nav>
-
+            {/* One `<nav>`, two clusters. The free width sits *between* them
+                rather than in a single slab against the wordmark, which is
+                what produced the ~540px void between ODUDLAB and Каталог. */}
+            <nav
+              aria-label={dictionary.header.menu}
+              className="hidden lg:flex lg:flex-1 lg:items-stretch"
+            >
+              {leadNav.map((item, index) => renderNavItem(item, index === 0))}
               <div className="flex-1" />
+              {trailNav.map((item) => renderNavItem(item, false))}
+            </nav>
 
-              <div className="flex items-stretch">
-                <button
-                  type="button"
-                  aria-label={dictionary.search.openLabel}
-                  onClick={() => setSearchOpen(true)}
-                  className={cn(
-                    "flex w-14 items-center justify-center border-l transition-colors duration-(--duration-fast)",
-                    cellRule,
-                    searchOpen ? cellActive : cellIdle,
-                  )}
-                >
+            {/* The nav is `display: none` below `lg`, so it cannot carry the
+                spacer there. This one keeps the utilities hard right on the
+                breakpoints where the nav has collapsed into the burger. */}
+            <div className="flex-1 lg:hidden" />
+
+            <div className={cn("flex items-stretch border-l", cellRule)}>
+              <button
+                type="button"
+                aria-label={dictionary.search.openLabel}
+                aria-expanded={searchOpen}
+                onClick={() => setSearchOpen((value) => !value)}
+                className={cn(utilityCell, searchOpen ? cellActive : cellIdle)}
+              >
+                {/* Search ⇄ close. Both icons live in one box and swap with a
+                    counter-rotation, so the control reads as one object
+                    changing state rather than two icons trading places. */}
+                <span className="relative block h-5 w-5">
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 24 24"
-                    className="h-5 w-5"
+                    className={cn(
+                      "absolute inset-0 h-5 w-5 transition-[opacity,transform] duration-(--duration-normal) ease-(--ease-nav)",
+                      searchOpen
+                        ? "scale-75 rotate-90 opacity-0"
+                        : "scale-100 rotate-0 opacity-100",
+                    )}
                   >
                     <circle
                       cx="11"
@@ -341,7 +416,7 @@ export function Header({
                       r="7"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="2"
+                      strokeWidth="1.75"
                     />
                     <line
                       x1="21"
@@ -349,31 +424,70 @@ export function Header({
                       x2="16.65"
                       y2="16.65"
                       stroke="currentColor"
-                      strokeWidth="2"
+                      strokeWidth="1.75"
                     />
                   </svg>
-                </button>
-                <div
-                  className={cn(
-                    "hidden items-center border-l px-(--space-sm) lg:flex",
-                    cellRule,
-                  )}
-                >
-                  <LocaleSwitcher locale={locale} />
-                </div>
-                <div
-                  className={cn(
-                    "flex items-center justify-center border-l pl-(--space-3xs)",
-                    cellRule,
-                  )}
-                >
-                  <CartButton locale={locale} label={dictionary.header.cart} />
-                </div>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className={cn(
+                      "absolute inset-0 h-5 w-5 transition-[opacity,transform] duration-(--duration-normal) ease-(--ease-nav)",
+                      searchOpen
+                        ? "scale-100 rotate-0 opacity-100"
+                        : "scale-75 -rotate-90 opacity-0",
+                    )}
+                  >
+                    <path
+                      d="M6 6l12 12M18 6L6 18"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                    />
+                  </svg>
+                </span>
+              </button>
+
+              <div
+                className={cn(
+                  "hidden items-center border-l px-(--space-sm) lg:flex",
+                  cellRule,
+                )}
+              >
+                <LocaleSwitcher locale={locale} inverted={inverted} />
               </div>
+
+              <div className={cn("flex items-stretch border-l", cellRule)}>
+                <CartButton
+                  locale={locale}
+                  label={dictionary.header.cart}
+                  className={cn(utilityCell, cellIdle)}
+                />
+              </div>
+
+              <button
+                type="button"
+                aria-label={dictionary.mobileMenu.openLabel}
+                aria-expanded={mobileOpen}
+                onClick={() => setMobileOpen(true)}
+                className={cn(
+                  utilityCell,
+                  "border-l lg:hidden",
+                  cellRule,
+                  cellIdle,
+                )}
+              >
+                {/* Three rules that redistribute on hover/press rather than
+                    fading — the same "geometry moves, ink doesn't dim" rule
+                    the rest of the bar follows. */}
+                <span aria-hidden="true" className="flex w-5 flex-col gap-1.5">
+                  <span className="block h-px w-full bg-current transition-transform duration-(--duration-normal) ease-(--ease-nav) group-hover:translate-x-0.5" />
+                  <span className="block h-px w-full origin-right bg-current transition-transform duration-(--duration-normal) ease-(--ease-nav) group-hover:scale-x-75" />
+                  <span className="block h-px w-full bg-current transition-transform duration-(--duration-normal) ease-(--ease-nav) group-hover:translate-x-0.5" />
+                </span>
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <SearchDrawer
         open={searchOpen}

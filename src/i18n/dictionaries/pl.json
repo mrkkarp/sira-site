@@ -15,6 +15,24 @@
     "resources": "Materiały",
     "contact": "Kontakt"
   },
+  "catalogNav": {
+    "eyebrow": "Katalog",
+    "allProducts": "Wszystkie produkty",
+    "previewEyebrow": "Kategoria",
+    "viewCategory": "Przejdź do kategorii",
+    "sinks": "Umywalki",
+    "sinksFreestanding": "Wolnostojące",
+    "sinksCountertop": "Nablatowe",
+    "planters": "Donice",
+    "plantersOutdoor": "Zewnętrzne",
+    "plantersIndoor": "Do wnętrz",
+    "tables": "Stoliki",
+    "outdoorFurniture": "Meble zewnętrzne",
+    "panels": "Panele ścienne",
+    "modules": "Moduły betonowe",
+    "wallArt": "Płaskorzeźby",
+    "custom": "Realizacje indywidualne"
+  },
   "megaMenu": {
     "catalog": {
       "categoriesHeading": "Kategorie",
@@ -117,7 +135,7 @@
   "mobileMenu": {
     "openLabel": "Otwórz menu",
     "closeLabel": "Zamknij menu",
-    "back": "Wstecz",
+    "dialogLabel": "Nawigacja",
     "language": "Język"
   },
   "shopCategories": {
@@ -488,6 +506,7 @@
     "socialHeading": "Social media",
     "regionLabel": "Region",
     "regionValue": "Ukraina",
+    "cityValue": "Kijów",
     "languageLabel": "Język",
     "copyright": "Wszelkie prawa zastrzeżone.",
     "backToTop": "Do góry",
@@ -633,6 +652,7 @@
     "colourCustomLabel": "Kolor indywidualny",
     "colourCustomOptionTitle": "Kolor indywidualny (RAL / NCS)",
     "colourCustomNote": "Dobór według palet RAL / NCS. Cena może się różnić.",
+    "colourNoSurcharge": "Bez dopłaty",
     "contactColourCta": "Zapytaj o kolor indywidualny",
     "contactColourIntro": "Kolory indywidualne dobieramy według RAL / NCS — zostaw dane, a potwierdzimy kolor i cenę.",
     "trustConsultation": "Konsultacja: telefon, Viber, Telegram",
@@ -648,6 +668,7 @@
     "documentsHeading": "Dokumenty",
     "noDocuments": "Dla tego produktu nie dodano jeszcze dokumentacji.",
     "accordionSpecs": "Specyfikacja",
+    "accordionDimensions": "Wymiary",
     "accordionDelivery": "Dostawa",
     "accordionInstallation": "Montaż",
     "accordionCare": "Pielęgnacja",
@@ -665,6 +686,7 @@
     "relatedInThisColour": "W tym kolorze",
     "relatedCompleteTheSet": "Uzupełnij komplet",
     "galleryLabel": "Galeria zdjęć",
+    "galleryViewCaption": "Widok",
     "editorialCraftHeading": "Idea i materiał",
     "editorialColourHeading": "Kolor na zamówienie",
     "specLabels": {

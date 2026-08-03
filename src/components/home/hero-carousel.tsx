@@ -114,10 +114,14 @@ export function HeroCarousel({
   return (
     <section
       className="relative"
-      style={{
-        marginTop: "calc(-1 * var(--header-stack-height))",
-        paddingTop: "var(--header-stack-height)",
-      }}
+      // Pulled up under the header so the photograph — not the page's own
+      // background — is what the transparent header bar floats over. There is
+      // deliberately NO compensating `padding-top` here: padding on the
+      // *section* would push the slide (and therefore the image) back below
+      // the bar, leaving a light strip behind a bar whose ink has already
+      // flipped to the light-on-dark treatment, i.e. invisible navigation.
+      // The clearance lives on each slide's copy container instead.
+      style={{ marginTop: "calc(-1 * var(--header-stack-height))" }}
       onPointerDown={stopAutoplay}
       onKeyDown={(event) => {
         stopAutoplay();
@@ -137,7 +141,7 @@ export function HeroCarousel({
         // tablet, so this uses an arbitrary `min-height` media variant
         // instead: only apply the taller 560px floor once the viewport
         // itself has enough height to fit it without overflowing.
-        className="flex h-[calc(100svh-var(--header-stack-height))] min-h-[420px] snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [@media(min-height:700px)]:min-h-[560px]"
+        className="flex h-svh min-h-[420px] snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [@media(min-height:700px)]:min-h-[560px]"
       >
         {campaigns.map((campaign, index) => {
           const campaignCopy = copy[campaign.copyKey];
@@ -191,7 +195,10 @@ export function HeroCarousel({
               </div>
               <div
                 className={cn(
-                  "relative mx-auto flex h-full max-w-[1600px] flex-col justify-end gap-(--space-sm) px-6 pb-(--space-2xl) md:px-10",
+                  // `pt` is the header clearance the section deliberately
+                  // doesn't apply: the image runs under the bar, the copy
+                  // never does.
+                  "relative mx-auto flex h-full max-w-[1600px] flex-col justify-end gap-(--space-sm) px-6 pt-(--header-stack-height) pb-(--space-2xl) md:px-10",
                   campaign.textPosition === "center" &&
                     "items-center text-center",
                   campaign.textPosition === "right" && "items-end text-right",

@@ -11,6 +11,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { SkipToContent } from "@/components/skip-to-content";
 import { NoScriptNav } from "@/components/no-script-nav";
 import { RouteProgress } from "@/components/route-progress";
+import { PageTransition } from "@/components/page-transition";
 import { BackToTop } from "@/components/back-to-top";
 import { CookieConsent } from "@/components/cookie-consent";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
@@ -90,9 +91,10 @@ export default async function LocaleLayout({
           <RouteProgress />
           <NoScriptNav locale={locale} dictionary={dictionary} />
           <Header locale={locale} dictionary={dictionary} />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
+          {/* Renders <main id="main-content"> itself — see page-transition.tsx.
+              `children` stays server-rendered: it is passed as a prop, not
+              imported by the client component. */}
+          <PageTransition>{children}</PageTransition>
           <Footer locale={locale} dictionary={dictionary} />
           <BackToTop label={dictionary.footerNav.backToTop} />
           <CookieConsent dictionary={dictionary} />

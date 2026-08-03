@@ -13,6 +13,15 @@ export const buttonVariantClass = {
    * sections (light fill stays legible on `--color-footer`). */
   "outline-light":
     "border border-background text-background hover:bg-background hover:text-footer bg-transparent",
+  /** `ghost` for dark surfaces. It exists because `cn()` deliberately does no
+   * conflict resolution: passing `className="text-background"` alongside
+   * `variant="ghost"` puts two equal-specificity `color` declarations on one
+   * element, and Tailwind's generated stylesheet order — not the call site —
+   * picks the winner. `text-text-muted` sorts later and won, so the cookie
+   * banner's buttons rendered near-black on `--color-footer` (1.03:1 for the
+   * "reject optional" button — invisible). Dark-surface treatments belong in a
+   * variant, never in a caller override. */
+  "ghost-light": "text-background hover:text-background/70 bg-transparent",
 } as const;
 
 export const buttonSizeClass = {

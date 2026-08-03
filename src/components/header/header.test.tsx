@@ -44,21 +44,41 @@ describe("Header route-change overlay reset", () => {
     });
     expect(trigger).toHaveAttribute("aria-expanded", "false");
 
+    // The panel stays mounted at all times (so its `Link`s keep their prefetch
+    // and the open animation can replay without a remount) — while closed it
+    // is `inert` + `aria-hidden`, which is exactly what role queries ignore.
+    // So "not in the accessibility tree" is the assertion, not "unmounted".
+    const sinks = new RegExp(dictionary.catalogNav.sinks);
+    expect(screen.queryByRole("link", { name: sinks })).not.toBeInTheDocument();
+
     fireEvent.click(trigger);
     expect(trigger).toHaveAttribute("aria-expanded", "true");
-    // A real catalog link is now visible in the open panel.
-    expect(
-      screen.getByRole("link", { name: dictionary.megaMenu.catalog.sinks }),
-    ).toBeInTheDocument();
+    // A real catalog link is now exposed in the open panel.
+    expect(screen.getByRole("link", { name: sinks })).toBeInTheDocument();
 
     // Simulate navigating to the clicked page.
     mockPathname = "/shop/sinks";
     rerender(<Header locale="uk" dictionary={dictionary} />);
 
     expect(trigger).toHaveAttribute("aria-expanded", "false");
-    expect(
-      screen.queryByRole("link", { name: dictionary.megaMenu.catalog.sinks }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: sinks })).not.toBeInTheDocument();
+  });
+
+  it("closes the mega-menu on Back/Forward that only changes the query string", async () => {
+    const { dictionary } = await renderHeader();
+
+    const trigger = await screen.findByRole("button", {
+      name: dictionary.nav.shop,
+    });
+    fireEvent.click(trigger);
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    // `/shop/sinks` → `/shop/sinks?mount=countertop` and back: `pathname` is
+    // identical either way, so the route-change effect never fires and only
+    // the `popstate` listener can catch this.
+    fireEvent.popState(window);
+
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
 
   it("closes the mobile drawer and releases the body scroll-lock on route change", async () => {
