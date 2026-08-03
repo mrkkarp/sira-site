@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { allowRoles, readAuthenticated } from "../access";
 import { CONTENT_EDIT_ROLES, PRODUCT_EDIT_ROLES } from "../access/roles";
+import { revalidateStorefront } from "../lib/revalidate-storefront";
 
 /**
  * Media library (`Медіа`, Prompt 10 §12). Foundation phase: local disk
@@ -27,6 +28,26 @@ export const Media: CollectionConfig = {
     create: allowRoles([...CONTENT_EDIT_ROLES, ...PRODUCT_EDIT_ROLES]),
     update: allowRoles([...CONTENT_EDIT_ROLES, ...PRODUCT_EDIT_ROLES]),
     delete: allowRoles([...CONTENT_EDIT_ROLES, ...PRODUCT_EDIT_ROLES]),
+  },
+  // The catalogue render resolves every product's `mainImage`/`gallery` to a
+  // public URL and splits photos from technical drawings on `kind`, so a media
+  // edit (replacing a photo, re-tagging a drawing, changing alt text) changes
+  // what the storefront shows. With the catalogue behind a cache tag that has
+  // to be announced, or the change would sit invisible until the backstop
+  // window expired.
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        await revalidateStorefront();
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        await revalidateStorefront();
+        return doc;
+      },
+    ],
   },
   upload: {
     staticDir: "../media",

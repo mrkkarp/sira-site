@@ -2,6 +2,7 @@ import type { CollectionConfig } from "payload";
 import { allowRoles, readAuthenticated } from "../access";
 import { PRODUCT_EDIT_ROLES } from "../access/roles";
 import { legacyField } from "./fields/legacyField";
+import { revalidateStorefront } from "../lib/revalidate-storefront";
 
 /**
  * Categories (Prompt 10 §8). Foundation phase: enough structure to model
@@ -23,6 +24,22 @@ export const Categories: CollectionConfig = {
     delete: allowRoles(PRODUCT_EDIT_ROLES),
   },
   versions: { drafts: true },
+  // Category name/slug feed the shop grid, breadcrumbs and every product's
+  // category label, so an edit here changes the cached catalogue.
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        await revalidateStorefront();
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        await revalidateStorefront();
+        return doc;
+      },
+    ],
+  },
   fields: [
     {
       name: "name",

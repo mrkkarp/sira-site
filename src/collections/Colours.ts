@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { allowRoles, readAuthenticated } from "../access";
 import { PRODUCT_EDIT_ROLES } from "../access/roles";
+import { revalidateStorefront } from "../lib/revalidate-storefront";
 
 /**
  * Colours (Prompt 10 §7 colour support). Mirrors the shape of the
@@ -31,6 +32,22 @@ export const Colours: CollectionConfig = {
     delete: allowRoles(PRODUCT_EDIT_ROLES),
   },
   versions: { drafts: true },
+  // Colour name/hex/sample photo render in the product configurator, so an
+  // edit here changes the cached catalogue.
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        await revalidateStorefront();
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        await revalidateStorefront();
+        return doc;
+      },
+    ],
+  },
   fields: [
     {
       name: "displayName",

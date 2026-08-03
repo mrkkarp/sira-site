@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import rawSource from "@/data/products.source.json";
 import {
   ProductSchema,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/schemas/product";
 import { groupProductSourceRows } from "@/lib/product-grouping";
 import { getPayloadClient } from "@/lib/payload-client";
+import { CATALOGUE_CACHE_TAG } from "@/lib/revalidate-storefront";
 import { buildSpecEntriesFromPayload } from "@/lib/payload-spec-entries";
 import { getDictionary, type Dictionary } from "@/i18n/get-dictionary";
 import { defaultLocale, type Locale } from "@/i18n/config";
@@ -318,8 +320,8 @@ function payloadDocToFlatProduct(
  * `depth: 1` so `mainImage`/`gallery` come back populated with their
  * `filename` for R2 URL resolution. Photos/prices/specs are locale-invariant.
  */
-export async function loadPayloadFlatProducts(
-  locale: Locale = defaultLocale,
+async function loadPayloadFlatProductsUncached(
+  locale: Locale,
 ): Promise<Product[]> {
   const payload = await getPayloadClient();
   const enrichment = buildEnrichmentBySku();
@@ -339,4 +341,44 @@ export async function loadPayloadFlatProducts(
   return (result.docs as PayloadProduct[]).map((doc) =>
     payloadDocToFlatProduct(doc, enrichment.get(doc.sku), dictionary, locale),
   );
+}
+
+/**
+ * Cached across requests, not just within one.
+ *
+ * The uncached read above is a `payload.find` over every published product at
+ * `depth: 1` (so each product's media, category and colour relations are
+ * joined) plus the snapshot enrichment merge and a zod parse per product. It
+ * used to run on **every** request to a dynamic catalogue route — `/shop`,
+ * `/shop/[category]`, `/products/[slug]`, `/search` are all `ƒ` in the build
+ * output because they read `searchParams` — which put a full catalogue
+ * round-trip to Neon in front of every visitor. Measured against production
+ * that was ~430–720 ms TTFB on those routes versus ~190–260 ms on the
+ * prerendered home page.
+ *
+ * `react`'s `cache()` in `products.ts` does not help here: it dedupes within a
+ * single request and is thrown away at the end of it. This is Next's data
+ * cache, which persists across requests and invocations.
+ *
+ * Invalidation is by tag, from the `afterChange`/`afterDelete` hooks on every
+ * collection the catalogue render reads — Products, Media, Categories, Colours
+ * (see `src/lib/revalidate-storefront.ts`). The `revalidate` window is a
+ * backstop for anything that changes the catalogue without going through those
+ * hooks (a direct SQL edit, an importer run outside Next), so the site
+ * converges on its own rather than serving a stale catalogue indefinitely.
+ *
+ * Keyed by locale: the query passes `locale` to Payload and merges
+ * locale-specific dictionary labels, so `uk`/`en`/`pl` are genuinely different
+ * results and must not share an entry.
+ */
+const loadPayloadFlatProductsCached = unstable_cache(
+  loadPayloadFlatProductsUncached,
+  ["payload-flat-products"],
+  { tags: [CATALOGUE_CACHE_TAG], revalidate: 300 },
+);
+
+export function loadPayloadFlatProducts(
+  locale: Locale = defaultLocale,
+): Promise<Product[]> {
+  return loadPayloadFlatProductsCached(locale);
 }
