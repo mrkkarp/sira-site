@@ -71,8 +71,6 @@ export type QuickCategoryConfig =
        * the "Фото очікується" placeholder if the slug ever stops resolving. */
       representativeSlug: string;
       href: string;
-      /** Larger card in the asymmetric grid. */
-      size: "large" | "medium" | "small";
     }
   | {
       /** "Індивідуальні вироби" isn't a real `ShopCategory` — it routes to
@@ -82,7 +80,6 @@ export type QuickCategoryConfig =
       taglineKey: "customTagline";
       descriptionKey: "customDescription";
       href: string;
-      size: "large" | "medium" | "small";
     };
 
 export const quickCategories: QuickCategoryConfig[] = [
@@ -93,7 +90,6 @@ export const quickCategories: QuickCategoryConfig[] = [
     descriptionKey: "sinksDescription",
     representativeSlug: "rakovyna-na-pidlohu-odri",
     href: "/shop/sinks",
-    size: "large",
   },
   {
     kind: "shop-category",
@@ -102,7 +98,6 @@ export const quickCategories: QuickCategoryConfig[] = [
     descriptionKey: "plantersDescription",
     representativeSlug: "flute",
     href: "/shop/planters",
-    size: "medium",
   },
   {
     kind: "shop-category",
@@ -111,7 +106,6 @@ export const quickCategories: QuickCategoryConfig[] = [
     descriptionKey: "tablesDescription",
     representativeSlug: "zhurnalnyi-stolyk-z-betonu-caiman",
     href: "/shop/tables",
-    size: "medium",
   },
   {
     kind: "shop-category",
@@ -120,7 +114,6 @@ export const quickCategories: QuickCategoryConfig[] = [
     descriptionKey: "wallPanelsDescription",
     representativeSlug: "riflo",
     href: "/shop/wall-panels",
-    size: "small",
   },
   {
     kind: "shop-category",
@@ -129,14 +122,12 @@ export const quickCategories: QuickCategoryConfig[] = [
     descriptionKey: "outdoorDescription",
     representativeSlug: "urban-b",
     href: "/shop/outdoor",
-    size: "small",
   },
   {
     kind: "custom",
     taglineKey: "customTagline",
     descriptionKey: "customDescription",
     href: "/contact",
-    size: "small",
   },
 ];
 

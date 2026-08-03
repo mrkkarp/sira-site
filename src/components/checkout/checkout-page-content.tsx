@@ -24,7 +24,8 @@ type Status = "idle" | "submitting" | "success" | "error";
  * Client-side shape the `/api/checkout` route re-validates server-side
  * against the real `CustomerDetailsSchema`/`DeliveryMethodSchema` — same
  * "loose client guard, real domain schema is the source of truth" split
- * as the Phase E forms (see `callback-form.tsx`).
+ * as the Phase E forms (see `QuoteFormFields` in `quote-request-form.tsx`;
+ * the `callback-form.tsx` this used to point at no longer exists).
  *
  * The delivery fields are declared `optional()` because which ones apply
  * depends on the selected delivery type, and the `superRefine` below then
