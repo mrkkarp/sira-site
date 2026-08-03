@@ -687,6 +687,9 @@
     "relatedCompleteTheSet": "Доповніть комплект",
     "galleryLabel": "Галерея зображень",
     "galleryViewCaption": "Вигляд",
+    "galleryDrawingCaption": "Креслення",
+    "galleryThumbnailDrawingAlt": "Технічне креслення {index}",
+    "galleryDrawingAlt": "Технічне креслення з розмірами: {name}",
     "editorialCraftHeading": "Ідея та матеріал",
     "editorialColourHeading": "Колір під замовлення",
     "specLabels": {

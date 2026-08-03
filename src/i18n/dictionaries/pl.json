@@ -687,6 +687,9 @@
     "relatedCompleteTheSet": "Uzupełnij komplet",
     "galleryLabel": "Galeria zdjęć",
     "galleryViewCaption": "Widok",
+    "galleryDrawingCaption": "Rysunek",
+    "galleryThumbnailDrawingAlt": "Rysunek techniczny {index}",
+    "galleryDrawingAlt": "Rysunek techniczny z wymiarami: {name}",
     "editorialCraftHeading": "Idea i materiał",
     "editorialColourHeading": "Kolor na zamówienie",
     "specLabels": {

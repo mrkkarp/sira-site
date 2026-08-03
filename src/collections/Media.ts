@@ -48,6 +48,37 @@ export const Media: CollectionConfig = {
       },
     },
     {
+      /**
+       * What this file *is*, as opposed to what it depicts.
+       *
+       * The catalogue carries 17 dimensioned technical drawings among its
+       * product images, and until this field existed nothing distinguished
+       * them: they arrived through the same Horoshop gallery export as the
+       * photographs, under the same product-name filenames (compare
+       * `square-nakladna-59954535570175_….jpg`, a drawing, with the other
+       * `square-nakladna-*.jpg`, which are photographs). Pixel statistics
+       * don't separate them either — a washbasin shot on seamless white
+       * scores like a line drawing on every cheap measure.
+       *
+       * So it is recorded, not inferred. A drawing is still worth showing —
+       * a buyer wants the millimetres — but it must never stand in for a
+       * photograph: not as the gallery's opening frame, not as a category
+       * tile, not as the image beside an editorial paragraph.
+       */
+      name: "kind",
+      type: "select",
+      required: true,
+      defaultValue: "photo",
+      options: [
+        { label: "Фотографія або візуалізація", value: "photo" },
+        { label: "Технічне креслення", value: "drawing" },
+      ],
+      admin: {
+        description:
+          "«Технічне креслення» — для габаритних креслень і розрізів. Такі файли показуються в галереї окремо й ніколи не стають головним фото товару.",
+      },
+    },
+    {
       name: "caption",
       type: "text",
     },

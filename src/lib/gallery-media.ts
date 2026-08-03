@@ -1,6 +1,6 @@
 import type { Product, ProductVariant } from "@/lib/schemas/product";
 
-export type GalleryMediaType = "photo" | "video" | "3d";
+export type GalleryMediaType = "photo" | "drawing" | "video" | "3d";
 
 export interface GalleryMediaItem {
   type: GalleryMediaType;
@@ -15,25 +15,26 @@ export interface GalleryMediaItem {
 /**
  * Builds the real gallery media list for a resolved variant.
  *
- * The Horoshop "Галерея" export carries an ordered set of real product
- * photos per row (up to 8), preserved as `variant.gallery`. This returns
- * every one of them, in source order, so the PDP gallery renders the full
- * shoot rather than just the main shot.
+ * The Horoshop "Галерея" export carries an ordered set of real product images
+ * per row (up to 8), preserved as `variant.gallery`. It also carried, mixed in
+ * among them and indistinguishable, 17 dimensioned technical drawings — line
+ * elevations with millimetre annotations, sitting last in 12 of the galleries.
+ * They are now recorded as such on the `Media` collection (`kind: "drawing"`,
+ * set by an editor, not guessed from the filename) and arrive here already
+ * separated, in `variant.drawings`.
  *
- * Every item is typed `"photo"`, and there is genuinely no lifestyle
- * photography, video or 3D asset in the source (see `IMAGE_REQUIREMENTS.md`).
- * This comment used to add "no technical drawing" to that list, which is
- * simply false: a review of the 123 images under `public/products` found 17
- * line drawings among them, sitting last in 12 of the galleries. Nothing in
- * `Media` marks a drawing as a drawing, so they cannot be told apart at
- * runtime and they render as ordinary gallery items. Fixing that properly
- * means a `kind` field on the Media collection, not a filename heuristic —
- * the two classes are not separable by name or by pixel statistics (products
- * shot on seamless white read as drawings either way).
+ * Photographs come first and drawings after, so the opening frame — the one
+ * that acts as the product's portrait — is always a photograph. The drawings
+ * are still worth showing: a buyer wants the millimetres. They are typed
+ * `"drawing"` so the gallery can label them instead of passing them off as
+ * another view of the object.
  *
- * On colour change: the gallery switches to the selected variant's own
- * ordered photos. It falls back to the base variant's gallery, then to the
- * single `photo`, rather than ever rendering a broken image.
+ * There is genuinely no lifestyle photography, video or 3D asset in the source
+ * (see `IMAGE_REQUIREMENTS.md`), so the other two types never appear yet.
+ *
+ * On colour change: the gallery switches to the selected variant's own ordered
+ * photos. It falls back to the base variant's gallery, then to the single
+ * `photo`, rather than ever rendering a broken image.
  */
 export function buildGalleryMedia(
   product: Product,
@@ -41,11 +42,24 @@ export function buildGalleryMedia(
 ): GalleryMediaItem[] {
   const variantGallery = variant.gallery ?? [];
   const baseGallery = product.base.gallery ?? [];
-  const sources =
+  const photos =
     variantGallery.length > 0
       ? variantGallery
       : baseGallery.length > 0
         ? baseGallery
         : [variant.photo || product.base.photo];
-  return sources.map((src) => ({ type: "photo", src, alt: product.name }));
+  const drawings = variant.drawings ?? product.base.drawings ?? [];
+
+  return [
+    ...photos.map((src): GalleryMediaItem => ({
+      type: "photo",
+      src,
+      alt: product.name,
+    })),
+    ...drawings.map((src): GalleryMediaItem => ({
+      type: "drawing",
+      src,
+      alt: product.name,
+    })),
+  ];
 }

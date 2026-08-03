@@ -69,6 +69,36 @@ function mediaUrl(
   return media.url ?? undefined;
 }
 
+/** A resolved media relation with the one editorial fact the storefront needs
+ * about it: whether it is a photograph or a dimensioned technical drawing.
+ * `kind` is a required field with a `photo` default, but a media doc written
+ * before the column existed can still arrive without one, so it is defaulted
+ * again here rather than trusted. */
+function mediaItem(
+  media: number | Media | null | undefined,
+): { url: string; kind: "photo" | "drawing" } | undefined {
+  const url = mediaUrl(media);
+  if (!url) return undefined;
+  const kind = typeof media === "object" && media ? media.kind : undefined;
+  return { url, kind: kind === "drawing" ? "drawing" : "photo" };
+}
+
+/** Splits resolved media into photographs and technical drawings, preserving
+ * the admin's ordering within each group. */
+function partitionMedia(media: (number | Media | null | undefined)[]): {
+  photos: string[];
+  drawings: string[];
+} {
+  const photos: string[] = [];
+  const drawings: string[] = [];
+  for (const entry of media) {
+    const item = mediaItem(entry);
+    if (!item) continue;
+    (item.kind === "drawing" ? drawings : photos).push(item.url);
+  }
+  return { photos, drawings };
+}
+
 /** SKU → snapshot-derived flat product, for structural enrichment. Built
  * once per call (cheap: parses the bundled JSON), keyed on the same `sku`
  * the importer wrote onto each Payload product. */
@@ -125,19 +155,21 @@ function payloadDocToFlatProduct(
     (payloadVariants.length > 1 ? payloadVariants[1] : undefined);
   const hasCustom = Boolean(customVariant) || Boolean(snapshot?.customColour);
 
-  // Ordered photos from Payload's linked R2 media (main first, then gallery).
-  // The importer stores `mainImage` = base photo and appends the custom-colour
-  // photo (if any) as the last gallery entry.
-  const orderedPhotos = [doc.mainImage, ...(doc.gallery ?? [])]
-    .map(mediaUrl)
-    .filter((u): u is string => Boolean(u));
+  // Ordered media from Payload's linked R2 files (main first, then gallery),
+  // split by what each file is. The Horoshop export delivered dimensioned
+  // drawings through the same gallery field as the photographs — 17 of them
+  // across the catalogue — and they are separated here, once, so that no
+  // downstream consumer has to wonder whether `gallery[0]` is a photograph.
+  const { photos: orderedPhotos, drawings: orderedDrawings } = partitionMedia([
+    doc.mainImage,
+    ...(doc.gallery ?? []),
+  ]);
 
   // Photos the admin has actually attached to a variant. This is the only
   // statement in the data about which photograph shows which colourway, so it
   // is the only thing trusted to make that claim.
-  const customVariantPhotos = (customVariant?.photos ?? [])
-    .map(mediaUrl)
-    .filter((u): u is string => Boolean(u));
+  const { photos: customVariantPhotos, drawings: customVariantDrawings } =
+    partitionMedia(customVariant?.photos ?? []);
 
   // Everything below used to hang off a positional guess: "the importer
   // appends the custom-colour photo last, so peel the last gallery entry off
@@ -152,21 +184,28 @@ function payloadDocToFlatProduct(
   // The replacement makes no positional claim at all. A custom photo exists
   // only when an admin attached one to the custom variant; otherwise the
   // custom colourway shows the same photograph as the base, which is honest:
-  // we have no picture of this piece in that colour. The gallery keeps every
-  // image it was given.
+  // we have no picture of this piece in that colour. Nothing is discarded:
+  // drawings simply travel in `drawings` instead of `gallery`.
   //
   // Falls back to the snapshot's local `/products/*.jpg` paths (served from
-  // `public/`) only when Payload resolved no media at all for this product.
+  // `public/`) only when Payload resolved no photograph at all for this
+  // product. That fallback carries no drawings — the snapshot has no way to
+  // mark one, and showing an unlabelled drawing is the bug this all fixes.
   let basePhotos: string[];
+  let baseDrawings: string[];
   let customPhoto: string;
   if (orderedPhotos.length > 0) {
     basePhotos = orderedPhotos;
+    baseDrawings = orderedDrawings;
     customPhoto = customVariantPhotos[0] ?? orderedPhotos[0];
   } else {
     basePhotos = snapshot?.base.gallery ?? [];
+    baseDrawings = [];
     customPhoto = snapshot?.customColour?.photo ?? snapshot?.base.photo ?? "";
   }
   const basePhoto = basePhotos[0] ?? snapshot?.base.photo ?? "";
+  const customDrawings =
+    customVariantDrawings.length > 0 ? customVariantDrawings : baseDrawings;
 
   const description = doc.shortDescription ?? snapshot?.base.description ?? "";
 
@@ -184,6 +223,7 @@ function payloadDocToFlatProduct(
     price: baseVariant?.price ?? doc.basePrice ?? snapshot?.base.price ?? 0,
     photo: basePhoto,
     gallery: basePhotos.length > 0 ? basePhotos : undefined,
+    drawings: baseDrawings.length > 0 ? baseDrawings : undefined,
     description,
     leadTimeWeeks: snapshot?.base.leadTimeWeeks,
     mayBeOutOfStock: snapshot?.base.mayBeOutOfStock,
@@ -210,6 +250,11 @@ function payloadDocToFlatProduct(
             : basePhotos.length > 0
               ? basePhotos
               : undefined,
+        // Dimensions don't change with the colour, so the custom variant
+        // inherits the base drawings unless the admin attached its own —
+        // unconditionally, unlike `gallery`, which is inherited only when the
+        // custom variant has no photographs of its own.
+        drawings: customDrawings.length > 0 ? customDrawings : undefined,
         // The custom-colour variant is the same product in a different colour,
         // so it shares the (Payload-authoritative) base description rather than
         // the snapshot's per-variant copy. Preferring the snapshot here would

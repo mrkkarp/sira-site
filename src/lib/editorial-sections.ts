@@ -50,7 +50,10 @@ export interface EditorialSection {
  *    the grey one under that heading would be a claim, not an illustration.
  *  - the remaining sections draw the next unused image from the product's own
  *    gallery, starting at index 1, so each one is a genuinely different view
- *    and none of them repeats the hero.
+ *    and none of them repeats the hero. `gallery` is photographs only —
+ *    dimensioned drawings travel separately in `drawings` — so a line drawing
+ *    can no longer end up as the picture beside "Ідея та матеріал", which is
+ *    where several of them used to land.
  *  - a section that runs out of images renders text-only. `ProductEditorial`
  *    has always supported that; it is the correct outcome for the 17 rows
  *    whose export carries a single photograph.

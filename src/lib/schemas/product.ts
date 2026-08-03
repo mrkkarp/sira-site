@@ -90,12 +90,27 @@ export const ProductVariantSchema = z.object({
   colorLabel: z.string().optional(),
   price: z.number().nonnegative(),
   photo: z.string(),
-  /** Ordered gallery of local image paths for this variant, threaded through
+  /** Ordered gallery of **photographs** for this variant, threaded through
    * from the source row. First entry is the main photo. Optional because
    * hand-built variants (tests, ad-hoc fixtures) may omit it; the real
    * `toVariant` pipeline always populates it. Consumers must treat a missing
-   * value as "just the single `photo`". */
+   * value as "just the single `photo`".
+   *
+   * Dimensioned technical drawings are deliberately NOT in here — see
+   * `drawings`. Anything that reaches for "a picture of this product" (the
+   * card thumbnail, the category tile, an editorial paragraph's image, the
+   * gallery's opening frame) can therefore use `gallery` without checking. */
   gallery: z.array(z.string()).optional(),
+  /** Ordered technical drawings for this variant: dimensioned elevations and
+   * sections, kept apart from `gallery` because they answer a different
+   * question ("how big is it", not "what does it look like"). Sourced from
+   * `Media.kind === "drawing"`, which an editor sets on upload — never
+   * inferred from the filename or from pixel statistics, neither of which
+   * separates a line drawing from a washbasin shot on seamless white.
+   *
+   * The product gallery appends these after the photographs and labels them.
+   * Empty/`undefined` for the many products that ship without one. */
+  drawings: z.array(z.string()).optional(),
   description: z.string(),
   /** Real per-row lead time in weeks, parsed from the "Термін виготовлення -
    * N тижні." sentence — see `parseLeadTimeWeeks` in `product-mapping.ts`.

@@ -182,6 +182,10 @@ export interface Media {
    * Обов'язково для фото товарів/сторінок. Залиште порожнім лише для суто декоративних зображень.
    */
   alt?: string | null;
+  /**
+   * «Технічне креслення» — для габаритних креслень і розрізів. Такі файли показуються в галереї окремо й ніколи не стають головним фото товару.
+   */
+  kind: 'photo' | 'drawing';
   caption?: string | null;
   /**
    * Фотограф / проєкт / джерело, якщо застосовно.
@@ -1043,6 +1047,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  kind?: T;
   caption?: T;
   credit?: T;
   updatedAt?: T;

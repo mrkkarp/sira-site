@@ -687,6 +687,9 @@
     "relatedCompleteTheSet": "Complete the set",
     "galleryLabel": "Image gallery",
     "galleryViewCaption": "View",
+    "galleryDrawingCaption": "Drawing",
+    "galleryThumbnailDrawingAlt": "Technical drawing {index}",
+    "galleryDrawingAlt": "Dimensioned technical drawing: {name}",
     "editorialCraftHeading": "Idea & material",
     "editorialColourHeading": "Custom colour",
     "specLabels": {

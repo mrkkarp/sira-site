@@ -40,7 +40,10 @@ interface PlanProduct {
 }
 
 const plan: PlanProduct[] = JSON.parse(
-  readFileSync(path.join(ROOT, "_content-audit", "photo-fix-plan.json"), "utf8"),
+  readFileSync(
+    path.join(ROOT, "_content-audit", "photo-fix-plan.json"),
+    "utf8",
+  ),
 );
 
 const MIME: Record<string, string> = {
@@ -75,8 +78,10 @@ async function main() {
       continue;
     }
 
-    const curMain = doc.mainImage as { id?: number; filename?: string } | number | null;
-    const curGallery = (doc.gallery as Array<{ id?: number; filename?: string } | number>) ?? [];
+    const curMain = doc.mainImage as
+      { id?: number; filename?: string } | number | null;
+    const curGallery =
+      (doc.gallery as Array<{ id?: number; filename?: string } | number>) ?? [];
     backup.push({
       parentSku: p.parentSku,
       id: doc.id,
@@ -113,7 +118,10 @@ async function main() {
       }
       const created = await payload.create({
         collection: "media",
-        data: { alt: p.parentSku },
+        // Same as the importer: the source says nothing about drawings, so
+        // everything lands as `photo` and `mark-technical-drawings.ts` corrects
+        // the known ones afterwards.
+        data: { alt: p.parentSku, kind: "photo" },
         file: {
           data,
           mimetype: mimeOf(img.name),

@@ -85,6 +85,27 @@ describe("buildEditorialSections", () => {
     expect(photos).not.toContain("/odri-1.jpg");
   });
 
+  it("never allocates a technical drawing to an editorial section", async () => {
+    const dictionary = await getDictionary("uk");
+    const sections = buildEditorialSections(
+      product({
+        base: {
+          sku: "Odri",
+          price: 15150,
+          photo: "/odri-1.jpg",
+          gallery: ["/odri-1.jpg", "/odri-2.jpg"],
+          drawings: ["/odri-dims.jpg"],
+          description: "Odri - опис.\nХарактеристики\n-\nМатеріал: бетон",
+        },
+      }),
+      dictionary,
+    );
+    // The second section runs text-only rather than reaching past the
+    // photographs into the drawings: a dimensioned elevation is not an
+    // illustration of "Ідея та матеріал".
+    expect(sections.map((s) => s.photo)).toEqual(["/odri-2.jpg", undefined]);
+  });
+
   it("runs a section as text rather than repeating a photo when the gallery is exhausted", async () => {
     const dictionary = await getDictionary("uk");
     const singlePhoto = buildEditorialSections(product(), dictionary);

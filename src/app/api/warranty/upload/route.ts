@@ -120,7 +120,9 @@ export async function POST(request: NextRequest) {
     const media = await payload.create({
       collection: "media",
       overrideAccess: true,
-      data: { alt: "" },
+      // A customer photographing their own installed piece — always a
+      // photograph, never a technical drawing.
+      data: { alt: "", kind: "photo" },
       file: {
         data: Buffer.from(arrayBuffer),
         mimetype: photoFile.type,

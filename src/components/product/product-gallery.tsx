@@ -45,6 +45,20 @@ const SWIPE_THRESHOLD_PX = 40;
 const GALLERY_MAX_WIDTH =
   "min(100%, calc(100svh - var(--header-stack-height, 74px) - 9rem))";
 
+/**
+ * The alt text for one item. A photograph is described by the product's name,
+ * which is what it shows. A dimensioned drawing is not a picture of the object
+ * — describing it with the bare product name would tell a screen-reader user
+ * "Odri" twice and let them believe they'd been shown two views of the basin,
+ * so it says what the file actually is.
+ */
+function mediaAlt(item: GalleryMediaItem, dictionary: Dictionary): string {
+  if (item.type !== "drawing") return item.alt;
+  return formatTemplate(dictionary.product.galleryDrawingAlt, {
+    name: item.alt,
+  });
+}
+
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
@@ -59,9 +73,9 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
 }
 
 /**
- * Product gallery (Prompt 6 §2). Supports any number of real media items
- * (today, that's always exactly one real photo per variant — see
- * `buildGalleryMedia` — but nothing here assumes that won't grow). Large
+ * Product gallery (Prompt 6 §2). Supports any number of real media items — see
+ * `buildGalleryMedia`, which supplies the variant's photographs followed by its
+ * technical drawings. Large
  * active photo + thumbnail strip (not a tiny carousel), keyboard-navigable
  * thumbnails, swipe on touch, a focus-trapping fullscreen lightbox, and a
  * counter. Broken images never show a broken-image icon — `ProductImage`
@@ -84,6 +98,16 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
  *  - **No scale mark.** A scale bar is a measurement. These are photographs at
  *    unknown and varying distances, so any bar drawn across one would be
  *    decoration impersonating data.
+ *
+ * ## Real drawings among the photographs
+ *
+ * Some galleries end with genuine dimensioned drawings — line elevations with
+ * millimetre annotations, marked `kind: "drawing"` in the media library. They
+ * arrive last (see `buildGalleryMedia`), so the opening frame is always a
+ * photograph, and they are captioned `КРЕСЛЕННЯ` rather than `ВИГЛЯД` in the
+ * annotation band. Their thumbnails letterbox instead of cropping, and their
+ * alt text names them, because a drawing announced as "Odri" would read to a
+ * screen-reader user as a second photograph of the basin.
  */
 export function ProductGallery({
   media,
@@ -111,6 +135,7 @@ export function ProductGallery({
 
   const safeIndex = Math.min(activeIndex, media.length - 1);
   const active = media[safeIndex];
+  const activeAlt = active ? mediaAlt(active, dictionary) : "";
 
   function goTo(index: number) {
     setActiveIndex(((index % media.length) + media.length) % media.length);
@@ -172,7 +197,7 @@ export function ProductGallery({
               src={active.src}
               controls
               className="h-full w-full object-cover"
-              aria-label={active.alt}
+              aria-label={activeAlt}
             />
           ) : (
             <button
@@ -192,7 +217,7 @@ export function ProductGallery({
                   recognition, not proportion. */}
               <ProductImage
                 src={active.src}
-                alt={active.alt}
+                alt={activeAlt}
                 priority
                 sizes="(min-width: 1024px) 45vw, 100vw"
                 className="object-contain"
@@ -208,8 +233,14 @@ export function ProductGallery({
           hidden from assistive tech and the sentence form is kept for it. */}
       <div>
         <div className="flex items-end justify-between gap-(--space-sm) pb-(--space-3xs)">
+          {/* `01 — ВИГЛЯД` for a photograph, `05 — КРЕСЛЕННЯ` for a drawing.
+              The band is the one place the sheet says what it is showing, so
+              this is where the distinction has to be visible — otherwise a
+              dimensioned elevation reads as just another view of the object. */}
           <TechnicalCaption index={safeIndex + 1}>
-            {dictionary.product.galleryViewCaption}
+            {active.type === "drawing"
+              ? dictionary.product.galleryDrawingCaption
+              : dictionary.product.galleryViewCaption}
           </TechnicalCaption>
           {media.length > 1 ? (
             <>
@@ -242,7 +273,9 @@ export function ProductGallery({
               role="option"
               aria-selected={index === safeIndex}
               aria-label={formatTemplate(
-                dictionary.product.galleryThumbnailAlt,
+                item.type === "drawing"
+                  ? dictionary.product.galleryThumbnailDrawingAlt
+                  : dictionary.product.galleryThumbnailAlt,
                 {
                   index: index + 1,
                 },
@@ -253,11 +286,20 @@ export function ProductGallery({
                 index === safeIndex ? "border-text" : "border-transparent",
               )}
             >
+              {/* Photographs crop, because at 64 px the job is recognition and
+                  a centre crop reads fastest. Drawings must not: a dimensioned
+                  elevation is mostly white space with the millimetres written
+                  around its edges, so cropping it to a square deletes precisely
+                  the part that identifies it and leaves an empty tile. */}
               <ProductImage
                 src={item.src}
-                alt={item.alt}
+                alt=""
                 sizes="(min-width: 1024px) 80px, 64px"
-                className="object-cover"
+                className={
+                  item.type === "drawing"
+                    ? "bg-white object-contain p-0.5"
+                    : "object-cover"
+                }
                 brokenLabel={brokenImageLabel}
               />
             </button>
@@ -274,7 +316,7 @@ export function ProductGallery({
           panelClassName="relative h-full w-full max-w-5xl"
         >
           <h2 id="gallery-lightbox-title" className="sr-only">
-            {active.alt}
+            {activeAlt}
           </h2>
           <IconButton
             aria-label={dictionary.product.galleryCloseLightbox}
@@ -294,7 +336,7 @@ export function ProductGallery({
           <div className="relative h-full w-full">
             <ProductImage
               src={active.src}
-              alt={active.alt}
+              alt={activeAlt}
               sizes="100vw"
               className="object-contain"
               brokenLabel={brokenImageLabel}

@@ -141,7 +141,8 @@ async function defaultFetchPhoto(url: string): Promise<DownloadedPhoto | null> {
     if (!response.ok) return null;
     const arrayBuffer = await response.arrayBuffer();
     const data = Buffer.from(arrayBuffer);
-    const mimetype = response.headers.get("content-type") || mimetypeFromName(name);
+    const mimetype =
+      response.headers.get("content-type") || mimetypeFromName(name);
     return { data, mimetype, name, size: data.byteLength };
   } catch {
     return null;
@@ -455,7 +456,9 @@ export async function runHoroshopImport(
           const media = await payload.create({
             collection: "media",
             overrideAccess: true,
-            data: { alt: product.name },
+            // The main image is the product's portrait, so `photo` is the
+            // right assumption here and not merely the default.
+            data: { alt: product.name, kind: "photo" },
             file: downloaded,
           });
           mainImageId = media.id;
@@ -501,7 +504,13 @@ export async function runHoroshopImport(
             const media = await payload.create({
               collection: "media",
               overrideAccess: true,
-              data: { alt },
+              // The Horoshop gallery export mixes dimensioned drawings in with
+              // the photographs and says nothing about which is which, so
+              // everything lands as `photo` and the 17 known drawings are
+              // corrected afterwards by `scripts/mark-technical-drawings.ts`.
+              // Guessing here from the filename would be worse than useless:
+              // the two classes share a naming scheme.
+              data: { alt, kind: "photo" },
               file: downloaded,
             });
             collected.push(media.id);
