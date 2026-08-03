@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n/config";
-import { locales, localeLabels } from "@/i18n/config";
+import { locales, localeLabels, localeCodeLabels } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
@@ -278,7 +278,7 @@ export function MobileMenu({
                     isCurrent ? "text-text" : "text-text-muted",
                   )}
                 >
-                  {candidate}
+                  {localeCodeLabels[candidate]}
                   {isCurrent ? (
                     <span
                       aria-hidden="true"

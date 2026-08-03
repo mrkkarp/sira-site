@@ -13,6 +13,7 @@ import { NoScriptNav } from "@/components/no-script-nav";
 import { RouteProgress } from "@/components/route-progress";
 import { PageTransition } from "@/components/page-transition";
 import { BackToTop } from "@/components/back-to-top";
+import { SmoothWheelScroll } from "@/components/smooth-wheel-scroll";
 import { CookieConsent } from "@/components/cookie-consent";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { getSiteUrl } from "@/lib/site-url";
@@ -87,6 +88,7 @@ export default async function LocaleLayout({
     >
       <body className="bg-background text-text flex min-h-screen flex-col font-sans antialiased">
         <ToastProvider>
+          <SmoothWheelScroll />
           <SkipToContent label={dictionary.footerNav.skipToContent} />
           <RouteProgress />
           <NoScriptNav locale={locale} dictionary={dictionary} />

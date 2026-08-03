@@ -30,6 +30,10 @@ function at(url: string) {
  *
  * `uk` is the default locale and is served *unprefixed*, so the assertions
  * below are asymmetric on purpose: `/shop` for uk, `/en/shop` for en.
+ *
+ * The links are queried by the label the switcher *prints* — `UA`, not the
+ * `uk` locale code it routes with (see `localeCodeLabels`). The two are
+ * deliberately different, and these queries are what pins the printed one.
  */
 describe("LocaleSwitcher", () => {
   beforeEach(() => {
@@ -42,7 +46,7 @@ describe("LocaleSwitcher", () => {
     at("/shop?price=2000-5000&mount=countertop");
     render(<LocaleSwitcher locale="uk" />);
 
-    fireEvent.click(screen.getByRole("link", { name: "en" }));
+    fireEvent.click(screen.getByRole("link", { name: "EN" }));
 
     expect(push).toHaveBeenCalledWith(
       "/en/shop?price=2000-5000&mount=countertop",
@@ -54,7 +58,7 @@ describe("LocaleSwitcher", () => {
     at("/en/shop?q=odri");
     render(<LocaleSwitcher locale="en" />);
 
-    fireEvent.click(screen.getByRole("link", { name: "uk" }));
+    fireEvent.click(screen.getByRole("link", { name: "UA" }));
 
     expect(push).toHaveBeenCalledWith("/shop?q=odri");
   });
@@ -64,7 +68,7 @@ describe("LocaleSwitcher", () => {
     at("/products/odri");
     render(<LocaleSwitcher locale="uk" />);
 
-    fireEvent.click(screen.getByRole("link", { name: "en" }));
+    fireEvent.click(screen.getByRole("link", { name: "EN" }));
 
     // Nothing to preserve, so nothing to intercept: the browser follows the
     // href, and no stray "?" is appended to it.
@@ -76,7 +80,7 @@ describe("LocaleSwitcher", () => {
     at("/shop?mount=countertop");
     render(<LocaleSwitcher locale="uk" />);
 
-    const en = screen.getByRole("link", { name: "en" });
+    const en = screen.getByRole("link", { name: "EN" });
     fireEvent.click(en, { metaKey: true });
     fireEvent.click(en, { ctrlKey: true });
 
@@ -91,11 +95,11 @@ describe("LocaleSwitcher", () => {
     at("/shop?q=odri");
     render(<LocaleSwitcher locale="uk" />);
 
-    expect(screen.getByRole("link", { name: "en" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "EN" })).toHaveAttribute(
       "href",
       "/en/shop",
     );
-    expect(screen.getByRole("link", { name: "uk" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "UA" })).toHaveAttribute(
       "href",
       "/shop",
     );
@@ -105,11 +109,11 @@ describe("LocaleSwitcher", () => {
     pathname = "/";
     render(<LocaleSwitcher locale="pl" />);
 
-    expect(screen.getByRole("link", { name: "pl" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "PL" })).toHaveAttribute(
       "aria-current",
       "true",
     );
-    expect(screen.getByRole("link", { name: "uk" })).not.toHaveAttribute(
+    expect(screen.getByRole("link", { name: "UA" })).not.toHaveAttribute(
       "aria-current",
     );
   });

@@ -3,7 +3,12 @@
 import type { MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { locales, localeLabels, type Locale } from "@/i18n/config";
+import {
+  locales,
+  localeLabels,
+  localeCodeLabels,
+  type Locale,
+} from "@/i18n/config";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
 
@@ -13,7 +18,7 @@ type Props = {
 };
 
 /**
- * UK / EN / PL as three peers: the current one carries a permanent rule
+ * UA / EN / PL as three peers: the current one carries a permanent rule
  * beneath it, the others draw that same rule on hover. The rule *is* the
  * state — an inactive locale is distinguished by a colour step, never by being
  * faded out, so it reads identically over the light bar and over a dark hero.
@@ -105,7 +110,9 @@ export function LocaleSwitcher({ locale, inverted = false }: Props) {
               )}
             >
               <span className="relative">
-                {candidate}
+                {/* The printed label, not the locale code — see
+                    `localeCodeLabels`. `uk` prints as UA. */}
+                {localeCodeLabels[candidate]}
                 <span
                   aria-hidden="true"
                   className={cn(

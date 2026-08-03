@@ -22,11 +22,14 @@ test("locale switcher moves between unprefixed uk and prefixed en on the same pa
   // can't scope to "banner". Instead rely on DOM order: `Header` renders
   // before `Footer` in the locale layout, so `.first()` is always the
   // header's instance.
-  await page.getByRole("link", { name: "en" }).first().click();
+  // Queried by the printed label, which is not the locale code: Ukrainian
+  // routes as `uk` but prints as `UA` (see `localeCodeLabels`). `exact` so
+  // Playwright's default substring match can't wander onto another link.
+  await page.getByRole("link", { name: "EN", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/shop$/);
   await expect(page.locator("h1")).toHaveText("Shop");
 
-  await page.getByRole("link", { name: "uk" }).first().click();
+  await page.getByRole("link", { name: "UA", exact: true }).first().click();
   await expect(page).toHaveURL(/\/shop$/);
   await expect(page).not.toHaveURL(/\/uk\//);
   await expect(page.locator("h1")).toHaveText("Каталог");
