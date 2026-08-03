@@ -64,11 +64,40 @@ let cache: CartState = EMPTY_STATE;
 let hydrationStarted = false;
 const listeners = new Set<() => void>();
 
+/**
+ * Ordering guard for overlapping requests.
+ *
+ * Every response here carries a complete cart, so whichever one lands last
+ * wins outright — and responses do not necessarily land in the order they were
+ * sent. The case that actually bit: `ensureHydrated` issues a GET on mount, the
+ * visitor adds an item before it comes back, the POST answers first with a
+ * one-line cart, and then the older GET arrives with the empty cart it was
+ * always going to return and wipes it. The item is safely in Postgres, but the
+ * badge reads "Кошик (0)" and the cart page looks empty until something else
+ * refetches — so the shop appears to have swallowed the click.
+ *
+ * It is a narrow window on a fast connection, which is exactly why it survived:
+ * it reproduced only under a loaded E2E run, and looked like a flaky test.
+ *
+ * The rule is therefore last-issued-wins, not last-received-wins: each request
+ * takes a ticket, and a reply is discarded if a newer request has already been
+ * applied. Errors are held to the same rule — a stale failure must not overwrite
+ * a fresher success either.
+ */
+let issuedTicket = 0;
+let appliedTicket = 0;
+
 function notify() {
   for (const listener of listeners) listener();
 }
 
-function applyView(view: CartApiView) {
+function isStale(ticket: number) {
+  return ticket < appliedTicket;
+}
+
+function applyView(view: CartApiView, ticket: number) {
+  if (isStale(ticket)) return;
+  appliedTicket = ticket;
   cache = {
     items: view.lines,
     subtotal: view.subtotal,
@@ -78,16 +107,25 @@ function applyView(view: CartApiView) {
   notify();
 }
 
-function applyError(message: string) {
+function applyError(message: string, ticket: number) {
+  if (isStale(ticket)) return;
+  appliedTicket = ticket;
   cache = { ...cache, isLoading: false, error: message };
   notify();
 }
 
+/**
+ * Issues the request and applies whatever it returns. Applying here rather
+ * than at each call site is deliberate: the ticket has to be taken where the
+ * request is sent, and callers that had to remember to apply the result could
+ * just as easily forget to respect its ordering.
+ */
 async function request(
   path: string,
   init: RequestInit | undefined,
   locale: string,
 ): Promise<CartApiView | null> {
+  const ticket = ++issuedTicket;
   const url = `${path}${path.includes("?") ? "&" : "?"}locale=${locale}`;
   try {
     const response = await fetch(url, {
@@ -96,12 +134,13 @@ async function request(
     });
     const body = (await response.json()) as CartApiResponse;
     if (!response.ok || !body.ok || !body.view) {
-      applyError(body.error ?? "cart_request_failed");
+      applyError(body.error ?? "cart_request_failed", ticket);
       return null;
     }
+    applyView(body.view, ticket);
     return body.view;
   } catch {
-    applyError("cart_request_failed");
+    applyError("cart_request_failed", ticket);
     return null;
   }
 }
@@ -109,9 +148,7 @@ async function request(
 function ensureHydrated(locale: string) {
   if (hydrationStarted || typeof window === "undefined") return;
   hydrationStarted = true;
-  void request("/api/cart", undefined, locale).then((view) => {
-    if (view) applyView(view);
-  });
+  void request("/api/cart", undefined, locale);
 }
 
 function subscribe(onStoreChange: () => void) {
@@ -146,7 +183,6 @@ export async function addCartItem(
     { method: "POST", body: JSON.stringify({ ...input, quantity }) },
     locale,
   );
-  if (view) applyView(view);
   return view !== null;
 }
 
@@ -154,12 +190,7 @@ export async function removeCartItem(
   lineId: string,
   locale = defaultLocale,
 ): Promise<void> {
-  const view = await request(
-    `/api/cart/lines/${lineId}`,
-    { method: "DELETE" },
-    locale,
-  );
-  if (view) applyView(view);
+  await request(`/api/cart/lines/${lineId}`, { method: "DELETE" }, locale);
 }
 
 export async function setCartItemQuantity(
@@ -167,23 +198,23 @@ export async function setCartItemQuantity(
   quantity: number,
   locale = defaultLocale,
 ): Promise<void> {
-  const view = await request(
+  await request(
     `/api/cart/lines/${lineId}`,
     { method: "PATCH", body: JSON.stringify({ quantity }) },
     locale,
   );
-  if (view) applyView(view);
 }
 
 export async function clearCart(locale = defaultLocale): Promise<void> {
-  const view = await request("/api/cart", { method: "DELETE" }, locale);
-  if (view) applyView(view);
+  await request("/api/cart", { method: "DELETE" }, locale);
 }
 
 /** Test-only escape hatch — resets the module-level cache between test cases, mirroring `__resetProductRepositoryForTests()`'s naming in the repository layer. */
 export function __resetCartStoreForTests(): void {
   cache = EMPTY_STATE;
   hydrationStarted = false;
+  issuedTicket = 0;
+  appliedTicket = 0;
   listeners.clear();
 }
 

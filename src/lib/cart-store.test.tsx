@@ -123,6 +123,47 @@ describe("useCart", () => {
     expect(deleteCall![0]).toContain("/api/cart/lines/line-1");
   });
 
+  it("does not let the slow initial fetch overwrite an add that raced ahead of it", async () => {
+    // The real sequence this reproduces: the mount GET goes out, the visitor
+    // adds an item before it comes back, the POST answers first, and only then
+    // does the GET arrive — carrying the empty cart it was always going to
+    // return. Both responses are complete carts, so without an ordering rule
+    // the late one wins and the item vanishes from the badge and the cart page,
+    // even though it is sitting safely in Postgres. On a fast connection the
+    // window is small, which is precisely why it went unnoticed: it showed up
+    // as an occasional red E2E run rather than as a bug.
+    let releaseInitialGet: (() => void) | undefined;
+    const initialGetArrives = new Promise<void>((resolve) => {
+      releaseInitialGet = resolve;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(async (_url: string, init?: RequestInit) => {
+        if (init?.method === "POST") {
+          return jsonResponse({ ok: true, view: oneLineView });
+        }
+        await initialGetArrives;
+        return jsonResponse({ ok: true, view: emptyView });
+      }),
+    );
+
+    const { result } = renderHook(() => useCart());
+
+    await act(async () => {
+      await result.current.addItem({ slug: "odri", variantSku: "Odri" });
+    });
+    expect(result.current.count).toBe(1);
+
+    await act(async () => {
+      releaseInitialGet!();
+      await initialGetArrives;
+    });
+
+    expect(result.current.count).toBe(1);
+    expect(result.current.items).toHaveLength(1);
+  });
+
   it("shares the persisted cart across a fresh hook instance (simulating a reload)", async () => {
     vi.stubGlobal(
       "fetch",
