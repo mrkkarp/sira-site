@@ -37,6 +37,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...except the annotated template, which carries no secrets and is what
+# DEPLOYMENT.md tells a new deploy to read. Ignoring it meant a fresh clone
+# had no list of the variables the app needs.
+!.env.example
 
 # vercel
 .vercel

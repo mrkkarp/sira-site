@@ -130,6 +130,29 @@ export default buildConfig({
     outputFile: path.resolve(dirname, "src/payload-types.ts"),
   },
   db: postgresAdapter({
+    /**
+     * Schema push is OFF unless explicitly asked for.
+     *
+     * Payload's postgres adapter otherwise pushes the config's schema straight
+     * at the database on every connect outside production
+     * (`@payloadcms/db-postgres/dist/connect.js`: `NODE_ENV !== 'production' &&
+     * PAYLOAD_MIGRATING !== 'true' && this.push !== false`). That default is
+     * built for the usual setup — a throwaway local database — but here
+     * `DATABASE_URL` in `.env.local` is the *same Neon database Vercel
+     * Production runs on*. Left at the default, one `npm run dev` after editing
+     * a collection silently ALTERs the live schema: no migration file, no
+     * review, no record in `payload_migrations`, and production drifts away
+     * from what `src/migrations/` says it is. That is exactly how
+     * `20260803_122827_add_media_kind` ended up needing a hand-written
+     * converging migration (see DEPLOYMENT.md).
+     *
+     * Off by default means schema changes go through the one path that is
+     * reviewable and reproducible: `npm run payload migrate:create <name>`,
+     * commit, deploy. To push against a genuinely disposable database, set
+     * `PAYLOAD_DB_PUSH=true` for that run — never with `DATABASE_URL` pointed
+     * at Neon.
+     */
+    push: process.env.PAYLOAD_DB_PUSH === "true",
     pool: {
       connectionString: process.env.DATABASE_URL || "",
     },

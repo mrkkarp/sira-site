@@ -115,7 +115,19 @@ npm run payload migrate:create <name>   # writes src/migrations/<ts>_<name>.ts
 git add src/migrations && git commit
 ```
 
-Do **not** rely on `push` in production — it is disabled there by design.
+Do **not** rely on `push` in production — it is disabled there by design, and
+this repo now disables it **everywhere** by default (`push:
+process.env.PAYLOAD_DB_PUSH === "true"` in `payload.config.ts`).
+
+That extra step matters because there is only **one** Postgres database: the
+`DATABASE_URL` in a developer's `.env.local` is the same Neon database Vercel
+Production runs on. Payload's adapter pushes on connect whenever
+`NODE_ENV !== 'production'` (`@payloadcms/db-postgres/dist/connect.js`), so at
+the stock default a single `npm run dev` after editing a collection would ALTER
+the live schema — no migration file, no review, no `payload_migrations` row —
+and production would drift from what `src/migrations/` claims it is. Set
+`PAYLOAD_DB_PUSH=true` only for a database you are willing to lose, and never in
+Vercel.
 
 Write the migration so it **converges** rather than assumes: `CREATE TYPE`
 inside a `DO $$ … EXCEPTION WHEN duplicate_object THEN null; END $$`,
