@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { localeHref } from "@/lib/locale-href";
 import { pageSeo } from "@/lib/seo/page-seo";
 import { ContactContent } from "@/components/contact/contact-content";
+import { ContactPageStructuredData } from "@/components/seo/contact-page-structured-data";
 
 export async function generateMetadata({
   params,
@@ -38,5 +40,16 @@ export default async function Page({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const dictionary = await getDictionary(locale);
-  return <ContactContent dictionary={dictionary} />;
+  return (
+    <>
+      <ContactPageStructuredData
+        locale={locale}
+        path={localeHref(locale, "/contact")}
+        name={dictionary.pages.contact}
+        description={dictionary.contactPage.intro}
+        siteName={dictionary.site.name}
+      />
+      <ContactContent dictionary={dictionary} />
+    </>
+  );
 }

@@ -135,6 +135,72 @@ for (const route of INDEXABLE_ROUTES) {
 }
 
 /**
+ * Every `application/ld+json` payload on the page, already parsed.
+ *
+ * Parsing is the assertion, not a step towards one. The blocks are written by
+ * `serializeJsonLd`, which escapes `<`, `>` and `&` by hand so that a stray
+ * `</script>` in owner-supplied catalogue text cannot break out of the element
+ * — and hand-rolled escaping is exactly the kind of thing that stays correct
+ * until someone touches it. A block that no longer parses is a block every
+ * consumer silently ignores, which looks identical to a working one in a
+ * browser.
+ */
+function jsonLd(page: Page): Promise<unknown[]> {
+  return page.evaluate(() =>
+    [...document.querySelectorAll('script[type="application/ld+json"]')].map(
+      (script) => JSON.parse(script.textContent ?? "null") as unknown,
+    ),
+  );
+}
+
+for (const route of INDEXABLE_ROUTES) {
+  test(`${route.path} emits structured data that parses`, async ({ page }) => {
+    await visit(page, route.path);
+
+    const blocks = await jsonLd(page);
+
+    expect(blocks.length, `${route.path} emits no JSON-LD`).toBeGreaterThan(0);
+    for (const block of blocks) {
+      expect(block).toHaveProperty("@context", "https://schema.org");
+      expect(block).toHaveProperty("@type");
+    }
+  });
+}
+
+/**
+ * The business is described on two pages, and it has to be *one* business.
+ *
+ * `/contact` is the page whose entire job is "here is how to reach us", and it
+ * was the only page carrying no structured data at all — the `Organization`
+ * node lived on the homepage, which is true but is not the URL anyone lands on
+ * looking for a phone number. Both now emit it, which introduces the failure
+ * this test exists for: two nodes with the same name and address and no shared
+ * `@id` are, to a consumer, two companies. The `@id` is what makes them one
+ * node described twice.
+ */
+test("/contact and the homepage describe the same business", async ({
+  page,
+}) => {
+  await visit(page, "/contact");
+  const contactPage = (await jsonLd(page)).find(
+    (block) => (block as { "@type"?: string })["@type"] === "ContactPage",
+  ) as { mainEntity?: { "@id"?: string; telephone?: string } } | undefined;
+
+  expect(contactPage, "/contact emits no ContactPage node").toBeTruthy();
+  // The phone number is the whole point of the page; assert it survived the
+  // trip into the markup rather than trusting the shape alone.
+  expect(contactPage!.mainEntity?.telephone).toMatch(/^\+\d{6,}$/);
+
+  await visit(page, "/");
+  const organization = (await jsonLd(page)).find(
+    (block) => (block as { "@type"?: string })["@type"] === "Organization",
+  ) as { "@id"?: string } | undefined;
+
+  expect(organization, "the homepage emits no Organization node").toBeTruthy();
+  expect(contactPage!.mainEntity?.["@id"]).toBe(organization!["@id"]);
+});
+
+/**
  * `/cart` is `noindex` — per-session state with no canonical content in any
  * language — yet it used to emit three `hreflang` alternates anyway, markup
  * that contradicted the `robots` tag beside it. hreflang clusters whose members

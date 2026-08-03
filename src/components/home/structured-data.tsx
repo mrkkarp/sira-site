@@ -1,7 +1,7 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
-import { contact } from "@/config/contact";
 import { getSiteUrl } from "@/lib/site-url";
+import { buildOrganizationJsonLd } from "@/lib/seo/organization-json-ld";
 import { serializeJsonLd } from "@/lib/json-ld";
 
 /**
@@ -9,6 +9,13 @@ import { serializeJsonLd } from "@/lib/json-ld";
  * data already confirmed elsewhere in the codebase (`src/config/contact.ts`,
  * `dictionary.site`) — no invented founding date, employee count, or social
  * profile that isn't in `contact.ts`.
+ *
+ * The `Organization` shape itself moved to `src/lib/seo/organization-json-ld.ts`
+ * when `/contact` gained structured data of its own: the two pages describe the
+ * same business, and two hand-maintained copies of one entity is how they drift
+ * apart. Sharing the builder also gives both the same `@id`, which is what
+ * tells a consumer this is one node described twice and not two companies that
+ * happen to share a name.
  */
 export function HomeStructuredData({
   locale,
@@ -21,17 +28,7 @@ export function HomeStructuredData({
 
   const organization = {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: dictionary.site.name,
-    url: siteUrl,
-    email: contact.email,
-    telephone: contact.phone.href,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: contact.address.line,
-      addressCountry: "UA",
-    },
-    sameAs: [contact.instagram.url],
+    ...buildOrganizationJsonLd({ siteUrl, name: dictionary.site.name }),
   };
 
   const website = {
