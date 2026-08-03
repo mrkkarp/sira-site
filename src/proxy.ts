@@ -13,7 +13,7 @@ const prefixedLocales = locales.filter((locale) => locale !== defaultLocale);
 // Redirects-collection lookup below only runs for paths that AREN'T one
 // of these — real traffic (shop, products, cart, ...) never pays for the
 // extra DB round-trip, only genuinely-unrecognised paths do.
-const KNOWN_TOP_LEVEL_SEGMENTS = new Set([
+export const KNOWN_TOP_LEVEL_SEGMENTS = new Set([
   ...prefixedLocales,
   "admin",
   "api",
