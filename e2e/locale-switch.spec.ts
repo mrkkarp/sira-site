@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { visit } from "./support";
+
 /**
  * Prompt 9 §9/§10 — the default locale (`uk`) is unprefixed (see
  * `src/proxy.ts`: only `en`/`pl` get a URL prefix), so switching to `en`
@@ -10,7 +12,7 @@ import { test, expect } from "@playwright/test";
 test("locale switcher moves between unprefixed uk and prefixed en on the same page", async ({
   page,
 }) => {
-  await page.goto("/shop");
+  await visit(page, "/shop");
   // The footer also has a "Каталог" nav-column heading (`<h2>`,
   // `footerNav.catalogHeading`), so scope to the page's actual `<h1>` to
   // avoid a strict-mode ambiguity.

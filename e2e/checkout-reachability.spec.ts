@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { visit } from "./support";
+
 /**
  * Prompt 9 §9/§10. Deliberately stops short of submitting a real order —
  * `/api/checkout` talks to a real LiqPay redirect/manual-confirmation flow
@@ -13,7 +15,7 @@ import { test, expect } from "@playwright/test";
 test("checkout shows the empty-cart message when the cart is empty", async ({
   page,
 }) => {
-  await page.goto("/checkout");
+  await visit(page, "/checkout");
   await expect(
     page.getByText("Кошик порожній — додайте товари, щоб оформити замовлення."),
   ).toBeVisible();
@@ -22,13 +24,13 @@ test("checkout shows the empty-cart message when the cart is empty", async ({
 test("checkout renders the real customer-details form once the cart has an item", async ({
   page,
 }) => {
-  await page.goto("/products/rakovyna-na-pidlohu-odri");
+  await visit(page, "/products/rakovyna-na-pidlohu-odri");
   await page.getByRole("button", { name: "Додати в кошик" }).click();
   await expect(
     page.getByRole("link", { name: /^Кошик \(\d+\)$/ }),
   ).toHaveAccessibleName("Кошик (1)");
 
-  await page.goto("/checkout");
+  await visit(page, "/checkout");
   await expect(
     page.getByRole("heading", { name: "Контактні дані" }),
   ).toBeVisible();

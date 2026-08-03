@@ -1,76 +1,67 @@
 import { test, expect } from "@playwright/test";
 
+import { visit, waitForHydration } from "./support";
+
 /**
- * Prompt 9 §9/§10 — the two real lead-capture forms in the footer:
- * `NewsletterForm` (`src/components/footer/newsletter.tsx`) and
- * `CallbackForm` (`src/components/footer/callback-form.tsx`). Both render
- * inline in the footer on every page (no dialog to open first).
+ * Client-side validation on a real lead form, in a real browser.
  *
- * The callback form's real success path calls `getLeadRepository().create()`
- * — a genuine Payload/Postgres write, plus a lead-notification adapter (only
- * a console no-op locally, but still a real DB row against whatever Postgres
- * the dev server points to). To keep this suite side-effect-free we only
- * exercise its client-side validation errors, not a real successful submit.
- * The newsletter form's `/api/newsletter` route is a documented mock with no
- * ESP wired in (see that route's own `TODO(integration)` comment) and only
- * logs the submission, so a real successful submit there is safe to test.
+ * This file used to cover a footer newsletter strip and a "Замовити дзвінок"
+ * callback form. Both were removed at the owner's request — the site does not
+ * collect subscriptions or call-back requests, and `src/components/footer.tsx`
+ * carries an explicit "do not reinstate them" note. The `/api/newsletter` and
+ * `/api/callback` routes went with them. The tests did not, so five of them
+ * sat red against markup that no longer exists, quietly turning "the E2E suite
+ * is failing" into background noise. They are replaced here rather than
+ * deleted, because what they were actually proving — that a failed submit
+ * surfaces a per-field message the visitor can act on — still matters.
+ *
+ * The warranty request is the right stand-in: it is a genuine lead form that
+ * still ships, and an *invalid* submit is the one path that is guaranteed
+ * side-effect-free. A valid one calls `getLeadRepository().create()`, a real
+ * Payload/Postgres write against whatever database the dev server points at,
+ * so this suite never completes one. That is also why nothing here types a
+ * real name or phone number.
  */
 
-test.describe("footer newsletter form", () => {
-  test("shows a required-field error on empty submit", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: "Підписатися" }).click();
-    await expect(page.getByText("Вкажіть електронну адресу.")).toBeVisible();
-  });
-
-  test("shows an invalid-email error for a malformed address", async ({
+test.describe("warranty request form", () => {
+  test("marks every empty required field on submit, not just the first", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.getByLabel("Електронна пошта").fill("not-an-email");
-    await page.getByRole("button", { name: "Підписатися" }).click();
-    await expect(
-      page.getByText("Введіть коректну електронну адресу."),
-    ).toBeVisible();
-  });
+    await visit(page, "/warranty");
+    const submit = page.getByRole("button", { name: "Надіслати заявку" });
+    // The form is `noValidate`, so a click that lands before React attaches is
+    // a plain native submit: the page navigates and no error is ever rendered.
+    await waitForHydration(submit);
+    await submit.click();
 
-  test("shows a success message for a valid submission", async ({ page }) => {
-    await page.goto("/");
-    await page
-      .getByLabel("Електронна пошта")
-      .fill(`e2e-${Date.now()}@example.com`);
-    await page.getByRole("button", { name: "Підписатися" }).click();
-    await expect(
-      page.getByText("Дякуємо! Перевірте пошту для підтвердження підписки."),
-    ).toBeVisible();
-  });
-});
-
-test.describe("footer callback request form", () => {
-  test("shows required-field errors for name and phone on empty submit", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: "Замовити дзвінок" }).click();
+    // All three at once. A form that stops at the first failure makes the
+    // visitor re-submit once per mistake to discover the next one.
     await expect(page.getByText("Вкажіть ім'я.")).toBeVisible();
     await expect(page.getByText("Вкажіть номер телефону.")).toBeVisible();
+    await expect(page.getByText("Опишіть, будь ласка, проблему")).toBeVisible();
   });
 
-  test("shows an invalid-phone error for a non-empty malformed number", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    // `Footer` renders its `contactBlock` (containing `CallbackForm`) twice —
-    // once for the `lg:hidden` mobile 2-col grid, once for the `hidden
-    // lg:grid` desktop grid — both mounted in the DOM regardless of which
-    // is CSS-visible at the current viewport. At the default desktop
-    // viewport the second (later in DOM order) instance is the visible one.
-    await page.getByLabel("Ім'я").last().fill("Тест");
-    await page.getByLabel("Телефон").last().fill("123");
-    await page.getByRole("button", { name: "Замовити дзвінок" }).last().click();
+  test("tells a malformed phone apart from a missing one", async ({ page }) => {
+    await visit(page, "/warranty");
+
+    // Every field is controlled React state, so a value typed before hydration
+    // is discarded by the first render. This exact race was a WebKit-only
+    // failure that pointed at the wrong thing: only the *name* was wiped, so it
+    // read as a name-field bug, when in truth the phone had simply been typed a
+    // fraction later — after React attached — and survived.
+    const name = page.getByLabel("Ім'я", { exact: false });
+    await waitForHydration(name);
+    await name.fill("Тест");
+    await page.getByLabel("Телефон", { exact: false }).fill("123");
+    await page.getByRole("button", { name: "Надіслати заявку" }).click();
+
+    // "Вкажіть номер телефону." on a filled box would read as if the field
+    // were still empty, sending the visitor looking for a box they already
+    // completed.
     await expect(
       page.getByText("Введіть коректний номер телефону."),
     ).toBeVisible();
+    await expect(page.getByText("Вкажіть номер телефону.")).toHaveCount(0);
     await expect(page.getByText("Вкажіть ім'я.")).toHaveCount(0);
   });
 });

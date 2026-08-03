@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 
+import { visit } from "./support";
+
 test("home page renders the hero and primary nav", async ({ page }) => {
-  await page.goto("/");
+  await visit(page, "/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "ODUDLAB — home" }),
@@ -9,7 +11,7 @@ test("home page renders the hero and primary nav", async ({ page }) => {
 });
 
 test("shop link in the nav goes to the shop page", async ({ page }) => {
-  await page.goto("/");
+  await visit(page, "/");
   // "Каталог" is a `MegaMenu` trigger `<button>` (`src/components/header/
   // mega-menu.tsx`), not a direct link — the real `/shop` link ("Усі
   // вироби") only mounts once the panel is opened.

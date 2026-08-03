@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { visit, waitForHydration } from "./support";
+
 /**
  * Prompt 9 §9/§10 — real browser coverage of the shop → PDP path, since
  * this is the core discovery flow for every visitor. `/products/odri` is
@@ -13,7 +15,7 @@ import { test, expect } from "@playwright/test";
 test("shop catalog lists real products and links to a real PDP", async ({
   page,
 }) => {
-  await page.goto("/shop");
+  await visit(page, "/shop");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
   const firstProductLink = page.locator('a[href*="/products/"]').first();
@@ -27,7 +29,7 @@ test("shop catalog lists real products and links to a real PDP", async ({
 test("PDP defaults to the base-grey CTA, and switches to the quote CTA once the custom-colour swatch is picked", async ({
   page,
 }) => {
-  await page.goto("/products/rakovyna-na-pidlohu-odri");
+  await visit(page, "/products/rakovyna-na-pidlohu-odri");
   await expect(
     page.getByRole("heading", { name: "ODRI", exact: true }),
   ).toBeVisible();
@@ -35,22 +37,45 @@ test("PDP defaults to the base-grey CTA, and switches to the quote CTA once the 
     page.getByRole("button", { name: "Додати в кошик" }),
   ).toBeVisible();
 
-  // The default selection is the "Сірий базовий" (base grey) colour row,
-  // which is a real orderable SKU. "Свій колір" (custom colour) is the
-  // product's other real source row, and has no orderable SKU of its own
-  // — selecting it swaps the CTA to the quote-request form instead of a
-  // fake "add to cart" (see `QuoteRequestForm`'s doc comment / Prompt 6 §6).
-  await page.getByRole("option", { name: "Свій колір" }).click();
-  await expect(
-    page.getByRole("button", { name: "Отримати прорахунок" }),
-  ).toBeVisible();
+  // The default selection is the base-grey colour row, which is a real
+  // orderable SKU. The custom-colour row is the product's other real source
+  // row and has no orderable SKU of its own — selecting it swaps the CTA to
+  // the quote-request form instead of a fake "add to cart" (see
+  // `QuoteRequestForm`'s doc comment / Prompt 6 §6).
+  //
+  // Two things about this locator had rotted, and both were the component
+  // getting *better*, not breaking. `ColourSelector` was a listbox and is now
+  // a `role="radiogroup"` of `role="radio"` swatches — the right pattern for
+  // a permanently-visible single choice, versus a popup. And the custom row's
+  // visible title is the dictionary's `colourCustomOptionTitle`, not the raw
+  // `colorLabel` ("Свій колір") carried in the snapshot data: the swatch is
+  // translated per locale, so the test must not assert on the source string.
+  const customColour = page.getByRole("radio", {
+    name: "Індивідуальний колір",
+  });
+  await waitForHydration(customColour);
+  await customColour.click();
+  // The add-to-cart button must be *gone*, not merely disabled: there is no
+  // SKU behind this row, so anything that still looks buyable is a lie about
+  // what the shop can actually sell.
   await expect(
     page.getByRole("button", { name: "Додати в кошик" }),
   ).toHaveCount(0);
+  const quoteCta = page.getByRole("button", {
+    name: "Уточнити індивідуальний колір",
+  });
+  await expect(quoteCta).toBeVisible();
+
+  // Progressive disclosure, on purpose: the lead form is revealed by an
+  // explicit click, never by an auto-appearing modal. So the CTA is a button
+  // that swaps itself for the form, and the form is what has to appear —
+  // asserting only on the button would pass even if the click did nothing.
+  await quoteCta.click();
+  await expect(page.getByLabel("Ім'я", { exact: false })).toBeVisible();
 });
 
 test("shop filters narrow the visible product grid", async ({ page }) => {
-  await page.goto("/shop");
+  await visit(page, "/shop");
   const resultsCount = page.getByText(/^Знайдено виробів: \d+$/);
   const initialText = await resultsCount.textContent();
   const initialTotal = Number(initialText?.match(/\d+/)?.[0]);
@@ -66,7 +91,11 @@ test("shop filters narrow the visible product grid", async ({ page }) => {
   // state after the click, but this checkbox's own DOM node is replaced
   // when `DesktopFilterSidebar` applies the filter via `router.push` (a
   // real server-rendered navigation, not a same-node state toggle).
-  await page.getByRole("checkbox", { name: /^Індивідуальний колір/ }).click();
+  const customColourFacet = page.getByRole("checkbox", {
+    name: /^Індивідуальний колір/,
+  });
+  await waitForHydration(customColourFacet);
+  await customColourFacet.click();
   await page.waitForURL(/colour=custom/);
 
   const filteredText = await resultsCount.textContent();
