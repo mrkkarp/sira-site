@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
+import { pageSeo } from "@/lib/seo/page-seo";
 import { Container, Section } from "@/components/layout";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { WarrantyRequestForm } from "@/components/forms/warranty-request-form";
@@ -16,10 +17,22 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
   const dictionary = await getDictionary(locale);
 
+  // `/warranty` is indexable and listed in `sitemap.ts`, so it needs the same
+  // share card and hreflang cluster as every other indexable route. It was the
+  // one that got missed when `pageSeo()` replaced the hand-written
+  // `alternates`/`openGraph` blocks — it had neither an `openGraph` of its own
+  // nor a parent one to inherit (the locale layout sets none), which made it
+  // the last page on the site that pasted into a chat as a bare line of text.
   return {
     title: dictionary.warranty.title,
     description: dictionary.warranty.intro,
-    alternates: { canonical: localeHref(locale, "/warranty") },
+    ...pageSeo({
+      locale,
+      path: "/warranty",
+      title: `${dictionary.warranty.title} — ${dictionary.site.name}`,
+      description: dictionary.warranty.intro,
+      siteName: dictionary.site.name,
+    }),
   };
 }
 

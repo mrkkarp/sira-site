@@ -135,6 +135,61 @@ for (const route of INDEXABLE_ROUTES) {
 }
 
 /**
+ * The list above is hand-written, and hand-written lists of routes go stale —
+ * this one already had. `/warranty` is indexable and has been sitting in
+ * `sitemap.ts` all along, but it was missing from both this file and the sweep
+ * that introduced `pageSeo()`, so it was still sharing as a bare line of text
+ * while every route anybody thought to list had been fixed.
+ *
+ * So this test does not take a list. It asks the site which pages it is telling
+ * Google to index — `sitemap.xml` is exactly that statement, in the site's own
+ * words — and holds every one of them to the same bar. A future indexable route
+ * is covered the moment it enters the sitemap, which is the same moment it
+ * starts mattering.
+ *
+ * One representative per route *shape*: 67 products all share one code path,
+ * and the suite's scarce resource is navigations through a single `next dev`
+ * (see the `workers` note in `playwright.config.ts`). Shape coverage is what
+ * catches a route that was never wired up; per-product coverage would only
+ * re-test the same `generateMetadata` sixty-seven times.
+ */
+test("every page the sitemap offers to Google shares with a picture", async ({
+  page,
+  request,
+}) => {
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+
+  const urls = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+    (match) => new URL(match[1]).pathname,
+  );
+  expect(urls.length, "the sitemap is empty").toBeGreaterThan(0);
+
+  // `/products/odri` and `/products/mira` are one page; `/shop/basins` and
+  // `/warranty` are not. Collapse only the parameterised segment.
+  const byShape = new Map<string, string>();
+  for (const path of urls) {
+    const shape = path.replace(
+      /^(\/(?:en|pl))?\/(products|collections)\/[^/]+$/,
+      "$1/$2/:slug",
+    );
+    if (!byShape.has(shape)) byShape.set(shape, path);
+  }
+
+  const missing: string[] = [];
+  for (const path of byShape.values()) {
+    await visit(page, path);
+    const ogImage = await meta(page, "og:image");
+    if (!ogImage?.startsWith("http")) missing.push(`${path} → ${ogImage}`);
+  }
+
+  expect(
+    missing,
+    `sitemapped routes with no absolute og:image:\n${missing.join("\n")}`,
+  ).toEqual([]);
+});
+
+/**
  * Every `application/ld+json` payload on the page, already parsed.
  *
  * Parsing is the assertion, not a step towards one. The blocks are written by
