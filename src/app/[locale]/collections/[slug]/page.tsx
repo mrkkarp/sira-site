@@ -171,12 +171,24 @@ export default async function CollectionPage({
           ) : null}
           <Breadcrumbs items={[...crumbs, { label: collection.name }]} />
 
-          <MediaFrame ratio="hero-landscape">
+          {/* This was a full-bleed 21:9 band, which on a 1440 px screen meant
+              a 1360×583 frame — and 21:9 filled from a 7:8 product photograph
+              is a 78 % crop, i.e. a thin horizontal strip through the middle
+              of a washbasin presented as a collection hero. There is no
+              cinematic collection photography in the source; there is one
+              product photograph. So it is shown as what it is: a square plate,
+              capped by viewport height and set above the title, rather than a
+              panorama we do not have. */}
+          <MediaFrame
+            ratio="square"
+            maxViewportHeight="52svh"
+            className="w-full"
+          >
             <ProductImage
               src={collection.coverPhoto}
               alt={collection.name}
               priority
-              sizes="100vw"
+              sizes="(min-width: 1024px) 40vw, 100vw"
               brokenLabel={dictionary.shop.states.brokenImageAlt}
             />
           </MediaFrame>
@@ -214,14 +226,21 @@ export default async function CollectionPage({
           <Container>
             <EditorialLayout
               media={
-                <MediaFrame ratio="editorial-landscape">
+                /* Same reasoning as `ProductEditorial`: a portrait frame that
+                   does not crop, capped by viewport height rather than by the
+                   width of the column it happens to sit in. */
+                <MediaFrame
+                  ratio="editorial-portrait"
+                  fit="contain"
+                  maxViewportHeight="58svh"
+                >
                   <ProductImage
                     src={
                       (editorialProduct.customColour ?? editorialProduct.base)
                         .photo
                     }
                     alt={`ODUDLAB ${editorialProduct.name}`}
-                    sizes="(min-width: 1024px) 60vw, 100vw"
+                    sizes="(min-width: 1024px) 33vw, 100vw"
                     brokenLabel={dictionary.shop.states.brokenImageAlt}
                   />
                 </MediaFrame>

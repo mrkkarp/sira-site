@@ -134,7 +134,17 @@ export function ProductExperience({
   const cookieBannerUndecided = useCookieBannerUndecided();
 
   return (
-    <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-x-(--space-lg)">
+    // The gallery column was a flat `3fr`, which on a 1440×751 laptop made it
+    // 755 px wide — and a square photo 755 px wide is 755 px tall, taller than
+    // the viewport. Capping the photo alone would have left a few hundred
+    // pixels of dead space beside it, so the cap lives on the *column*:
+    // `min(60%, <height budget>)`. On a tall screen 60% wins and the split is
+    // the old 3fr/2fr; on a short one the height budget wins, the gallery
+    // narrows, and the info column absorbs the difference instead of the
+    // layout growing a hole. (`ProductGallery` carries the same expression as
+    // its own max-width, which is what caps it on phones in landscape, where
+    // there is no grid at all.)
+    <div className="lg:grid lg:grid-cols-[minmax(0,min(60%,calc(100svh-var(--header-stack-height,74px)-9rem)))_minmax(0,1fr)] lg:items-start lg:gap-x-(--space-lg)">
       <div>
         <ProductGallery
           media={media}

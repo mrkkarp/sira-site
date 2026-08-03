@@ -132,24 +132,36 @@ function payloadDocToFlatProduct(
     .map(mediaUrl)
     .filter((u): u is string => Boolean(u));
 
-  // The base photo is always the first resolved image (Payload `mainImage`);
-  // the importer appends a *distinct* custom-colour photo as the LAST gallery
-  // entry only when the two colourways don't share the same photo. So a
-  // trailing custom photo is peeled off for the custom variant ONLY when there
-  // are at least two resolved images — otherwise the single image is the base
-  // photo (and the custom colour, if any, simply reuses it). Falls back to the
-  // snapshot's local `/products/*.jpg` paths (served from `public/`) only when
-  // Payload resolved no media at all for this product.
+  // Photos the admin has actually attached to a variant. This is the only
+  // statement in the data about which photograph shows which colourway, so it
+  // is the only thing trusted to make that claim.
+  const customVariantPhotos = (customVariant?.photos ?? [])
+    .map(mediaUrl)
+    .filter((u): u is string => Boolean(u));
+
+  // Everything below used to hang off a positional guess: "the importer
+  // appends the custom-colour photo last, so peel the last gallery entry off
+  // for the custom variant." Measured against the real catalogue that guess is
+  // wrong far more often than it is right — of 29 products with a custom
+  // colour, only 2 have a genuinely distinct custom photograph, while 12 have
+  // a *technical drawing* sitting last in the gallery. So the rule was
+  // reliably promoting a line drawing to "here is this piece in your colour",
+  // and — worse — deleting it from the gallery on the way past, which is why
+  // six-image galleries were rendering five thumbnails.
+  //
+  // The replacement makes no positional claim at all. A custom photo exists
+  // only when an admin attached one to the custom variant; otherwise the
+  // custom colourway shows the same photograph as the base, which is honest:
+  // we have no picture of this piece in that colour. The gallery keeps every
+  // image it was given.
+  //
+  // Falls back to the snapshot's local `/products/*.jpg` paths (served from
+  // `public/`) only when Payload resolved no media at all for this product.
   let basePhotos: string[];
   let customPhoto: string;
   if (orderedPhotos.length > 0) {
-    if (hasCustom && orderedPhotos.length >= 2) {
-      basePhotos = orderedPhotos.slice(0, -1);
-      customPhoto = orderedPhotos[orderedPhotos.length - 1];
-    } else {
-      basePhotos = orderedPhotos;
-      customPhoto = orderedPhotos[0];
-    }
+    basePhotos = orderedPhotos;
+    customPhoto = customVariantPhotos[0] ?? orderedPhotos[0];
   } else {
     basePhotos = snapshot?.base.gallery ?? [];
     customPhoto = snapshot?.customColour?.photo ?? snapshot?.base.photo ?? "";
@@ -179,16 +191,25 @@ function payloadDocToFlatProduct(
 
   const customColour: ProductVariant | undefined = hasCustom
     ? {
-        sku: customVariant?.sku ?? snapshot?.customColour?.sku ?? `${doc.sku}-custom`,
+        sku:
+          customVariant?.sku ??
+          snapshot?.customColour?.sku ??
+          `${doc.sku}-custom`,
         colorLabel:
           customVariant?.optionAxes?.custom ??
           snapshot?.customColour?.colorLabel,
         price:
-          customVariant?.price ??
-          snapshot?.customColour?.price ??
-          base.price,
+          customVariant?.price ?? snapshot?.customColour?.price ?? base.price,
         photo: customPhoto,
-        gallery: [customPhoto],
+        // The custom variant's own photo set when the admin attached one;
+        // otherwise the base gallery, because the object is the same object —
+        // only the colour differs, and we have no photograph of that.
+        gallery:
+          customVariantPhotos.length > 0
+            ? customVariantPhotos
+            : basePhotos.length > 0
+              ? basePhotos
+              : undefined,
         // The custom-colour variant is the same product in a different colour,
         // so it shares the (Payload-authoritative) base description rather than
         // the snapshot's per-variant copy. Preferring the snapshot here would

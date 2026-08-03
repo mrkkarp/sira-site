@@ -8,11 +8,23 @@ import { Section, Container, Grid, SectionHeader } from "@/components/layout";
 import { MediaFrame } from "@/components/layout/media-frame";
 import { ProductImage } from "@/components/product/product-image";
 
-const spanClass: Record<QuickCategoryConfig["size"], string> = {
-  large: "col-span-4 md:col-span-8 lg:col-span-6",
-  medium: "col-span-4 md:col-span-4 lg:col-span-3",
-  small: "col-span-4 md:col-span-4 lg:col-span-4",
-};
+/** Every card is a third of the desktop grid, half the tablet grid, and the
+ * full width of a phone — one span for all six, hence a constant rather than a
+ * lookup on the config's `size`.
+ *
+ * The spans used to vary with `size` (6 / 3 / 4 of 12), and the large card
+ * paired `lg:col-span-6` with a 4:5 frame. Those two numbers multiply: a
+ * half-width column on a 1440 px screen is 657 px, and a 4:5 frame 657 px wide
+ * is 821 px tall — 109 % of a 1440×751 laptop viewport, for a *category tile*.
+ * It was also upscaling, since the underlying photo is only 750 px tall. At
+ * the tablet breakpoint the same card spanned all 8 columns and got worse.
+ *
+ * Cropping it back to a landscape frame was not an option: the catalogue is
+ * overwhelmingly portrait (median 7:8), so a wide frame either throws away
+ * half of every photograph or stays tall. Narrowing the column fixes the
+ * height without touching the crop, and a card that is one third of the row
+ * is still plainly a card. */
+const cardSpan = "col-span-4 md:col-span-4 lg:col-span-4";
 
 function categoryLabel(
   category: QuickCategoryConfig,
@@ -24,9 +36,16 @@ function categoryLabel(
   return dictionary.home.quickCategories.customLabel;
 }
 
-/** Editorial, asymmetric category grid (Prompt 4 §2) — one large card, two
- * medium, three small, laid out as a coherent 12-col grid on desktop and a
- * plain sequential stack on mobile (no masonry).
+/** Editorial category grid (Prompt 4 §2) — three cards per row on desktop,
+ * two on tablet, a plain sequential stack on mobile (no masonry).
+ *
+ * All six frames are square. The card marked `large` in the config briefly
+ * kept a 4:5 frame as its remaining mark of hierarchy, but with the spans
+ * equalised that only produced a ragged row: a 463 px frame beside two 427 px
+ * ones pushed its heading 36 px below its neighbours', which reads as a
+ * misaligned grid rather than as emphasis. A feature card needs more *width*
+ * to look deliberate, and giving it that is what made it 821 px tall in the
+ * first place. So the row is uniform and the first card leads by being first.
  *
  * `categoryImages` maps a category `href` to the real catalog photo chosen to
  * represent it (resolved in `page.tsx` from each config entry's
@@ -52,18 +71,16 @@ export function QuickCategories({
           {quickCategories.map((category) => {
             const label = categoryLabel(category, dictionary);
             const image = categoryImages[category.href];
-            const isLarge = category.size === "large";
-            // The large card is the visually dominant, above-the-fold image in
-            // this section, so it is the one worth preloading; the smaller
-            // cards stay lazy to avoid competing with the hero LCP (see the
-            // same reasoning in `popular-products.tsx`).
+            // Nothing here is preloaded: the hero is 86svh tall, so this
+            // section starts below the fold on every desktop viewport and its
+            // images would only compete with the hero's LCP.
             return (
               <a
                 key={category.href}
                 href={localeHref(locale, category.href)}
                 className={cn(
                   "group block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-focus)",
-                  spanClass[category.size],
+                  cardSpan,
                 )}
               >
                 {/* No wrapper between the frame and its child: `MediaFrame`
@@ -72,16 +89,21 @@ export function QuickCategories({
                     `object-fit: fill` — the portrait "Вазони" shot was being
                     squashed from 2:3 into a square. The frame already supplies
                     `relative`, `overflow-hidden` and a definite height. */}
-                <MediaFrame ratio={isLarge ? "editorial-portrait" : "square"}>
+                <MediaFrame
+                  ratio="square"
+                  // A backstop for short and landscape viewports, where a
+                  // third-width card can still out-grow the screen: on a
+                  // 1280×620 laptop a square card is 411 px against a 620 px
+                  // viewport, and it only gets worse as the window shortens.
+                  // Inert at ordinary desktop heights, where the column is the
+                  // smaller of the two.
+                  maxViewportHeight="70svh"
+                >
                   {image ? (
                     <ProductImage
                       src={image}
                       alt={label}
-                      sizes={
-                        isLarge
-                          ? "(min-width: 1024px) 50vw, 100vw"
-                          : "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw"
-                      }
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                       brokenLabel={
                         dictionary.megaMenu.catalog.editorialImageAlt
                       }

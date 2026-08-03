@@ -29,12 +29,34 @@ export interface EditorialSection {
  *   structured description (§8) in a different, editorial layout; it is
  *   not a second invented fact.
  * - "colour": only rendered when the product genuinely has a real
- *   custom-colour variant — shows that variant's own real photo/label
- *   alongside the real, confirmed RAL/NCS colour-matching offer.
+ *   custom-colour variant.
  *
- * There is no real lifestyle photography, "in your space" imagery, or
- * technical drawing anywhere in the source data (see `gallery-media.ts`),
- * so those editorial angles are deliberately not invented here — a
+ * ## Which photograph each section gets
+ *
+ * Every section used to be handed `product.base.photo` — the same image the
+ * gallery is already showing full-size at the top of the page. On
+ * `/products/square-nakladna` that put one photograph on screen four times:
+ * the gallery's active view, its own thumbnail, and then again 1 700 px
+ * further down. Three sections captioned "Умивальники", "Ідея та матеріал"
+ * and "Колір під замовлення" showing one identical picture reads as filler,
+ * because it is.
+ *
+ * So photographs are *allocated*, not repeated:
+ *
+ *  - the custom-colour section takes the custom variant's own photograph, and
+ *    only when the admin actually attached one. When the custom colourway has
+ *    no photograph of its own — which is almost all of them — the section
+ *    runs as text. We have no picture of this piece in your colour; showing
+ *    the grey one under that heading would be a claim, not an illustration.
+ *  - the remaining sections draw the next unused image from the product's own
+ *    gallery, starting at index 1, so each one is a genuinely different view
+ *    and none of them repeats the hero.
+ *  - a section that runs out of images renders text-only. `ProductEditorial`
+ *    has always supported that; it is the correct outcome for the 17 rows
+ *    whose export carries a single photograph.
+ *
+ * There is still no lifestyle or "in your space" photography in the source
+ * data, so those editorial angles are deliberately not invented here — a
  * documented "needs real ODUDLAB data" gap.
  */
 export function buildEditorialSections(
@@ -43,11 +65,16 @@ export function buildEditorialSections(
 ): EditorialSection[] {
   const sections: EditorialSection[] = [];
 
+  // Index 0 is the hero the gallery opens on, so it is never handed out here.
+  const spare = (product.base.gallery ?? []).slice(1);
+  let next = 0;
+  const nextPhoto = () => spare[next++];
+
   sections.push({
     id: "category",
     heading: shopCategoryLabel(product.shopCategory, dictionary),
     body: shopCategoryIntro(product.shopCategory, dictionary),
-    photo: product.base.photo,
+    photo: nextPhoto(),
     photoAlt: product.name,
   });
 
@@ -57,17 +84,24 @@ export function buildEditorialSections(
       id: "craft",
       heading: dictionary.product.editorialCraftHeading,
       body: intro.text,
-      photo: product.customColour?.photo ?? product.base.photo,
+      photo: nextPhoto(),
       photoAlt: product.name,
     });
   }
 
   if (product.customColour) {
+    const customPhoto = product.customColour.photo;
     sections.push({
       id: "colour",
       heading: dictionary.product.editorialColourHeading,
       body: dictionary.product.trustColourMatching,
-      photo: product.customColour.photo,
+      // Distinct from the base photo means an admin attached a real photo of
+      // this colourway; equal to it means the adapter fell back to the base
+      // image, which is not a picture of a custom colour.
+      photo:
+        customPhoto && customPhoto !== product.base.photo
+          ? customPhoto
+          : undefined,
       photoAlt: product.customColour.colorLabel ?? product.name,
     });
   }

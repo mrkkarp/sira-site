@@ -132,16 +132,24 @@ export function HeroCarousel({
     >
       <div
         ref={trackRef}
-        // Prompt 9 §1/§6 (responsive + visual consistency audit) — a flat
-        // `min-h-[560px]` floor exceeded `100svh` on short landscape phones
-        // (~375-414px tall), forcing the "full-viewport" hero to overflow
-        // past the fold on exactly the devices where headroom is tightest.
-        // Tailwind's `sm:`/`md:` variants key off *width*, which doesn't
-        // distinguish a landscape phone (wide but short) from a portrait
-        // tablet, so this uses an arbitrary `min-height` media variant
-        // instead: only apply the taller 560px floor once the viewport
-        // itself has enough height to fit it without overflowing.
-        className="flex h-svh min-h-[420px] snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [@media(min-height:700px)]:min-h-[560px]"
+        // `86svh`, not the full `100svh` this used to be. At exactly one
+        // viewport the hero *is* the first screen: nothing below it shows, so
+        // the page gives no sign that anything follows, and the photograph
+        // reads as oversized because there is nothing to measure it against.
+        // Giving back ~14 % puts the top edge of the category grid on screen,
+        // which is both the scroll cue and the sense of scale. The hero is
+        // still much the largest thing on the page.
+        //
+        // The floor is 360px, and it is a floor for a genuinely tiny viewport
+        // rather than a design size. It replaces a 420px floor plus a
+        // `[@media(min-height:700px)]:min-h-[560px]` step, both of which were
+        // sized against `100svh`: at 86 % the 560px step can only ever bind
+        // below 651px of viewport height, where its own media query has
+        // already switched it off, and 420px would have overflowed a landscape
+        // phone (86 % of 414px is 356px). Tailwind's `sm:`/`md:` variants key
+        // off *width*, so they cannot tell a landscape phone from a portrait
+        // tablet — hence a height-keyed floor rather than a breakpoint.
+        className="flex h-[86svh] min-h-[360px] snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden"
       >
         {campaigns.map((campaign, index) => {
           const campaignCopy = copy[campaign.copyKey];

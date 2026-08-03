@@ -109,7 +109,12 @@ export default async function CollectionsPage({
               href={localeHref(locale, `/collections/${collection.slug}`)}
               className="group col-span-4 flex flex-col gap-(--space-xs) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-focus)"
             >
-              <MediaFrame ratio="editorial-landscape">
+              {/* Square, not 16:9. `coverPhoto` is a real product photograph
+                  and the catalogue is overwhelmingly portrait (median 7:8), so
+                  a 16:9 crop kept a horizontal band through the middle of a
+                  basin and discarded 56 % of it. A square keeps 87 % and
+                  matches the shop grid's own card frame. */}
+              <MediaFrame ratio="square">
                 <ProductImage
                   src={collection.coverPhoto}
                   alt={collection.name}

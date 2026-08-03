@@ -15,6 +15,21 @@ const ratioClass = {
   "process-detail": "aspect-[3/2]",
 } as const;
 
+/** The same ratios as numbers (width ÷ height), used to translate a height cap
+ * into the width cap that produces it — see `maxViewportHeight`. */
+const ratioValue = {
+  "hero-landscape": 21 / 9,
+  "hero-portrait": 4 / 5,
+  "editorial-landscape": 16 / 9,
+  "editorial-portrait": 4 / 5,
+  square: 1,
+  "product-card": 1,
+  "product-gallery": 1,
+  "project-cinematic": 21 / 9,
+  "colour-sample": 1,
+  "process-detail": 3 / 2,
+} as const;
+
 export type MediaRatio = keyof typeof ratioClass;
 
 export function MediaFrame({
@@ -23,6 +38,7 @@ export function MediaFrame({
   caption,
   credit,
   className,
+  maxViewportHeight,
   children,
 }: {
   ratio?: MediaRatio;
@@ -30,6 +46,17 @@ export function MediaFrame({
   caption?: ReactNode;
   credit?: { photographer?: string; project?: string; location?: string };
   className?: string;
+  /** Cap the frame's *height* at this fraction of the viewport, expressed as a
+   * CSS length (e.g. `"62svh"`). A fixed aspect ratio makes a block's height a
+   * function of its width, so the cap has to be applied as a width:
+   * `min(100%, height × ratio)`. Below that threshold the frame still fills its
+   * column exactly as before; past it the frame narrows and centres (`mx-auto`)
+   * so the image stops growing taller than the screen.
+   *
+   * `svh` rather than `vh`: on mobile `vh` is the *largest* viewport, so a
+   * `vh`-capped image overflows while the URL bar is showing. On desktop the
+   * two are identical. */
+  maxViewportHeight?: string;
   children: ReactNode;
 }) {
   const creditLine = credit
@@ -44,10 +71,18 @@ export function MediaFrame({
         className={cn(
           "bg-surface-muted relative overflow-hidden",
           ratioClass[ratio],
+          maxViewportHeight && "mx-auto",
           fit === "contain" && "[&>img]:object-contain",
           fit === "cover" && "[&>img]:object-cover",
           "[&>img]:h-full [&>img]:w-full",
         )}
+        style={
+          maxViewportHeight
+            ? {
+                width: `min(100%, calc(${maxViewportHeight} * ${ratioValue[ratio]}))`,
+              }
+            : undefined
+        }
       >
         {children}
       </div>

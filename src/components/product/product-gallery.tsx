@@ -19,6 +19,32 @@ import {
 
 const SWIPE_THRESHOLD_PX = 40;
 
+/** Height budget for the gallery's active photo.
+ *
+ * The gallery used to be `w-full` inside a ~755 px column, so on a 1440×751
+ * laptop the square photo was 755 px tall — taller than the viewport on its
+ * own, before the header, the annotation band and the thumbnail strip were
+ * counted. You could never see a photo and its thumbnails at the same time,
+ * which is exactly what makes switching between them feel awkward.
+ *
+ * So the photo is capped by *height*, not width. A square frame's height
+ * equals its width, so the cap is written as a `max-width` on the whole
+ * column — the frame, the annotation band and the thumbnails then share one
+ * measure and stay aligned. `min(100%, …)` keeps the old behaviour whenever
+ * the column is the narrower constraint, which is every phone in portrait:
+ * this is a desktop fix that is inert on mobile.
+ *
+ * The subtracted 9rem is everything the gallery itself puts below the photo —
+ * the annotation band, the thumbnail row, and the gaps between them — so the
+ * whole gallery fits one screen under the header. It deliberately does *not*
+ * also subtract the breadcrumbs and the section's top padding: demanding that
+ * those fit too would shrink the photo by another 130 px to save the reader a
+ * gesture they were going to make anyway. `--header-stack-height` is published
+ * by the header itself. `svh` rather than `vh` so a mobile URL bar can't push
+ * the photo off-screen. */
+const GALLERY_MAX_WIDTH =
+  "min(100%, calc(100svh - var(--header-stack-height, 74px) - 9rem))";
+
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
@@ -127,7 +153,10 @@ export function ProductGallery({
   if (!active) return null;
 
   return (
-    <div className="flex flex-col gap-(--space-xs)">
+    <div
+      className="flex flex-col gap-(--space-xs)"
+      style={{ maxWidth: GALLERY_MAX_WIDTH }}
+    >
       {/* The ticks sit in an 8px margin rather than on the photograph: on a
           dark image a mark drawn over the corner would simply disappear, and
           on a sheet the registration marks belong to the frame, not the view. */}
@@ -152,12 +181,21 @@ export function ProductGallery({
               aria-label={dictionary.product.galleryOpenLightbox}
               className="absolute inset-0 h-full w-full"
             >
+              {/* `contain`, not `cover`. The catalogue is 93 portrait / 24
+                  square / 6 landscape photographs (median 7:8), so a square
+                  frame that crops would cut ~13 % off the height of most
+                  shots — the top or the foot of a tall vase or basin — and
+                  ~44 % off the sides of the landscape ones. On the one view
+                  where the shopper is judging the object's actual proportions,
+                  a letterbox on the frame's own background is honest and a
+                  crop is not. Thumbnails still crop: there the job is
+                  recognition, not proportion. */}
               <ProductImage
                 src={active.src}
                 alt={active.alt}
                 priority
-                sizes="(min-width: 1024px) 60vw, 100vw"
-                className="object-cover"
+                sizes="(min-width: 1024px) 45vw, 100vw"
+                className="object-contain"
                 brokenLabel={brokenImageLabel}
               />
             </button>
@@ -211,14 +249,14 @@ export function ProductGallery({
               )}
               onClick={() => goTo(index)}
               className={cn(
-                "bg-surface-muted relative h-16 w-16 shrink-0 overflow-hidden border",
+                "bg-surface-muted relative h-16 w-16 shrink-0 overflow-hidden border lg:h-20 lg:w-20",
                 index === safeIndex ? "border-text" : "border-transparent",
               )}
             >
               <ProductImage
                 src={item.src}
                 alt={item.alt}
-                sizes="64px"
+                sizes="(min-width: 1024px) 80px, 64px"
                 className="object-cover"
                 brokenLabel={brokenImageLabel}
               />
