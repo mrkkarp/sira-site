@@ -16,7 +16,7 @@
     "format:check": "prettier --check .",
     "payload": "payload",
     "migrate": "node --env-file-if-exists=.env.local node_modules/.bin/payload migrate",
-    "ci:migrate": "echo N | DATABASE_URL=\"${POSTGRES_URL_NON_POOLING:-$DATABASE_URL}\" node_modules/.bin/payload migrate",
+    "ci:migrate": "echo y | DATABASE_URL=\"${POSTGRES_URL_NON_POOLING:-$DATABASE_URL}\" node_modules/.bin/payload migrate",
     "ci:build": "npm run ci:migrate && npm run build",
     "audit:facts": "node_modules/.bin/tsx scripts/audit-product-facts.ts",
     "import:horoshop": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/import-horoshop.ts",

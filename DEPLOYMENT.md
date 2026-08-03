@@ -93,6 +93,18 @@ var (a redeploy applies it).
 > (e.g. a non-Neon host). `next build` and runtime keep using the pooled
 > `DATABASE_URL`.
 
+> **Why `ci:migrate` pipes `echo y`.** If the database has ever had a dev
+> server pointed at it, Payload's push writes a row into `payload_migrations`
+> with `batch = -1`, and every later `payload migrate` stops to ask *"It looks
+> like you've run Payload in dev mode… data loss will occur. Would you like to
+> proceed?"*. There is no flag for this — `forceAcceptWarning` is wired only to
+> `migrate:create` and `migrate:fresh`, not to plain `migrate` — so the answer
+> has to come over stdin. Answering **no** makes `payload migrate` exit **0**
+> without running anything, so the build goes green while the schema silently
+> stays behind; that is how `20260803_122827_add_media_kind` missed its
+> deploy. Answering yes only makes Payload ignore the `batch = -1` row when it
+> works out the next batch number — it drops nothing.
+
 ### Schema changes after launch
 
 Whenever you change a Payload collection/field, generate a new migration and
@@ -104,6 +116,16 @@ git add src/migrations && git commit
 ```
 
 Do **not** rely on `push` in production — it is disabled there by design.
+
+Write the migration so it **converges** rather than assumes: `CREATE TYPE`
+inside a `DO $$ … EXCEPTION WHEN duplicate_object THEN null; END $$`,
+`ADD COLUMN IF NOT EXISTS`, `DROP … IF EXISTS`. `migrate:create` diffs the
+config against the snapshot beside it, not against the live database, so
+whenever a dev server has already pushed the same change the generated
+statements will collide with the schema that is really there — and
+`runMigrationFile` treats one failed statement as fatal (`process.exit(1)`),
+taking the whole build down with it. See
+`src/migrations/20260803_122827_add_media_kind.ts` for the shape.
 
 ## Deploy on a generic Node host
 
