@@ -732,6 +732,10 @@
     "continueShoppingCta": "Kontynuuj zakupy",
     "checkoutNotice": "Niektóre produkty w koszyku nie są już dostępne — usuń je, aby złożyć zamówienie.",
     "quantityLabel": "Ilość",
+    "quantityForItem": "Ilość: {name}",
+    "decreaseQuantityCta": "Zmniejsz ilość: {name}",
+    "increaseQuantityCta": "Zwiększ ilość: {name}",
+    "removeItemCta": "Usuń z koszyka: {name}",
     "priceChangedNotice": "Cena zmieniła się od momentu dodania produktu do koszyka",
     "unavailableNotice": "Ten produkt nie jest już dostępny"
   },

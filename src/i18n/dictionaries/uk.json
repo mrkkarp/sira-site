@@ -732,6 +732,10 @@
     "continueShoppingCta": "Продовжити покупки",
     "checkoutNotice": "Деякі товари в кошику більше недоступні — видаліть їх, щоб оформити замовлення.",
     "quantityLabel": "Кількість",
+    "quantityForItem": "Кількість: {name}",
+    "decreaseQuantityCta": "Зменшити кількість: {name}",
+    "increaseQuantityCta": "Збільшити кількість: {name}",
+    "removeItemCta": "Видалити з кошика: {name}",
     "priceChangedNotice": "Ціна змінилася відтоді, як товар додали в кошик",
     "unavailableNotice": "Цього товару більше немає в наявності"
   },

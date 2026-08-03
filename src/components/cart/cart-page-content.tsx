@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
+import { formatTemplate } from "@/lib/format-template";
 import { localeHref } from "@/lib/locale-href";
 import { useCart, type CartLineItem } from "@/lib/cart-store";
 import { Price } from "@/components/ui/price";
@@ -134,7 +136,19 @@ function CartLineRow({
   return (
     <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-(--space-sm) py-(--space-sm)">
       <div className="flex flex-col gap-(--space-3xs)">
-        <span className="type-body text-text">{line.productName}</span>
+        {/*
+         * The name is the one thing a visitor is likely to want to click here:
+         * to re-check a spec, a colour or a photo before committing to the
+         * order. It was a bare `<span>`, so the only way back to the product
+         * was the browser's Back button — and once you have paged around the
+         * shop, that is no longer one press away.
+         */}
+        <Link
+          href={localeHref(locale, `/products/${line.productSlug}`)}
+          className="type-body text-text hover:text-text-muted underline-offset-4 hover:underline"
+        >
+          {line.productName}
+        </Link>
         {line.variantLabel ? (
           <span className="type-caption text-text-muted">
             {line.variantLabel}
@@ -151,13 +165,23 @@ function CartLineRow({
         ) : null}
       </div>
 
+      {/*
+       * Every control below names the product it acts on. A cart is a list of
+       * near-identical rows, and a screen reader announces controls out of
+       * their visual context — with the old labels the whole page was "Кількість
+       * −, Кількість, Кількість +, Видалити" repeated once per line, with
+       * nothing tying any of them to a product. The visible glyphs stay bare;
+       * this is the accessible name only.
+       */}
       <div
         className="border-border-strong inline-flex h-11 items-stretch border"
         aria-disabled={isMutating}
       >
         <button
           type="button"
-          aria-label={`${copy.quantityLabel} −`}
+          aria-label={formatTemplate(copy.decreaseQuantityCta, {
+            name: line.productName,
+          })}
           disabled={isMutating || line.quantity <= 1}
           onClick={() => handleQuantityChange(line.quantity - 1)}
           className="text-text hover:bg-surface-muted w-9 disabled:pointer-events-none disabled:opacity-40"
@@ -165,14 +189,18 @@ function CartLineRow({
           −
         </button>
         <output
-          aria-label={copy.quantityLabel}
+          aria-label={formatTemplate(copy.quantityForItem, {
+            name: line.productName,
+          })}
           className="type-technical-value text-text flex w-10 items-center justify-center"
         >
           {line.quantity}
         </output>
         <button
           type="button"
-          aria-label={`${copy.quantityLabel} +`}
+          aria-label={formatTemplate(copy.increaseQuantityCta, {
+            name: line.productName,
+          })}
           disabled={isMutating}
           onClick={() => handleQuantityChange(line.quantity + 1)}
           className="text-text hover:bg-surface-muted w-9 disabled:pointer-events-none disabled:opacity-40"
@@ -185,7 +213,9 @@ function CartLineRow({
 
       <IconButton
         icon={<span aria-hidden="true">×</span>}
-        aria-label={copy.removeCta}
+        aria-label={formatTemplate(copy.removeItemCta, {
+          name: line.productName,
+        })}
         disabled={isMutating}
         onClick={handleRemove}
       />

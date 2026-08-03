@@ -732,6 +732,10 @@
     "continueShoppingCta": "Continue shopping",
     "checkoutNotice": "Some items in your cart are no longer available — remove them to check out.",
     "quantityLabel": "Quantity",
+    "quantityForItem": "Quantity: {name}",
+    "decreaseQuantityCta": "Decrease quantity: {name}",
+    "increaseQuantityCta": "Increase quantity: {name}",
+    "removeItemCta": "Remove from cart: {name}",
     "priceChangedNotice": "The price has changed since this item was added to your cart",
     "unavailableNotice": "This item is no longer available"
   },
