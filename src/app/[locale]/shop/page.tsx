@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { indexableLocales } from "@/lib/seo/indexing";
-import { localeHref } from "@/lib/locale-href";
-import { getSiteUrl } from "@/lib/site-url";
+import { pageSeo } from "@/lib/seo/page-seo";
 import { ShopCatalog } from "@/components/shop/shop-catalog";
 
 export async function generateMetadata({
@@ -15,29 +13,17 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const dictionary = await getDictionary(locale);
-  const siteUrl = getSiteUrl();
-  const canonicalPath = localeHref(locale, "/shop");
 
   return {
     title: dictionary.shop.heading,
     description: dictionary.shop.allCategoriesIntro,
-    alternates: {
-      canonical: canonicalPath,
-      languages: Object.fromEntries(
-        indexableLocales.map((altLocale) => [
-          altLocale,
-          localeHref(altLocale, "/shop"),
-        ]),
-      ),
-    },
-    openGraph: {
+    ...pageSeo({
+      locale,
+      path: "/shop",
       title: dictionary.shop.heading,
       description: dictionary.shop.allCategoriesIntro,
-      url: new URL(canonicalPath, siteUrl).toString(),
       siteName: dictionary.site.name,
-      locale,
-      type: "website",
-    },
+    }),
   };
 }
 

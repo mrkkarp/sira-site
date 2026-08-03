@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { indexableLocales, isIndexable } from "@/lib/seo/indexing";
-import { localeHref } from "@/lib/locale-href";
-import { getSiteUrl } from "@/lib/site-url";
+import { isIndexable } from "@/lib/seo/indexing";
+import { pageSeo } from "@/lib/seo/page-seo";
 import { ShopCategorySchema } from "@/lib/schemas/product";
 import { getProductsByCategory, preloadProducts } from "@/lib/products";
 import {
@@ -24,9 +23,6 @@ export async function generateMetadata({
   if (!parsedCategory.success) return {};
   const category = parsedCategory.data;
   const dictionary = await getDictionary(locale);
-  const siteUrl = getSiteUrl();
-  const canonicalPath = localeHref(locale, `/shop/${category}`);
-
   const title = shopCategoryLabel(category, dictionary);
   const description = shopCategoryIntro(category, dictionary);
 
@@ -51,7 +47,8 @@ export async function generateMetadata({
    * to what the layout already emits.
    */
   await preloadProducts(locale);
-  const isEmpty = getProductsByCategory(category).length === 0;
+  const products = getProductsByCategory(category);
+  const isEmpty = products.length === 0;
 
   return {
     title,
@@ -59,23 +56,19 @@ export async function generateMetadata({
     ...(isEmpty
       ? { robots: { index: false, follow: isIndexable(locale) } }
       : {}),
-    alternates: {
-      canonical: canonicalPath,
-      languages: Object.fromEntries(
-        indexableLocales.map((altLocale) => [
-          altLocale,
-          localeHref(altLocale, `/shop/${category}`),
-        ]),
-      ),
-    },
-    openGraph: {
+    ...pageSeo({
+      locale,
+      path: `/shop/${category}`,
       title,
       description,
-      url: new URL(canonicalPath, siteUrl).toString(),
       siteName: dictionary.site.name,
-      locale,
-      type: "website",
-    },
+      // Share the category with something *from* the category. The products
+      // are already loaded for the soft-404 check above, so this costs nothing
+      // and beats the generic workshop card: someone forwarding "Умивальники"
+      // sees a basin. Empty categories fall through to the default — they are
+      // `noindex` anyway, and there is nothing truthful to show.
+      image: products[0]?.base.photo,
+    }),
   };
 }
 

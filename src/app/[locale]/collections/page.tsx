@@ -3,9 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { indexableLocales } from "@/lib/seo/indexing";
 import { localeHref } from "@/lib/locale-href";
-import { getSiteUrl } from "@/lib/site-url";
+import { pageSeo } from "@/lib/seo/page-seo";
 import { getAllCollections } from "@/lib/collections";
 import { Container, Section, Grid } from "@/components/layout";
 import { MediaFrame } from "@/components/layout/media-frame";
@@ -22,29 +21,17 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const dictionary = await getDictionary(locale);
-  const siteUrl = getSiteUrl();
-  const canonicalPath = localeHref(locale, "/collections");
 
   return {
     title: dictionary.collectionsPage.heading,
     description: dictionary.collectionsPage.intro,
-    alternates: {
-      canonical: canonicalPath,
-      languages: Object.fromEntries(
-        indexableLocales.map((altLocale) => [
-          altLocale,
-          localeHref(altLocale, "/collections"),
-        ]),
-      ),
-    },
-    openGraph: {
+    ...pageSeo({
+      locale,
+      path: "/collections",
       title: dictionary.collectionsPage.heading,
       description: dictionary.collectionsPage.intro,
-      url: new URL(canonicalPath, siteUrl).toString(),
       siteName: dictionary.site.name,
-      locale,
-      type: "website",
-    },
+    }),
   };
 }
 

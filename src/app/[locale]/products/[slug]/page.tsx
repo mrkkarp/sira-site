@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { indexableLocales } from "@/lib/seo/indexing";
 import { localeHref } from "@/lib/locale-href";
-import { getSiteUrl } from "@/lib/site-url";
+import { pageSeo } from "@/lib/seo/page-seo";
 import {
   getProductBySlug,
   getProductsByCategory,
@@ -59,8 +58,6 @@ export async function generateMetadata({
   const resolved = resolveVariant(model, initialSelection);
   const variant = resolved.variant ?? product.base;
 
-  const siteUrl = getSiteUrl();
-  const canonicalPath = localeHref(locale, `/products/${product.slug}`);
   const title = product.name;
   const [intro] = buildDescriptionSections(product.base.description);
   const description =
@@ -69,24 +66,18 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: canonicalPath,
-      languages: Object.fromEntries(
-        indexableLocales.map((altLocale) => [
-          altLocale,
-          localeHref(altLocale, `/products/${product.slug}`),
-        ]),
-      ),
-    },
-    openGraph: {
+    ...pageSeo({
+      locale,
+      path: `/products/${product.slug}`,
       title,
       description,
-      url: new URL(canonicalPath, siteUrl).toString(),
       siteName: dictionary.site.name,
-      locale,
-      type: "website",
-      images: [{ url: new URL(variant.photo, siteUrl).toString() }],
-    },
+      // The *resolved* variant's photo, not `product.base.photo`: a link shared
+      // from a `?colour=…` URL should preview the colour the sharer was looking
+      // at. This page was the only one that ever set an og image; `pageSeo`
+      // now gives every other page a fallback (see `SHARE_CARD`).
+      image: variant.photo,
+    }),
   };
 }
 

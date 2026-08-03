@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { indexableLocales } from "@/lib/seo/indexing";
 import { localeHref } from "@/lib/locale-href";
-import { getSiteUrl } from "@/lib/site-url";
+import { pageSeo } from "@/lib/seo/page-seo";
 import { getCollectionBySlug, getCollectionProducts } from "@/lib/collections";
 import { preloadProducts } from "@/lib/products";
 import { getAllProductColours } from "@/lib/product-colours";
@@ -32,29 +31,23 @@ export async function generateMetadata({
   const collection = getCollectionBySlug(slug);
   if (!collection) return { title: dictionary.collectionsPage.notFoundHeading };
 
-  const siteUrl = getSiteUrl();
-  const canonicalPath = localeHref(locale, `/collections/${collection.slug}`);
+  // A collection has no cover image of its own — it is a grouping of real
+  // products (see `src/lib/collections.ts`), so its first member's photo is
+  // the honest illustration of it rather than a picture invented for the card.
+  await preloadProducts(locale);
+  const [firstProduct] = getCollectionProducts(collection);
 
   return {
     title: collection.name,
     description: collection.description,
-    alternates: {
-      canonical: canonicalPath,
-      languages: Object.fromEntries(
-        indexableLocales.map((altLocale) => [
-          altLocale,
-          localeHref(altLocale, `/collections/${collection.slug}`),
-        ]),
-      ),
-    },
-    openGraph: {
+    ...pageSeo({
+      locale,
+      path: `/collections/${collection.slug}`,
       title: collection.name,
       description: collection.description,
-      url: new URL(canonicalPath, siteUrl).toString(),
       siteName: dictionary.site.name,
-      locale,
-      type: "website",
-    },
+      image: firstProduct?.base.photo,
+    }),
   };
 }
 

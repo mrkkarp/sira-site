@@ -20,10 +20,32 @@ test("shop catalog lists real products and links to a real PDP", async ({
 
   const firstProductLink = page.locator('a[href*="/products/"]').first();
   await expect(firstProductLink).toBeVisible();
+  // `ProductCard` puts the product's name in an `<h3>` inside the link, so the
+  // card tells us what the page it opens must be called.
+  const productName = (
+    await firstProductLink.getByRole("heading").innerText()
+  ).trim();
   await firstProductLink.click();
 
   await expect(page).toHaveURL(/\/products\/[a-z0-9-]+$/);
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  /**
+   * Named, not just `getByRole("heading", { level: 1 })`. Two reasons, and the
+   * second is the one that bites.
+   *
+   * It says more: "the PDP for the card I clicked opened", rather than "some
+   * page with some `h1` is on screen" — which the catalogue itself satisfies.
+   *
+   * And it cannot land on the outgoing page. During a client navigation the
+   * App Router keeps the previous route mounted until the new one has rendered
+   * (see the note in `locale-switch.spec.ts`), so for a moment `/shop`'s `h1`
+   * and the product's are both in the document — and an unnamed level-1
+   * heading locator is a strict-mode locator that fails on exactly that. The
+   * identical assertion in `locale-switch.spec.ts` did fail this way once the
+   * dev server was busy enough to stretch the window.
+   */
+  await expect(
+    page.getByRole("heading", { level: 1, name: productName, exact: true }),
+  ).toBeVisible();
 });
 
 test("PDP defaults to the base-grey CTA, and switches to the quote CTA once the custom-colour swatch is picked", async ({

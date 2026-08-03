@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { locales, type Locale } from "@/i18n/config";
+import { type Locale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-href";
 
 function noIndexMetadata(
@@ -7,15 +7,19 @@ function noIndexMetadata(
   path: string,
   title: string,
 ): Metadata {
-  const canonicalPath = localeHref(locale, path);
   return {
     title,
-    alternates: {
-      canonical: canonicalPath,
-      languages: Object.fromEntries(
-        locales.map((altLocale) => [altLocale, localeHref(altLocale, path)]),
-      ),
-    },
+    /**
+     * Canonical only — deliberately no `languages`. hreflang is a set of
+     * mutual "index *that* URL for this language instead" hints, and every
+     * member of this particular set is `noindex`. Google drops hreflang
+     * clusters whose members cannot be indexed, so the three
+     * `<link rel="alternate" hreflang>` tags these pages used to emit were
+     * markup that contradicted the `robots` tag sitting next to it. `/cart`
+     * was the clearest case: noindex, yet advertising uk/en/pl alternates of
+     * a per-session page that has no canonical content in any language.
+     */
+    alternates: { canonical: localeHref(locale, path) },
     robots: {
       index: false,
       follow: true,

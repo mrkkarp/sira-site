@@ -39,6 +39,29 @@ const ROUTES = [
   // The only prefixed-locale route the suite visits; `/en` compiles separately
   // from the unprefixed default (see `src/proxy.ts`).
   "/en/shop",
+
+  /**
+   * Route handlers, which this list used to miss — and the miss was costing a
+   * real, recurring red light. Warming `/products/…` compiles the page a
+   * visitor sees, but the very first *add to cart* in the whole run is also
+   * the first request `/api/cart/lines` has ever had, so its compile lands
+   * inside `cart-flow.spec.ts`'s 5-second "the badge should now read Кошик (1)"
+   * assertion. `cart-flow` is alphabetically first and chromium runs first, so
+   * that cost reliably fell on the same test — which then failed with the
+   * badge still at 0, looking exactly like the cart bug that was already fixed
+   * once. It passed on its own every time, which is the signature of a warm-up
+   * problem rather than a defect.
+   *
+   * A `page.goto` sends a GET, and these handlers export POST/PATCH/DELETE, so
+   * most answer 405 — which is fine and is the whole point: Next compiles the
+   * route module before it can tell the method is unsupported, and compiling
+   * is all we are buying. (`goto` rejects on network failures, not on status
+   * codes.)
+   */
+  "/api/cart",
+  "/api/cart/lines",
+  "/api/cart/lines/warm-up-only",
+  "/api/search?q=Odri",
 ];
 
 export default async function globalSetup() {

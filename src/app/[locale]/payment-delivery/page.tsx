@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { indexableLocales } from "@/lib/seo/indexing";
-import { localeHref } from "@/lib/locale-href";
-import { getSiteUrl } from "@/lib/site-url";
+import { pageSeo } from "@/lib/seo/page-seo";
 import { getInfoPageContent } from "@/content/info-pages";
 import { buildInfoPageDescription } from "@/lib/seo/info-page-description";
 import { InfoPage } from "@/components/info-page/info-page";
@@ -33,28 +32,23 @@ export async function generateMetadata({
     );
   }
 
-  const siteUrl = getSiteUrl();
-  const canonicalPath = localeHref(locale, `/${SLUG}`);
   const description = buildInfoPageDescription(content);
   return {
     title: dictionary.pages.paymentDelivery,
     description,
-    alternates: {
-      canonical: canonicalPath,
-      languages: Object.fromEntries(
-        indexableLocales
-          .filter((altLocale) => getInfoPageContent(SLUG, altLocale))
-          .map((altLocale) => [altLocale, localeHref(altLocale, `/${SLUG}`)]),
-      ),
-    },
-    openGraph: {
+    ...pageSeo({
+      locale,
+      path: `/${SLUG}`,
       title: `${dictionary.pages.paymentDelivery} — ${dictionary.site.name}`,
       description,
-      url: new URL(canonicalPath, siteUrl).toString(),
       siteName: dictionary.site.name,
-      locale,
-      type: "website",
-    },
+      // Only the locales that actually have transcribed prose are advertised:
+      // the rest fall through to the `noindex` placeholder above, and pointing
+      // hreflang at a `noindex` page is a contradiction Search Console reports.
+      hreflangLocales: indexableLocales.filter((altLocale) =>
+        getInfoPageContent(SLUG, altLocale),
+      ),
+    }),
   };
 }
 
