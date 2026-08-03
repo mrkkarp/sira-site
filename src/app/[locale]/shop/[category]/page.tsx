@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { indexableLocales } from "@/lib/seo/indexing";
+import { indexableLocales, isIndexable } from "@/lib/seo/indexing";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
 import { ShopCategorySchema } from "@/lib/schemas/product";
+import { getProductsByCategory, preloadProducts } from "@/lib/products";
 import {
   shopCategoryLabel,
   shopCategoryIntro,
@@ -29,9 +30,35 @@ export async function generateMetadata({
   const title = shopCategoryLabel(category, dictionary);
   const description = shopCategoryIntro(category, dictionary);
 
+  /**
+   * A category with nothing in it yet renders a deliberate "coming soon" empty
+   * state (`shop-empty-state.tsx`) — a real page, but with no product content.
+   * To a crawler that is a soft 404: a 200 response whose body is a promise
+   * rather than the thing the URL claims to list. `wall-modules` is exactly
+   * this today. Marked `noindex` until it has stock. It also drops out of the
+   * sitemap (see `src/app/sitemap.ts`), and both come back on their own the
+   * moment a product lands in the category — no code change, no checklist to
+   * remember.
+   *
+   * `follow` is deliberately tied to `isIndexable(locale)` rather than hard
+   * `true`. A page's own `robots` *replaces* the root layout's wholesale (see
+   * `src/lib/seo/indexing.ts`), so a hard `true` would quietly upgrade the
+   * layout's `nofollow` to `follow` on exactly the surfaces that must not get
+   * it — `en`/`pl`, previews, and while the pre-launch `SEO_NOINDEX`
+   * kill-switch is on. Written this way the override only ever *adds*
+   * `noindex`: where the site is indexable it says "skip this page, keep
+   * crawling the nav through it", and everywhere else it stays byte-identical
+   * to what the layout already emits.
+   */
+  await preloadProducts(locale);
+  const isEmpty = getProductsByCategory(category).length === 0;
+
   return {
     title,
     description,
+    ...(isEmpty
+      ? { robots: { index: false, follow: isIndexable(locale) } }
+      : {}),
     alternates: {
       canonical: canonicalPath,
       languages: Object.fromEntries(

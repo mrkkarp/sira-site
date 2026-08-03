@@ -35,6 +35,9 @@ import { indexableLocales } from "@/lib/seo/indexing";
  *   in this list: it now has real, owner-confirmed content and is indexable,
  *   so it appears in `staticPaths` below.
  * - `/admin`, `/design-system` — not part of the public site.
+ * - `/shop/<category>` for any category with no products yet — a soft 404 to a
+ *   crawler, and `noindex` in its own metadata. Filtered out below, and it
+ *   returns on its own once the category has stock.
  *
  * Every URL is emitted once per **indexable** locale (`indexableLocales` in
  * `src/lib/seo/indexing.ts` — today `uk` only), with each entry's
@@ -51,13 +54,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await getAllProductsAsync();
   const collections = getAllCollections();
 
+  /**
+   * Only categories that actually have something in them. A category with no
+   * products still renders a real page — the "coming soon" empty state in
+   * `shop-empty-state.tsx` — but to a crawler that is a soft 404: a 200
+   * response whose body is a promise rather than the listing the URL claims.
+   * `wall-modules` is exactly this today. Listing it in the sitemap is an
+   * explicit "please index this", which contradicts the `noindex` its own
+   * `generateMetadata` sets (`shop/[category]/page.tsx`). Both conditions read
+   * the same product list, so the category re-appears here and drops its
+   * `noindex` together, the moment a product lands in it — no code change, no
+   * checklist to remember.
+   */
+  const nonEmptyCategoryPaths = shopCategories
+    .filter((category) =>
+      products.some((product) => product.shopCategory === category),
+    )
+    .map((category) => `/shop/${category}`);
+
   const staticPaths = [
     "/",
     "/shop",
     "/collections",
     "/warranty",
     "/contact",
-    ...shopCategories.map((c) => `/shop/${c}`),
+    ...nonEmptyCategoryPaths,
   ];
   const productPaths = products.map((product) => `/products/${product.slug}`);
   const collectionPaths = collections.map(
@@ -72,16 +93,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * `uk` only — the `en` bodies are empty and there is no `pl` source), so the
    * `noindex` placeholder versions never leak into the sitemap.
    */
-  const localeLimitedPaths = [
-    "/payment-delivery",
-    "/returns",
-    "/care",
-  ].map((path) => ({
-    path,
-    locales: indexableLocales.filter((locale) =>
-      getInfoPageContent(path.slice(1), locale),
-    ),
-  }));
+  const localeLimitedPaths = ["/payment-delivery", "/returns", "/care"].map(
+    (path) => ({
+      path,
+      locales: indexableLocales.filter((locale) =>
+        getInfoPageContent(path.slice(1), locale),
+      ),
+    }),
+  );
 
   const entries: MetadataRoute.Sitemap = [];
   for (const path of allPaths) {
