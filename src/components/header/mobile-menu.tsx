@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,6 +10,7 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
 import { catalogTree, primaryNav } from "@/config/navigation";
+import { useDialogBehaviour } from "@/components/ui/use-dialog-behaviour";
 
 /**
  * The mobile navigation is a *different object* from the desktop bar, not the
@@ -47,7 +48,6 @@ export function MobileMenu({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const triggerRef = useRef<Element | null>(null);
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<string | null>(null);
   const m = dictionary.mobileMenu;
@@ -63,40 +63,15 @@ export function MobileMenu({
     if (open) setExpanded(null);
   }
 
-  useEffect(() => {
-    if (!open) return;
-    triggerRef.current = document.activeElement;
-    closeButtonRef.current?.focus();
-    document.body.style.overflow = "hidden";
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const focusable = panelRef.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
-      if (!focusable || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-      if (triggerRef.current instanceof HTMLElement) triggerRef.current.focus();
-    };
-  }, [open, onClose]);
+  // Focus trap, Escape, scroll lock and focus restore are shared with the
+  // other modal overlays — see `useDialogBehaviour`. Focus starts on the X
+  // rather than the first link, so the way out is the first thing announced.
+  useDialogBehaviour({
+    open,
+    onClose,
+    panelRef,
+    initialFocusRef: closeButtonRef,
+  });
 
   if (!open) return null;
 

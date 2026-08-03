@@ -11,6 +11,7 @@ import { shopCategories } from "@/lib/schemas/product";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
 import { Price } from "@/components/ui/price";
 import type { SearchResponse } from "@/app/api/search/route";
+import { useDialogBehaviour } from "@/components/ui/use-dialog-behaviour";
 
 const RECENT_SEARCHES_KEY = "odudlab:recent-searches";
 const MAX_RECENT = 5;
@@ -53,32 +54,45 @@ export function SearchDrawer({
   const [results, setResults] = useState<SearchResponse>(emptyResults);
   const [recent, setRecent] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const triggerRef = useRef<Element | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const s = dictionary.search;
 
-  useEffect(() => {
-    if (!open) return;
-    triggerRef.current = document.activeElement;
-    const timeout = setTimeout(() => {
+  /**
+   * Every open starts blank. `open` only toggles what this component
+   * *renders* — it stays mounted either way, so `query` survived a close and
+   * the drawer reopened showing the previous search and its results, as if
+   * the visitor had typed it again. Reset during render rather than in an
+   * effect, so the drawer never paints one frame of the old query before
+   * clearing it. (Same pattern, and the same reason, as `MobileMenu`'s
+   * `openedWith`.)
+   */
+  const [openedWith, setOpenedWith] = useState(open);
+  if (openedWith !== open) {
+    setOpenedWith(open);
+    if (open) {
+      setQuery("");
+      setResults(emptyResults);
+      // Read here rather than in an effect for the same reason: the list is
+      // wanted in the drawer's very first painted frame, and another tab may
+      // have added to it since this one last looked. `open` is false on the
+      // server and only flips in response to a click, so this never runs
+      // during SSR.
       setRecent(readRecentSearches());
-      inputRef.current?.focus();
-    }, 0);
-    return () => clearTimeout(timeout);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-        if (triggerRef.current instanceof HTMLElement)
-          triggerRef.current.focus();
-      }
     }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  }
+
+  /**
+   * Focus trap, Escape, scroll lock and focus-restore-to-trigger, shared with
+   * the other modal overlays. This drawer previously had only an Escape
+   * handler while still declaring `aria-modal="true"` — so a keyboard or
+   * screen-reader user was told the page behind was inert, then Tab walked
+   * them straight into it, and the page scrolled underneath.
+   *
+   * Focus goes to the input, not the first focusable element: someone who
+   * opened search intends to type.
+   */
+  useDialogBehaviour({ open, onClose, panelRef, initialFocusRef: inputRef });
 
   useEffect(() => {
     if (!query.trim()) {
@@ -140,6 +154,7 @@ export function SearchDrawer({
         aria-hidden="true"
       />
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={s.title}
