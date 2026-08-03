@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { SearchDrawer } from "@/components/header/search-drawer";
 
@@ -125,5 +125,105 @@ describe("SearchDrawer", () => {
     );
 
     expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe("");
+  });
+
+  /**
+   * The debounce only delays the *next* request — it never cancelled the one
+   * already open, and nothing ordered the replies. A slow answer for a prefix
+   * could therefore land after the answer for what the visitor actually typed
+   * and overwrite it, leaving the drawer showing the wrong products with no
+   * pending fetch to correct them.
+   *
+   * The fetch is resolved here in the opposite order to the typing, which is
+   * the whole point: without the abort the last `setResults` wins, and the last
+   * one to arrive is the stale one.
+   */
+  it("ignores a slow reply for a query the visitor has already typed past", async () => {
+    vi.useFakeTimers();
+    try {
+      const resolvers: Array<(value: unknown) => void> = [];
+      const requested: string[] = [];
+      const fetchMock = vi.fn((url: string, init?: RequestInit) => {
+        requested.push(new URL(url, "http://localhost").searchParams.get("q")!);
+        return new Promise((resolve, reject) => {
+          resolvers.push(resolve);
+          init?.signal?.addEventListener("abort", () =>
+            reject(new DOMException("Aborted", "AbortError")),
+          );
+        });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const dictionary = await getDictionary("uk");
+      render(
+        <SearchDrawer
+          open
+          onClose={vi.fn()}
+          locale="uk"
+          dictionary={dictionary}
+        />,
+      );
+
+      const input = screen.getByRole("searchbox");
+      // First query, debounce elapses, request is now in flight and unanswered.
+      fireEvent.change(input, { target: { value: "ваз" } });
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+      });
+      // The visitor keeps typing before that reply arrives.
+      fireEvent.change(input, { target: { value: "вазон" } });
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+      });
+
+      expect(requested).toEqual(["ваз", "вазон"]);
+
+      // The current query answers first…
+      await act(async () => {
+        resolvers[1]({
+          ok: true,
+          json: async () => ({
+            products: [
+              {
+                slug: "vazon",
+                name: "Вазон",
+                category: "Вазони",
+                price: 1,
+                photo: "/vazon.jpg",
+              },
+            ],
+            collections: [],
+            projects: [],
+            pages: [],
+          }),
+        });
+      });
+      // …and only then does the stale one, which must not be rendered.
+      await act(async () => {
+        resolvers[0]({
+          ok: true,
+          json: async () => ({
+            products: [
+              {
+                slug: "vaza",
+                name: "Ваза",
+                category: "Вазони",
+                price: 1,
+                photo: "/vaza.jpg",
+              },
+            ],
+            collections: [],
+            projects: [],
+            pages: [],
+          }),
+        });
+      });
+
+      expect(screen.getByText("Вазон")).toBeInTheDocument();
+      expect(screen.queryByText("Ваза")).not.toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
   });
 });

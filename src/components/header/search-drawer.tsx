@@ -97,18 +97,45 @@ export function SearchDrawer({
    */
   useDialogBehaviour({ open, onClose, panelRef, initialFocusRef: inputRef });
 
+  /**
+   * The debounce delays a request; it does not stop an earlier one that is
+   * already in flight. Type "ваз", pause long enough to fire, then add "он",
+   * and two requests are open at once — and nothing made them come back in
+   * order. On a slow connection the reply for "ваз" can land after the reply
+   * for "вазон", and the drawer then shows results for a prefix of what the
+   * input says, with no way for the visitor to make it correct itself: the
+   * query state has not changed, so no new fetch is coming.
+   *
+   * Aborting the previous request on every change collapses that to one
+   * in-flight request per drawer, so the last response is always the current
+   * one. (Same class of bug as the cart's slow-fetch overwrite, fixed the same
+   * way: whoever is stale loses rather than whoever is slowest wins.)
+   */
   useEffect(() => {
     if (!query.trim()) {
       const timeout = setTimeout(() => setResults(emptyResults), 0);
       return () => clearTimeout(timeout);
     }
+    const controller = new AbortController();
     const timeout = setTimeout(() => {
-      fetch(`/api/search?q=${encodeURIComponent(query)}&locale=${locale}`)
+      fetch(`/api/search?q=${encodeURIComponent(query)}&locale=${locale}`, {
+        signal: controller.signal,
+      })
         .then((response) => response.json())
         .then((data: SearchResponse) => setResults(data))
-        .catch(() => setResults(emptyResults));
+        .catch((error: unknown) => {
+          // An abort is this effect cleaning up after itself, not a failure —
+          // blanking the results here would clear the list every keystroke.
+          if (error instanceof DOMException && error.name === "AbortError") {
+            return;
+          }
+          setResults(emptyResults);
+        });
     }, 250);
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, [query, locale]);
 
   if (!open) return null;
