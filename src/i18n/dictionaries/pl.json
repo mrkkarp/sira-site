@@ -136,6 +136,7 @@
     "openLabel": "Otwórz menu",
     "closeLabel": "Zamknij menu",
     "dialogLabel": "Nawigacja",
+    "subcategoriesCta": "Podkategorie: {name}",
     "language": "Język"
   },
   "shopCategories": {

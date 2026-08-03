@@ -8,6 +8,7 @@ import type { Locale } from "@/i18n/config";
 import { locales, localeLabels, localeCodeLabels } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
+import { formatTemplate } from "@/lib/format-template";
 import { cn } from "@/lib/cn";
 import { catalogTree, primaryNav } from "@/config/navigation";
 import { useDialogBehaviour } from "@/components/ui/use-dialog-behaviour";
@@ -149,7 +150,17 @@ export function MobileMenu({
                       type="button"
                       aria-expanded={isExpanded}
                       aria-controls={panelId}
-                      aria-label={copy[node.labelKey as keyof typeof copy]}
+                      // Not the bare category name: that is already the name of
+                      // the `Link` sitting immediately to the left, so the row
+                      // read as "Умивальники, посилання" followed by
+                      // "Умивальники, кнопка" — two differently-behaving
+                      // controls announced identically, with only the visual
+                      // plus icon to tell them apart. `aria-expanded` carries
+                      // the open/closed state; the name has to carry what the
+                      // button is *for*.
+                      aria-label={formatTemplate(m.subcategoriesCta, {
+                        name: copy[node.labelKey as keyof typeof copy],
+                      })}
                       onClick={() => setExpanded(isExpanded ? null : node.href)}
                       className="flex h-12 w-12 shrink-0 items-center justify-center"
                     >
