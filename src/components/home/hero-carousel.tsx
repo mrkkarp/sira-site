@@ -241,7 +241,13 @@ export function HeroCarousel({
                   <Link
                     href={localeHref(locale, campaign.secondaryHref)}
                     className={cn(
-                      "type-nav underline underline-offset-4 transition-colors duration-(--duration-fast)",
+                      // `py-1.5 -my-1.5` for the same reason as `TextLink`
+                      // (see the note there): at 14px this renders 21px tall,
+                      // and it is a standalone CTA beside a full-size button,
+                      // not a link inside a sentence. Padding grows the
+                      // hit-tested box, the negative margin keeps the row's
+                      // alignment against the button exactly as it was.
+                      "type-nav -my-1.5 py-1.5 underline underline-offset-4 transition-colors duration-(--duration-fast)",
                       isDark
                         ? "text-background/80 decoration-background/50 hover:text-background hover:decoration-background"
                         : "text-text-muted decoration-border-strong hover:text-text hover:decoration-text",
