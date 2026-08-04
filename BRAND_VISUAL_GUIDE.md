@@ -128,6 +128,19 @@ Two families, loaded via `next/font/google` in
   the `body` default). Everything else: nav, body copy, buttons, forms,
   technical specs, prices.
 
+**Known defect, recorded on purpose.** Instrument Serif publishes a Latin
+subset only — the family has no Cyrillic. The site's primary language is
+Ukrainian, so Cyrillic headings render in the visitor's OS fallback instead.
+An audit of production (`CSS.getPlatformFontsForNode` over the rendered page)
+returned `Instrument Serif(web)×10, Times New Roman(local)×23` for the product
+title "Журнальний столик з бетону Caiman": the Latin model name in the brand
+face, the Ukrainian words beside it in whatever serif the machine had. The
+face was swapped for Cormorant Garamond in `2cf7436` and reverted in `95ddd59`
+at the owner's request, so this split rendering is the current state by
+decision, not by oversight. Any future replacement **must** ship a real
+Cyrillic subset, and should expect to re-tune §3.1: faces differ enough in
+x-height that inheriting these numbers silently resizes every heading.
+
 ### 3.1 Fluid type scale
 
 Implemented as **custom Tailwind utilities** via the v4 `@utility` directive
