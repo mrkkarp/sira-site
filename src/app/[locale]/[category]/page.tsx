@@ -4,7 +4,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { isIndexable } from "@/lib/seo/indexing";
 import { pageSeo } from "@/lib/seo/page-seo";
-import { ShopCategorySchema } from "@/lib/schemas/product";
+import { shopCategoryFromSlug, shopCategoryPath } from "@/lib/schemas/product";
 import { getProductsByCategory, preloadProducts } from "@/lib/products";
 import {
   shopCategoryLabel,
@@ -17,11 +17,10 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; category: string }>;
 }): Promise<Metadata> {
-  const { locale, category: rawCategory } = await params;
+  const { locale, category: slug } = await params;
   if (!isLocale(locale)) return {};
-  const parsedCategory = ShopCategorySchema.safeParse(rawCategory);
-  if (!parsedCategory.success) return {};
-  const category = parsedCategory.data;
+  const category = shopCategoryFromSlug(slug);
+  if (!category) return {};
   const dictionary = await getDictionary(locale);
   const title = shopCategoryLabel(category, dictionary);
   const description = shopCategoryIntro(category, dictionary);
@@ -58,7 +57,7 @@ export async function generateMetadata({
       : {}),
     ...pageSeo({
       locale,
-      path: `/shop/${category}`,
+      path: shopCategoryPath(category),
       title,
       description,
       siteName: dictionary.site.name,
@@ -73,11 +72,22 @@ export async function generateMetadata({
 }
 
 /**
- * `/shop/[category]` — one dynamic route for all 7 real `ShopCategory`
- * values (Prompt 5's "one reusable collection architecture" requirement),
- * replacing what used to be 7 separate static stub folders. Unknown/invalid
- * category segments 404 via `notFound()` rather than silently falling
- * through to the "all products" view.
+ * `/<category>` — one dynamic route for all 7 real `ShopCategory` values, at
+ * the *top level* of the site rather than under `/shop`.
+ *
+ * The segment is a Ukrainian slug (`/rakovyny`, `/vazony`, …) rather than the
+ * internal identifier, because those are the addresses the old odudlab.com
+ * served the same listings at: keeping them means the migration needs no
+ * redirect for its most valuable pages, and the live Google Ads campaign
+ * pointing at `/rakovyny`, `/vazony`, `/stolyky`, `/vulychni-mebli` and
+ * `/paneli` keeps working untouched. `shopCategoryFromSlug` is the only place
+ * the two vocabularies meet.
+ *
+ * A dynamic segment this high up matches everything, but Next resolves static
+ * siblings (`/shop`, `/products`, `/contact`, …) first, so this only ever sees
+ * what nothing else claimed. Anything that isn't one of the 7 slugs 404s via
+ * `notFound()` — it does not fall through to the "all products" view, and it
+ * does not render an empty grid under someone else's `h1`.
  */
 export default async function ShopCategoryPage({
   params,
@@ -86,10 +96,10 @@ export default async function ShopCategoryPage({
   params: Promise<{ locale: string; category: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { locale, category: rawCategory } = await params;
+  const { locale, category: slug } = await params;
   if (!isLocale(locale)) notFound();
-  const parsedCategory = ShopCategorySchema.safeParse(rawCategory);
-  if (!parsedCategory.success) notFound();
+  const category = shopCategoryFromSlug(slug);
+  if (!category) notFound();
   const dictionary = await getDictionary(locale);
   const resolvedSearchParams = await searchParams;
 
@@ -97,7 +107,7 @@ export default async function ShopCategoryPage({
     <ShopCatalog
       locale={locale}
       dictionary={dictionary}
-      category={parsedCategory.data}
+      category={category}
       searchParams={resolvedSearchParams}
     />
   );

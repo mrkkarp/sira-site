@@ -1,9 +1,11 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
-import type { ShopCategory } from "@/lib/schemas/product";
+import type { ShopCategory, ShopSubcategory } from "@/lib/schemas/product";
+import { shopCategoryPath } from "@/lib/schemas/product";
 import {
   getAllProducts,
   getProductsByCategory,
+  getProductsBySubcategory,
   preloadProducts,
 } from "@/lib/products";
 import { localeHref } from "@/lib/locale-href";
@@ -24,7 +26,13 @@ import { chipLabel } from "@/lib/shop-chip-labels";
 import {
   shopCategoryLabel,
   shopCategoryIntro,
+  shopSubcategoryLabel,
+  shopSubcategoryIntro,
 } from "@/lib/shop-category-label";
+import {
+  buildShopBreadcrumbItems,
+  buildShopCrumbs,
+} from "@/lib/shop-breadcrumbs";
 import { Container, Section } from "@/components/layout";
 import { ShopPageHeader } from "@/components/shop/shop-page-header";
 import { DesktopFilterSidebar } from "@/components/shop/desktop-filter-sidebar";
@@ -39,29 +47,42 @@ import { BreadcrumbStructuredData } from "@/components/seo/breadcrumb-structured
 import { CollectionStructuredData } from "@/components/seo/collection-structured-data";
 
 /**
- * The single reusable catalog page body — used by both `/shop` (no
- * `category`) and `/shop/[category]`, per Prompt 5's explicit "one
+ * The single reusable catalog page body — used by `/shop` (no `category`),
+ * `/[category]` and `/[category]/[subcategory]`, per Prompt 5's explicit "one
  * reusable collection architecture, not per-category page copies"
  * requirement. All server-side: filtering/sorting/pagination happen here,
  * not in the browser, so the grid never needs to re-fetch or hydrate just
  * to show the right products.
+ *
+ * A `subcategory` narrows `category` by exactly one facet. The narrowing is
+ * applied to the product set *before* anything else, so the sort, the result
+ * count, the facet counts and the pagination all describe the subcategory and
+ * not its parent — and so `/rakovyny/nakladni?price=…` composes correctly
+ * instead of quietly widening back out to every sink.
  */
 export async function ShopCatalog({
   locale,
   dictionary,
   category,
+  subcategory,
   searchParams,
 }: {
   locale: Locale;
   dictionary: Dictionary;
   category?: ShopCategory;
+  subcategory?: ShopSubcategory;
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   await preloadProducts(locale);
-  const basePath = localeHref(locale, category ? `/shop/${category}` : "/shop");
-  const categoryProducts = category
-    ? getProductsByCategory(category)
-    : getAllProducts();
+  const basePath = localeHref(
+    locale,
+    category ? shopCategoryPath(category, subcategory?.slug) : "/shop",
+  );
+  const categoryProducts = subcategory
+    ? getProductsBySubcategory(subcategory)
+    : category
+      ? getProductsByCategory(category)
+      : getAllProducts();
   const collectionSlugs = getAllCollections().map(
     (collection) => collection.slug,
   );
@@ -69,13 +90,16 @@ export async function ShopCatalog({
   const parsed = parseFilters(searchParams);
   const filters = intersectValidCollections(parsed, collectionSlugs);
 
-  const heading = category
-    ? shopCategoryLabel(category, dictionary)
-    : dictionary.shop.heading;
+  const heading = subcategory
+    ? shopSubcategoryLabel(subcategory, dictionary)
+    : category
+      ? shopCategoryLabel(category, dictionary)
+      : dictionary.shop.heading;
   const breadcrumbItems = buildShopBreadcrumbItems({
     locale,
     dictionary,
     category,
+    subcategory,
     heading,
   });
 
@@ -90,6 +114,7 @@ export async function ShopCatalog({
             locale={locale}
             dictionary={dictionary}
             category={category}
+            subcategory={subcategory}
           />
           <ShopEmptyState
             variant="empty-category"
@@ -110,9 +135,11 @@ export async function ShopCatalog({
   const sorted = sortProducts(filteredUnsorted, filters.sort);
   const { pageItems, totalPages, currentPage } = paginate(sorted, filters.page);
   const facets = buildShopFacets(categoryProducts, filters);
-  const intro = category
-    ? shopCategoryIntro(category, dictionary)
-    : dictionary.shop.allCategoriesIntro;
+  const intro = subcategory
+    ? shopSubcategoryIntro(subcategory, dictionary)
+    : category
+      ? shopCategoryIntro(category, dictionary)
+      : dictionary.shop.allCategoriesIntro;
   // Plain, serialisable lookup for the client-side mobile drawer — a
   // function reference can't cross the server/client component boundary.
   const collectionMembershipMap = Object.fromEntries(
@@ -142,6 +169,8 @@ export async function ShopCatalog({
           locale={locale}
           dictionary={dictionary}
           category={category}
+          subcategory={subcategory}
+          heading={heading}
           intro={intro}
           resultsCount={sorted.length}
           basePath={basePath}
@@ -172,6 +201,7 @@ export async function ShopCatalog({
             basePath={basePath}
             dictionary={dictionary}
             category={category}
+            lockedFacet={subcategory?.facet}
             facets={facets}
             filters={filters}
           />
@@ -228,27 +258,30 @@ function ShopPageHeaderStatic({
   locale,
   dictionary,
   category,
+  subcategory,
 }: {
   locale: Locale;
   dictionary: Dictionary;
   category?: ShopCategory;
+  subcategory?: ShopSubcategory;
 }) {
-  const heading = category
-    ? shopCategoryLabel(category, dictionary)
-    : dictionary.shop.heading;
-  const crumbs = [
-    { label: dictionary.shop.breadcrumbHome, href: localeHref(locale, "/") },
-    category
-      ? {
-          label: dictionary.shop.breadcrumbShop,
-          href: localeHref(locale, "/shop"),
-        }
-      : { label: dictionary.shop.breadcrumbShop },
-    ...(category ? [{ label: heading }] : []),
-  ];
-  const intro = category
-    ? shopCategoryIntro(category, dictionary)
-    : dictionary.shop.allCategoriesIntro;
+  const heading = subcategory
+    ? shopSubcategoryLabel(subcategory, dictionary)
+    : category
+      ? shopCategoryLabel(category, dictionary)
+      : dictionary.shop.heading;
+  const crumbs = buildShopCrumbs({
+    locale,
+    dictionary,
+    category,
+    subcategory,
+    heading,
+  });
+  const intro = subcategory
+    ? shopSubcategoryIntro(subcategory, dictionary)
+    : category
+      ? shopCategoryIntro(category, dictionary)
+      : dictionary.shop.allCategoriesIntro;
 
   return (
     <div className="flex flex-col gap-(--space-md)">
@@ -257,31 +290,13 @@ function ShopPageHeaderStatic({
         <h1 className="type-h1 text-text">{heading}</h1>
         <p className="type-body text-text-muted max-w-2xl">{intro}</p>
       </div>
-      <CategoryNav locale={locale} dictionary={dictionary} active={category} />
+      <CategoryNav
+        locale={locale}
+        dictionary={dictionary}
+        active={category}
+        activeSubcategory={subcategory?.slug}
+      />
     </div>
   );
 }
 
-/** Same crumb trail as `ShopPageHeader`/`ShopPageHeaderStatic`'s visual
- * `<Breadcrumbs>`, but with every entry's real absolute path included (not
- * just the linked ones) — `BreadcrumbList` JSON-LD wants a path for the
- * current page too, unlike the visual component which renders it unlinked. */
-function buildShopBreadcrumbItems({
-  locale,
-  dictionary,
-  category,
-  heading,
-}: {
-  locale: Locale;
-  dictionary: Dictionary;
-  category?: ShopCategory;
-  heading: string;
-}) {
-  return [
-    { name: dictionary.shop.breadcrumbHome, path: localeHref(locale, "/") },
-    { name: dictionary.shop.breadcrumbShop, path: localeHref(locale, "/shop") },
-    ...(category
-      ? [{ name: heading, path: localeHref(locale, `/shop/${category}`) }]
-      : []),
-  ];
-}

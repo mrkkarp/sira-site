@@ -47,6 +47,24 @@ function toPayloadRelationId(value: string | undefined): number | undefined {
 }
 
 /**
+ * The two qualification answers, as the domain wants them.
+ *
+ * Both are nullable columns holding an optional field, so Postgres `NULL`,
+ * Payload's `null` and the domain's `undefined` all mean the same thing here —
+ * "not answered" — and this is the one place that translation happens. Spread
+ * rather than assigned so an unanswered question leaves the key off entirely
+ * instead of setting it to `undefined`: `LeadRequestSchema.parse` accepts both,
+ * but only the former round-trips to the same object it was given, which is
+ * what the repository tests compare.
+ */
+function qualification(doc: PayloadLead) {
+  return {
+    ...(doc.projectType ? { projectType: doc.projectType } : {}),
+    ...(doc.timeline ? { timeline: doc.timeline } : {}),
+  };
+}
+
+/**
  * Payload/Postgres-backed mapper: the one flat `Leads` collection ->
  * the `LeadRequest` discriminated union, reconstructed from `doc.type`.
  * Every field the target variant requires but Payload only stores as
@@ -101,6 +119,7 @@ export function mapPayloadLeadToDomain(doc: PayloadLead): LeadRequest {
             : undefined,
           quantity: doc.quantity ?? undefined,
           message: doc.message ?? "",
+          ...qualification(doc),
         };
       case "designer":
         return {
@@ -112,6 +131,7 @@ export function mapPayloadLeadToDomain(doc: PayloadLead): LeadRequest {
           companyName: doc.companyName ?? undefined,
           portfolioUrl: doc.portfolioUrl ?? undefined,
           message: doc.message ?? undefined,
+          ...qualification(doc),
         };
       case "warranty":
         return {
@@ -138,6 +158,7 @@ export function mapPayloadLeadToDomain(doc: PayloadLead): LeadRequest {
           productIds: relationIds(doc.productIds).map((id) =>
             ProductId.parse(id),
           ),
+          message: doc.message ?? undefined,
         };
     }
   })();
@@ -168,6 +189,8 @@ export function buildLeadData(input: NewLeadRequest) {
         variantSku: input.variantId,
         quantity: input.quantity,
         message: input.message,
+        projectType: input.projectType,
+        timeline: input.timeline,
       };
     case "designer":
       return {
@@ -176,6 +199,8 @@ export function buildLeadData(input: NewLeadRequest) {
         companyName: input.companyName,
         portfolioUrl: input.portfolioUrl,
         message: input.message,
+        projectType: input.projectType,
+        timeline: input.timeline,
       };
     case "warranty":
       return {
@@ -194,6 +219,10 @@ export function buildLeadData(input: NewLeadRequest) {
         productIds: input.productIds
           .map((id) => toPayloadRelationId(id))
           .filter((id): id is number => id !== undefined),
+        // The only thing that survives the relationship-id drop above while
+        // the catalogue is keyed by slug: which finishes the customer asked
+        // for, in their own words. Same role `message` plays for `quote`.
+        message: input.message,
       };
   }
 }

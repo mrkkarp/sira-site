@@ -73,6 +73,15 @@ for (const path of PAGES) {
         // `focus:not-sr-only`, which this measurement cannot trigger.
         if ((el.getAttribute("class") ?? "").includes("sr-only")) continue;
 
+        // Not a pointer target at all. The anti-spam honeypot on every lead
+        // form is a 1×1 input parked at `left:-9999px` with `aria-hidden`,
+        // `tabindex="-1"` and `pointer-events:none` — nobody can aim at it,
+        // which is the entire design. SC 2.5.8 is about targets, and an
+        // element that cannot receive a pointer event is not one. Keyed on the
+        // computed style rather than on the honeypot's name so the exemption
+        // stays true for anything else genuinely unclickable.
+        if (getComputedStyle(el).pointerEvents === "none") continue;
+
         const display = getComputedStyle(el).display;
         if (
           el.tagName === "A" &&

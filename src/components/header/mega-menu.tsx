@@ -51,6 +51,7 @@ export function MegaMenu({
   openKey,
   onOpenChange,
   label,
+  current = false,
   className,
   triggerClassName,
   panelClassName,
@@ -60,6 +61,15 @@ export function MegaMenu({
   openKey: string | null;
   onOpenChange: (key: string | null) => void;
   label: string;
+  /**
+   * Whether the *route* is inside this menu's section — not whether the panel
+   * is open. The header already paints that state, but paint is all it was:
+   * a screen-reader user got no signal at all that "Каталог" was the section
+   * they were in, while the plain nav links next to it have carried
+   * `aria-current="page"` all along. Kept separate from `openKey` on purpose —
+   * opening a menu does not change what page you are on.
+   */
+  current?: boolean;
   /** Applied to the positioning root — the header uses it to make this
    *  trigger one bordered cell in the nav row. */
   className?: string;
@@ -163,6 +173,7 @@ export function MegaMenu({
         type="button"
         aria-expanded={isOpen}
         aria-controls={panelId}
+        aria-current={current ? "page" : undefined}
         onClick={() => {
           clearHoverTimer();
           onOpenChange(isOpen ? null : menuKey);

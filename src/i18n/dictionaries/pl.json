@@ -454,6 +454,64 @@
     "visitNote": "Nasz showroom i punkt odbioru znajdują się na terenie VDNG w Kijowie.",
     "mapCta": "Otwórz w mapach"
   },
+  "contactForm": {
+    "heading": "Napisz do nas",
+    "intro": "Opisz, czego potrzebujesz — jaki wyrób, do jakiego wnętrza, orientacyjne wymiary. Przeczytamy i odezwiemy się.",
+    "emailLabel": "E-mail",
+    "emailHint": "Opcjonalnie — jeśli wygodniej Ci korespondować.",
+    "messageLabel": "Wiadomość",
+    "messagePlaceholder": "Który wyrób Cię interesuje i do jakiego wnętrza lub projektu",
+    "requiredMessage": "Napisz proszę kilka słów o swoim zapytaniu.",
+    "submitCta": "Wyślij",
+    "submittingCta": "Wysyłamy…",
+    "successMessage": "Dziękujemy. Otrzymaliśmy wiadomość i odezwiemy się.",
+    "errorMessage": "Nie udało się wysłać wiadomości. Spróbuj ponownie albo zadzwoń do nas."
+  },
+  "designersPage": {
+    "eyebrow": "Współpraca",
+    "heading": "Dla architektów i projektantów",
+    "intro": "Wyroby z betonu architektonicznego wykonujemy w Kijowie — pod konkretny projekt, nie z magazynu. Jeśli dobierasz umywalkę, donicę, stolik albo panele ścienne na obiekt, napisz do nas: przeanalizujemy zadanie i przygotujemy to, czego wymaga specyfikacja.",
+    "offerHeading": "Co możemy przygotować",
+    "offerDrawings": "Rysunki techniczne z wymiarami i charakterystyki rozważanych wyrobów.",
+    "offerColour": "Kolor indywidualny dobrany według palet RAL / NCS zamiast standardowego szarego.",
+    "offerSample": "Fizyczną próbkę koloru pocztą — żeby ocenić odcień i fakturę przy własnym oświetleniu.",
+    "offerQuote": "Wycenę pod ilości w projekcie, wraz z terminami produkcji.",
+    "termsNote": "Warunki współpracy ustalamy indywidualnie — zależą od ilości i terminów. Napisz, czego dokładnie potrzebujesz, a odpowiemy konkretnie, zamiast wysyłać cennik.",
+    "formHeading": "Zapytanie o współpracę",
+    "formIntro": "Wypełnij formularz, a skontaktujemy się, żeby omówić szczegóły projektu.",
+    "emailLabel": "E-mail",
+    "emailHint": "Potrzebny, żeby wysłać rysunki, specyfikacje i wycenę.",
+    "requiredEmail": "Podaj e-mail — na niego wyślemy rysunki i wycenę.",
+    "companyLabel": "Pracownia lub firma",
+    "portfolioLabel": "Portfolio lub strona",
+    "portfolioHint": "Link do strony, Behance albo Instagrama — opcjonalnie.",
+    "messageLabel": "O projekcie",
+    "messagePlaceholder": "Rodzaj obiektu, rozważane wyroby, orientacyjne ilości i terminy",
+    "submitCta": "Wyślij zapytanie",
+    "submittingCta": "Wysyłamy…",
+    "successMessage": "Dziękujemy. Otrzymaliśmy zapytanie i odezwiemy się w sprawie projektu.",
+    "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie albo zadzwoń do nas."
+  },
+  "samplesPage": {
+    "eyebrow": "Próbki",
+    "heading": "Próbki kolorów i materiałów",
+    "intro": "Kolor betonu na ekranie jest zawsze tylko przybliżeniem: odcień zależy od partii, oświetlenia i faktury powierzchni. Zanim zamówisz wyrób, który powstaje tygodniami, próbkę można wziąć do ręki.",
+    "colourNote": "Standardowy kolor wszystkich wyrobów to szary bazowy. Odcienie indywidualne dobieramy według palet RAL / NCS.",
+    "availabilityNote": "Napisz, które odcienie lub faktury Cię interesują. Potwierdzimy, co możemy wysłać, i ustalimy szczegóły — dostępność zależy od tego, co obecnie jest w pracowni.",
+    "formHeading": "Zamów próbkę",
+    "emailLabel": "E-mail",
+    "emailHint": "Opcjonalnie — jeśli wygodniej Ci korespondować.",
+    "addressLabel": "Adres dostawy",
+    "addressHint": "Miasto i oddział Nova Poshta albo adres dla kuriera.",
+    "requiredAddress": "Podaj, dokąd wysłać próbkę.",
+    "finishesLabel": "Które odcienie Cię interesują",
+    "finishesPlaceholder": "Na przykład: szary bazowy i coś ciemniejszego, w stronę grafitu",
+    "finishesHint": "Jeśli masz kod RAL lub NCS, podaj go.",
+    "submitCta": "Zamów próbkę",
+    "submittingCta": "Wysyłamy…",
+    "successMessage": "Dziękujemy. Otrzymaliśmy zapytanie o próbkę i odezwiemy się, żeby potwierdzić szczegóły.",
+    "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie albo zadzwoń do nas."
+  },
   "leadFields": {
     "nameLabel": "Imię",
     "phoneLabel": "Telefon",
@@ -462,6 +520,23 @@
     "requiredPhone": "Podaj numer telefonu.",
     "invalidPhone": "Podaj prawidłowy numer telefonu.",
     "invalidEmail": "Podaj prawidłowy adres e-mail."
+  },
+  "leadQualification": {
+    "note": "Oba pytania są opcjonalne — pomagają nam tylko odpowiedzieć konkretniej.",
+    "projectTypeLabel": "Rodzaj obiektu",
+    "timelineLabel": "Kiedy planujesz zamówienie",
+    "unset": "Wolę nie podawać",
+    "projectType": {
+      "private": "Wnętrze prywatne — mieszkanie lub dom",
+      "commercial": "Obiekt komercyjny — kawiarnia, hotel, biuro",
+      "outdoor": "Ogród lub przestrzeń zewnętrzna",
+      "other": "Inne"
+    },
+    "timeline": {
+      "now": "Gotowi zamówić teraz",
+      "quarter": "W ciągu 1–3 miesięcy",
+      "exploring": "Zbieram jeszcze informacje"
+    }
   },
   "cookieConsent": {
     "heading": "Używamy plików cookie",
@@ -555,6 +630,7 @@
     "resultsCount": "Znaleziono produktów: {count}",
     "gridHeading": "Produkty",
     "categoryNavHeading": "Kategorie",
+    "subcategoryNavHeading": "Podkategorie",
     "filtersButton": "Filtry",
     "filtersButtonWithCount": "Filtry ({count})",
     "sortLabel": "Sortowanie",
@@ -613,6 +689,23 @@
       "wallPanels": "Modułowe panele ścienne o fakturowanej powierzchni, dopasowywane do wymiarów ściany.",
       "wallArt": "Betonowe panele dekoracyjne i płaskorzeźby na ścianę akcentową.",
       "outdoor": "Meble i obiekty zewnętrzne — ławki, donice i elementy małej architektury dla przestrzeni publicznej."
+    },
+    "subcategories": {
+      "sinksFreestanding": {
+        "navLabel": "Wolnostojące",
+        "heading": "Umywalki wolnostojące z betonu",
+        "intro": "Umywalki stojące na podłodze jako samodzielna bryła, bez szafki — kolor w masie, wymiary niestandardowe na życzenie."
+      },
+      "sinksCountertop": {
+        "navLabel": "Nablatowe",
+        "heading": "Umywalki nablatowe z betonu",
+        "intro": "Misy montowane na blacie lub szafce — kolor w masie, wymiary niestandardowe na życzenie."
+      },
+      "plantersOutdoor": {
+        "navLabel": "Zewnętrzne",
+        "heading": "Donice zewnętrzne z betonu",
+        "intro": "Donice na tarasy, dziedzińce i przestrzenie publiczne — odporne na warunki atmosferyczne, w standardowych lub niestandardowych rozmiarach."
+      }
     },
     "productCard": {
       "madeToOrderBadge": "Na zamówienie",

@@ -23,12 +23,16 @@ export function DesktopFilterSidebar({
   basePath,
   dictionary,
   category,
+  lockedFacet,
   facets,
   filters,
 }: {
   basePath: string;
   dictionary: Dictionary;
   category?: ShopCategory;
+  /** On a subcategory page, the facet the URL itself already pins — see
+   * `FilterFieldsets`. */
+  lockedFacet?: "mount" | "placement";
   facets: ShopFacets;
   filters: FilterState;
 }) {
@@ -58,6 +62,7 @@ export function DesktopFilterSidebar({
       <FilterFieldsets
         dictionary={dictionary}
         category={category}
+        lockedFacet={lockedFacet}
         facets={facets}
         value={filters}
         onChange={apply}

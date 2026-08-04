@@ -227,8 +227,8 @@ export function ProductExperience({
                   <QuoteRequestForm
                     dictionary={dictionary}
                     context={buildQuoteContext(product, resolved.variant)}
-                    productId={product.slug}
-                    variantId={resolved.variant.sku}
+                    product={product}
+                    variant={resolved.variant}
                   />
                 ) : (
                   <Button

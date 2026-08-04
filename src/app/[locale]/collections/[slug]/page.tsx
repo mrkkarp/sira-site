@@ -8,6 +8,7 @@ import { getCollectionBySlug, getCollectionProducts } from "@/lib/collections";
 import { preloadProducts } from "@/lib/products";
 import { getAllProductColours } from "@/lib/product-colours";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
+import { shopCategoryPath } from "@/lib/schemas/product";
 import { Container, Section, EditorialLayout } from "@/components/layout";
 import { MediaFrame } from "@/components/layout/media-frame";
 import { ProductImage } from "@/components/product/product-image";
@@ -62,7 +63,7 @@ export async function generateMetadata({
  * full catalog.
  *
  * An unknown slug does NOT throw the framework `notFound()` (this project's
- * `notFound()` has a pre-existing quirk — see `/shop/[category]` — of
+ * `notFound()` has a pre-existing quirk — see `/[category]` — of
  * rendering the right content but a 200 status). Instead it renders the
  * same honest, non-blank "not found" state pattern used by `ShopEmptyState`,
  * using the dedicated `collectionsPage.notFoundHeading/notFoundBody` copy
@@ -249,7 +250,7 @@ export default async function CollectionPage({
                 <LinkButton
                   href={localeHref(
                     locale,
-                    `/shop/${editorialProduct.shopCategory}`,
+                    shopCategoryPath(editorialProduct.shopCategory),
                   )}
                   variant="outline"
                 >

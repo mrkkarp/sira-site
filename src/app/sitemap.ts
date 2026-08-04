@@ -3,7 +3,11 @@ import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
 import { getAllProductsAsync } from "@/lib/products";
 import { getAllCollections } from "@/lib/collections";
-import { shopCategories } from "@/lib/schemas/product";
+import {
+  shopCategories,
+  shopCategoryPath,
+  shopSubcategories,
+} from "@/lib/schemas/product";
 import { getInfoPageContent } from "@/content/info-pages";
 import { indexableLocales } from "@/lib/seo/indexing";
 
@@ -27,17 +31,19 @@ import { indexableLocales } from "@/lib/seo/indexing";
  *   as locale-limited paths below (emitted only for content-bearing locales)
  *   rather than in the all-locale `staticPaths`.
  * - Every remaining `PlaceholderPage` route (`/about`, `/careers`,
- *   `/colours`, `/cookies-policy`, `/designers`, `/faq`,
+ *   `/colours`, `/cookies-policy`, `/faq`,
  *   `/privacy-policy`, `/projects[/[slug]]`,
- *   `/public-offer`, `/resources`, `/samples`,
+ *   `/public-offer`, `/resources`,
  *   `/terms-of-use`) — no real content yet, also explicitly `noindex`. See
- *   `CONTENT_CHECKLIST.md` for what each is waiting on. `/contact` is NOT
- *   in this list: it now has real, owner-confirmed content and is indexable,
- *   so it appears in `staticPaths` below.
+ *   `CONTENT_CHECKLIST.md` for what each is waiting on. `/contact`,
+ *   `/designers` and `/samples` are NOT in this list: they now have real
+ *   content and a working enquiry form, so they appear in `staticPaths`
+ *   below.
  * - `/admin`, `/design-system` — not part of the public site.
- * - `/shop/<category>` for any category with no products yet — a soft 404 to a
- *   crawler, and `noindex` in its own metadata. Filtered out below, and it
- *   returns on its own once the category has stock.
+ * - `/<category>` (and `/<category>/<subcategory>`) for anything with no
+ *   products yet — a soft 404 to a crawler, and `noindex` in its own
+ *   metadata. Filtered out below, and it returns on its own once it has
+ *   stock.
  *
  * Every URL is emitted once per **indexable** locale (`indexableLocales` in
  * `src/lib/seo/indexing.ts` — today `uk` only), with each entry's
@@ -61,16 +67,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * response whose body is a promise rather than the listing the URL claims.
    * `wall-modules` is exactly this today. Listing it in the sitemap is an
    * explicit "please index this", which contradicts the `noindex` its own
-   * `generateMetadata` sets (`shop/[category]/page.tsx`). Both conditions read
+   * `generateMetadata` sets (`[category]/page.tsx`). Both conditions read
    * the same product list, so the category re-appears here and drops its
    * `noindex` together, the moment a product lands in it — no code change, no
    * checklist to remember.
+   *
+   * Paths come from `shopCategoryPath`, the same helper the routes and the
+   * navigation use, so the sitemap can never drift from the addresses the site
+   * actually serves (`/rakovyny`, not `/shop/sinks`).
    */
   const nonEmptyCategoryPaths = shopCategories
     .filter((category) =>
       products.some((product) => product.shopCategory === category),
     )
-    .map((category) => `/shop/${category}`);
+    .map((category) => shopCategoryPath(category));
+
+  /**
+   * The three subcategories are *pages*, not query strings — each has its own
+   * route, `h1`, intro and canonical (`src/lib/schemas/product-categories.ts`
+   * documents why exactly these three), so each belongs in the sitemap on its
+   * own. The same emptiness rule applies for the same reason: the facet match
+   * is duplicated from `getProductsBySubcategory`, which the route's own
+   * soft-404 `noindex` guard uses, so listing and indexability stay in step.
+   */
+  const nonEmptySubcategoryPaths = shopSubcategories
+    .filter((subcategory) =>
+      products.some(
+        (product) =>
+          product.shopCategory === subcategory.category &&
+          (subcategory.facet === "mount"
+            ? product.sinkType === subcategory.value
+            : product.planterPlacement === subcategory.value),
+      ),
+    )
+    .map((subcategory) =>
+      shopCategoryPath(subcategory.category, subcategory.slug),
+    );
 
   const staticPaths = [
     "/",
@@ -78,7 +110,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/collections",
     "/warranty",
     "/contact",
+    "/designers",
+    "/samples",
     ...nonEmptyCategoryPaths,
+    ...nonEmptySubcategoryPaths,
   ];
   const productPaths = products.map((product) => `/products/${product.slug}`);
   const collectionPaths = collections.map(

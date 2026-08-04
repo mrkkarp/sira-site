@@ -119,7 +119,14 @@ export function Footer({
   );
 
   const contactBlock = (
-    <div className="col-span-2 lg:col-span-1">
+    // `data-analytics-location` is read by `ContactLinkTracker` to tell a phone
+    // tap in the footer apart from one on the contact page. A plain attribute,
+    // deliberately: an `onClick` here would turn the footer — which is on every
+    // page — into a Client Component and ship its whole markup twice.
+    <div
+      data-analytics-location="footer"
+      className="col-span-2 lg:col-span-1"
+    >
       <p className="type-h4 text-background font-serif">
         {dictionary.site.name}
       </p>

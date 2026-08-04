@@ -29,6 +29,13 @@ import { chromium } from "@playwright/test";
 const ROUTES = [
   "/",
   "/shop",
+  // One category and one subcategory: two separate dynamic route modules
+  // (`[locale]/[category]` and `[locale]/[category]/[subcategory]`), and the
+  // sitemap check in `seo.spec.ts` requests every URL in the sitemap — which
+  // now includes six categories and three subcategories. Warming one of each
+  // compiles both modules; the rest are then free.
+  "/rakovyny",
+  "/rakovyny/nakladni",
   "/products/rakovyna-na-pidlohu-odri",
   "/cart",
   "/checkout",

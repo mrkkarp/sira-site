@@ -8,7 +8,7 @@ describe("buildBreadcrumbJsonLd", () => {
       items: [
         { name: "Головна", path: "/" },
         { name: "Магазин", path: "/shop" },
-        { name: "Раковини", path: "/shop/sinks" },
+        { name: "Раковини", path: "/rakovyny" },
       ],
     });
 
@@ -32,7 +32,7 @@ describe("buildBreadcrumbJsonLd", () => {
           "@type": "ListItem",
           position: 3,
           name: "Раковини",
-          item: "https://example.com/shop/sinks",
+          item: "https://example.com/rakovyny",
         },
       ],
     });

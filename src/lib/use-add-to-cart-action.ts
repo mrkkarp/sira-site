@@ -6,6 +6,7 @@ import type { Product, ProductVariant } from "@/lib/schemas/product";
 import { useCart } from "@/lib/cart-store";
 import { useToast } from "@/components/ui/toast";
 import { formatTemplate } from "@/lib/format-template";
+import { trackAddToCart } from "@/lib/analytics/events";
 
 /**
  * Shared add-to-cart action for the main configurator panel and the mobile
@@ -49,6 +50,14 @@ export function useAddToCartAction({
     setIsAdding(true);
     void addItem({ slug: product.slug, variantSku: variant.sku })
       .then((succeeded) => {
+        // Measured off the same boolean the toast is, and for the same reason
+        // the toast was fixed to use it: `addItem()` never throws, so firing
+        // on the click instead would report an `add_to_cart` for every
+        // rate-limited, rejected or offline attempt. GA4 would show a
+        // cart-to-checkout drop-off that never happened, and the product
+        // pages generating those "adds" would look like the ones to spend on.
+        if (succeeded) trackAddToCart(product, variant);
+
         toast.show(
           succeeded
             ? formatTemplate(dictionary.product.addedToCartAnnouncement, {

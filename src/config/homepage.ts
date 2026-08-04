@@ -11,6 +11,7 @@
  * `dictionary.megaMenu.catalog.editorialImageAlt` ("Фото очікується")
  * placeholder instead of inventing a picture.
  */
+import { shopCategoryPath } from "@/lib/schemas/product-categories";
 
 export type HeroTheme = "light" | "dark";
 export type HeroTextPosition = "left" | "center" | "right";
@@ -89,7 +90,7 @@ export const quickCategories: QuickCategoryConfig[] = [
     taglineKey: "sinksTagline",
     descriptionKey: "sinksDescription",
     representativeSlug: "rakovyna-na-pidlohu-odri",
-    href: "/shop/sinks",
+    href: shopCategoryPath("sinks"),
   },
   {
     kind: "shop-category",
@@ -97,7 +98,7 @@ export const quickCategories: QuickCategoryConfig[] = [
     taglineKey: "plantersTagline",
     descriptionKey: "plantersDescription",
     representativeSlug: "flute",
-    href: "/shop/planters",
+    href: shopCategoryPath("planters"),
   },
   {
     kind: "shop-category",
@@ -105,7 +106,7 @@ export const quickCategories: QuickCategoryConfig[] = [
     taglineKey: "tablesTagline",
     descriptionKey: "tablesDescription",
     representativeSlug: "zhurnalnyi-stolyk-z-betonu-caiman",
-    href: "/shop/tables",
+    href: shopCategoryPath("tables"),
   },
   {
     kind: "shop-category",
@@ -113,7 +114,7 @@ export const quickCategories: QuickCategoryConfig[] = [
     taglineKey: "wallPanelsTagline",
     descriptionKey: "wallPanelsDescription",
     representativeSlug: "riflo",
-    href: "/shop/wall-panels",
+    href: shopCategoryPath("wall-panels"),
   },
   {
     kind: "shop-category",
@@ -121,7 +122,7 @@ export const quickCategories: QuickCategoryConfig[] = [
     taglineKey: "outdoorTagline",
     descriptionKey: "outdoorDescription",
     representativeSlug: "urban-b",
-    href: "/shop/outdoor",
+    href: shopCategoryPath("outdoor"),
   },
   {
     kind: "custom",
@@ -159,6 +160,13 @@ export type EditorialCampaignConfig = {
  * 7 campaigns, each a distinct `layout` — deliberately not templated
  * identically (see Prompt 4 §3). Tone alternates so the page isn't a wall
  * of the same background colour.
+ *
+ * The "freestanding" campaign used to link `?type=freestanding`. There is no
+ * `type` filter — the parser (`src/lib/shop-filters.ts`) reads `mount` — so
+ * the link silently showed the *whole* sinks category, contradicting its own
+ * headline. It now points at `/rakovyny/pidlohovi`, the real page for that
+ * split, which cannot rot the same way: an unknown subcategory slug 404s
+ * loudly instead of degrading into the unfiltered listing.
  */
 export const editorialCampaigns: EditorialCampaignConfig[] = [
   {
@@ -171,7 +179,7 @@ export const editorialCampaigns: EditorialCampaignConfig[] = [
     copyKey: "freestanding",
     layout: "vertical-split",
     tone: "default",
-    href: "/shop/sinks?type=freestanding",
+    href: shopCategoryPath("sinks", "pidlohovi"),
   },
   {
     copyKey: "production",
@@ -189,13 +197,13 @@ export const editorialCampaigns: EditorialCampaignConfig[] = [
     copyKey: "wallPanels",
     layout: "dual-scale",
     tone: "default",
-    href: "/shop/wall-panels",
+    href: shopCategoryPath("wall-panels"),
   },
   {
     copyKey: "urban",
     layout: "wide-urban",
     tone: "surface",
-    href: "/shop/outdoor",
+    href: shopCategoryPath("outdoor"),
   },
   {
     copyKey: "custom",

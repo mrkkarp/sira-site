@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { ShopEmptyState } from "@/components/shop/shop-empty-state";
+import { shopCategoryPath } from "@/lib/schemas/product-categories";
 
 /**
  * Prompt 5 §12/§15 — neither empty state may be a blank page: both must
@@ -28,13 +29,16 @@ describe("ShopEmptyState", () => {
     ).toBeInTheDocument();
 
     // The current category ("wall-modules") must not appear among the
-    // "nearby categories" suggestions offered as a way forward.
+    // "nearby categories" suggestions offered as a way forward. The path comes
+    // from `shopCategoryPath`, not a literal: hard-coding the old `/shop/...`
+    // form here would leave a negative assertion that passes for the wrong
+    // reason — no link contains a string nothing generates any more.
     const nearbyLinks = screen.getAllByRole("link");
     expect(nearbyLinks.length).toBeGreaterThan(0);
     for (const link of nearbyLinks) {
       expect(link).toHaveAttribute(
         "href",
-        expect.not.stringContaining("/shop/wall-modules"),
+        expect.not.stringContaining(shopCategoryPath("wall-modules")),
       );
     }
   });
@@ -47,7 +51,7 @@ describe("ShopEmptyState", () => {
         locale="uk"
         dictionary={dictionary}
         category="sinks"
-        clearFiltersHref="/shop/sinks"
+        clearFiltersHref={shopCategoryPath("sinks")}
       />,
     );
 
@@ -58,7 +62,7 @@ describe("ShopEmptyState", () => {
       screen.getByRole("link", {
         name: dictionary.shop.states.noResultsClearCta,
       }),
-    ).toHaveAttribute("href", "/shop/sinks");
+    ).toHaveAttribute("href", shopCategoryPath("sinks"));
 
     rerender(
       <ShopEmptyState
@@ -90,7 +94,7 @@ describe("ShopEmptyState", () => {
     for (const link of nearbyLinks) {
       expect(link).toHaveAttribute(
         "href",
-        expect.not.stringContaining("/shop/sinks"),
+        expect.not.stringContaining(shopCategoryPath("sinks")),
       );
     }
   });

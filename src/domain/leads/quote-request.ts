@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { ProductId, VariantId } from "../shared/ids";
 import { PhoneNumber } from "../shared/phone";
-import { leadCommonFields } from "./lead-common";
+import {
+  leadCommonFields,
+  ProjectTimeline,
+  ProjectType,
+} from "./lead-common";
 
 /**
  * `QuoteRequest` (Prompt 8 §12) — "Запит ціни"/custom-product inquiry,
@@ -21,5 +25,7 @@ export const QuoteRequestSchema = z.object({
   variantId: VariantId.optional(),
   quantity: z.number().int().positive().optional(),
   message: z.string().min(1),
+  projectType: ProjectType.optional(),
+  timeline: ProjectTimeline.optional(),
 });
 export type QuoteRequest = Readonly<z.infer<typeof QuoteRequestSchema>>;

@@ -39,7 +39,7 @@ describe("keyboard navigation", () => {
     const filters = { ...emptyFilterState(), mount: ["freestanding" as const] };
     render(
       <ActiveFilterChips
-        basePath="/shop/sinks"
+        basePath="/rakovyny"
         dictionary={dictionary}
         filters={filters}
         chipLabel={(chip) =>

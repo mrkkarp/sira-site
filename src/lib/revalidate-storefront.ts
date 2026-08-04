@@ -17,7 +17,7 @@
  *
  * The catalogue read is one `payload.find` over every published product at
  * `depth: 1` plus the snapshot enrichment merge, and it runs on **every**
- * request to a dynamic catalogue route (`/shop`, `/shop/[category]`,
+ * request to a dynamic catalogue route (`/shop`, `/[category]`,
  * `/products/[slug]`, `/search`). Caching it behind this tag turns that into
  * one read per edit instead of one per visitor; anything that can change what
  * the catalogue renders must revalidate the tag.

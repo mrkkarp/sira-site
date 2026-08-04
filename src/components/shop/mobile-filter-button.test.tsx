@@ -46,7 +46,7 @@ describe("MobileFilterButton", () => {
     const facets = buildShopFacets(products, filters);
     render(
       <MobileFilterButton
-        basePath="/shop/sinks"
+        basePath="/rakovyny"
         dictionary={dictionary}
         category="sinks"
         facets={facets}

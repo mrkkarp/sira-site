@@ -22,6 +22,7 @@ import { buildEditorialSections } from "@/lib/editorial-sections";
 import { pickRelatedProducts } from "@/lib/related-products";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
 import type { Product } from "@/lib/schemas/product";
+import { shopCategoryPath } from "@/lib/schemas/product";
 import { Container, Section } from "@/components/layout";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { BreadcrumbStructuredData } from "@/components/seo/breadcrumb-structured-data";
@@ -89,7 +90,7 @@ export async function generateMetadata({
  * refresh"); the structured description; the details accordion; the
  * editorial sections; the related-products rail; and the Product JSON-LD.
  *
- * An unknown slug 404s via `notFound()`, matching `/shop/[category]`'s
+ * An unknown slug 404s via `notFound()`, matching `/[category]`'s
  * existing convention for an invalid dynamic segment.
  */
 export default async function ProductPage({
@@ -150,7 +151,7 @@ export default async function ProductPage({
     { label: dictionary.shop.breadcrumbHome, href: localeHref(locale, "/") },
     {
       label: shopCategoryLabel(product.shopCategory, dictionary),
-      href: localeHref(locale, `/shop/${product.shopCategory}`),
+      href: localeHref(locale, shopCategoryPath(product.shopCategory)),
     },
     { label: product.name },
   ];
@@ -171,7 +172,7 @@ export default async function ProductPage({
           },
           {
             name: shopCategoryLabel(product.shopCategory, dictionary),
-            path: localeHref(locale, `/shop/${product.shopCategory}`),
+            path: localeHref(locale, shopCategoryPath(product.shopCategory)),
           },
           { name: product.name, path: basePath },
         ]}

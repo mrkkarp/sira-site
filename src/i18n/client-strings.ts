@@ -21,6 +21,12 @@ export const clientStrings = {
       body: "Можливо, її перенесли або видалили. Перевірте адресу чи поверніться на головну.",
       cta: "На головну",
     },
+    gone: {
+      eyebrow: "410",
+      title: "Сторінку видалено назавжди",
+      body: "Ця адреса залишилася від старої версії сайту й не має відповідника — товару за нею ніколи не було в нашому каталозі.",
+      cta: "Перейти до каталогу",
+    },
     error: {
       eyebrow: "Помилка",
       title: "Щось пішло не так",
@@ -37,6 +43,12 @@ export const clientStrings = {
       body: "It may have been moved or removed. Check the address or return to the homepage.",
       cta: "Go home",
     },
+    gone: {
+      eyebrow: "410",
+      title: "This page is gone for good",
+      body: "The address is left over from the old version of the site and has no replacement — nothing at it was ever part of our catalogue.",
+      cta: "Browse the catalogue",
+    },
     error: {
       eyebrow: "Error",
       title: "Something went wrong",
@@ -52,6 +64,12 @@ export const clientStrings = {
       title: "Strony nie znaleziono",
       body: "Mogła zostać przeniesiona lub usunięta. Sprawdź adres lub wróć na stronę główną.",
       cta: "Strona główna",
+    },
+    gone: {
+      eyebrow: "410",
+      title: "Strona została trwale usunięta",
+      body: "Ten adres pochodzi ze starej wersji serwisu i nie ma odpowiednika — nic pod nim nigdy nie należało do naszego katalogu.",
+      cta: "Przejdź do katalogu",
     },
     error: {
       eyebrow: "Błąd",

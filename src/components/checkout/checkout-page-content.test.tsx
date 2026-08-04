@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { CheckoutPageContent } from "@/components/checkout/checkout-page-content";
+import { resetConsentModeForTests } from "@/lib/analytics/consent-mode";
 import type { CartLineItem } from "@/lib/cart-store";
 
 /**
@@ -71,12 +72,22 @@ function labelled(label: string) {
   return screen.getByLabelText(label, { exact: false });
 }
 
+/** The app's own named events; gtag commands are `consent-mode`'s business. */
+const named = (name: string) =>
+  (window.dataLayer ?? []).filter(
+    (entry): entry is Record<string, unknown> =>
+      Object.prototype.toString.call(entry) === "[object Object]" &&
+      (entry as { event?: string }).event === name,
+  );
+
 describe("CheckoutPageContent", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     cartState.items = [cartLine];
     cartState.subtotal = 15150;
     cartState.isLoading = false;
+    delete window.dataLayer;
+    resetConsentModeForTests();
   });
 
   async function renderCheckout() {
@@ -302,5 +313,149 @@ describe("CheckoutPageContent", () => {
       <CheckoutPageContent locale="uk" dictionary={dictionary} />,
     );
     expect(container).toBeEmptyDOMElement();
+  });
+
+  describe("measurement", () => {
+    async function fillValidOrder(copy: Awaited<ReturnType<typeof renderCheckout>>) {
+      fillCustomer();
+      fireEvent.change(labelled(copy.cityLabel), { target: { value: "Київ" } });
+      fireEvent.change(labelled(copy.branchNumberLabel), {
+        target: { value: "12" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: copy.submitCta }));
+    }
+
+    it("reports begin_checkout with the cart the customer actually has", async () => {
+      await renderCheckout();
+
+      await waitFor(() => expect(named("begin_checkout")).toHaveLength(1));
+      expect(named("begin_checkout")[0]).toMatchObject({
+        value: 15150,
+        currency: "UAH",
+        items: [
+          { item_id: "Odri", item_name: "Odri", price: 15150, quantity: 1 },
+        ],
+      });
+    });
+
+    it("waits for the cart instead of reporting an empty basket", async () => {
+      // The cart is a network round trip. Firing on mount would send an empty
+      // `begin_checkout` on every single checkout, and the funnel would read
+      // as though nobody ever got this far with anything in it.
+      cartState.isLoading = true;
+      const dictionary = await getDictionary("uk");
+      const { rerender } = render(
+        <CheckoutPageContent locale="uk" dictionary={dictionary} />,
+      );
+      expect(named("begin_checkout")).toHaveLength(0);
+
+      cartState.isLoading = false;
+      rerender(<CheckoutPageContent locale="uk" dictionary={dictionary} />);
+      await waitFor(() => expect(named("begin_checkout")).toHaveLength(1));
+    });
+
+    it("does not report it again on every keystroke", async () => {
+      const copy = await renderCheckout();
+      fireEvent.change(labelled(copy.cityLabel), { target: { value: "К" } });
+      fireEvent.change(labelled(copy.cityLabel), { target: { value: "Ки" } });
+      fireEvent.change(labelled(copy.cityLabel), { target: { value: "Київ" } });
+
+      await waitFor(() => expect(named("begin_checkout")).toHaveLength(1));
+    });
+
+    it("reports purchase with the real order number and the ordered lines", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            ok: true,
+            orderNumber: "ODL-1042",
+            status: "pending",
+            provider: "manual",
+          }),
+        }),
+      );
+      const copy = await renderCheckout();
+      await fillValidOrder(copy);
+
+      await waitFor(() => expect(named("purchase")).toHaveLength(1));
+      expect(named("purchase")[0]).toMatchObject({
+        transaction_id: "ODL-1042",
+        value: 15150,
+        currency: "UAH",
+        items: [{ item_id: "Odri", price: 15150, quantity: 1 }],
+      });
+    });
+
+    it("books no sale for the honeypot's fake success", async () => {
+      // `{ ok: true, orderNumber: "" }` is the shape a filtered submission
+      // gets, deliberately indistinguishable from success at the HTTP level.
+      // No order was created, so there is nothing to count — and a bot-driven
+      // conversion is worse than a missing one, because Ads would bid toward
+      // whatever traffic produced it.
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            ok: true,
+            orderNumber: "",
+            status: "pending",
+            provider: "manual",
+          }),
+        }),
+      );
+      const copy = await renderCheckout();
+      await fillValidOrder(copy);
+
+      expect(await screen.findByText(copy.errorMessage)).toBeInTheDocument();
+      expect(named("purchase")).toHaveLength(0);
+    });
+
+    it("books no sale when the API rejected the order", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: false,
+          json: async () => ({ ok: false, error: "validation_failed" }),
+        }),
+      );
+      const copy = await renderCheckout();
+      await fillValidOrder(copy);
+
+      expect(await screen.findByText(copy.errorMessage)).toBeInTheDocument();
+      expect(named("purchase")).toHaveLength(0);
+    });
+
+    it("books no sale on the LiqPay hand-off, where nothing is paid yet", async () => {
+      // The order exists but is awaiting payment, and the next thing that
+      // happens is a redirect to a page the customer can abandon. The truthful
+      // moment is the signature-verified callback, which is server-side.
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            ok: true,
+            orderNumber: "ODL-1043",
+            status: "awaitingPayment",
+            provider: "liqpay",
+            liqpay: {
+              data: "ZGF0YQ==",
+              signature: "c2ln",
+              checkoutUrl: "https://www.liqpay.ua/api/3/checkout",
+            },
+          }),
+        }),
+      );
+      const copy = await renderCheckout();
+      await fillValidOrder(copy);
+
+      expect(
+        await screen.findByText(copy.redirectingToLiqpay),
+      ).toBeInTheDocument();
+      expect(named("purchase")).toHaveLength(0);
+    });
   });
 });

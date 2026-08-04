@@ -1,6 +1,22 @@
 import { z } from "zod";
 import { LeadId } from "../shared/ids";
 import { LeadStatus } from "./lead-status";
+import { PROJECT_TIMELINES, PROJECT_TYPES } from "./qualification";
+
+/**
+ * The qualification answers, as schemas.
+ *
+ * Built from the same arrays the forms render, so the set of options a visitor
+ * can pick and the set the API accepts cannot drift apart — the failure this
+ * codebase has already had once, with the phone rule. `qualification.ts` holds
+ * the values because it must stay importable from a client component; the zod
+ * wrapper belongs here, where zod already is.
+ */
+export const ProjectType = z.enum(PROJECT_TYPES);
+export type ProjectType = z.infer<typeof ProjectType>;
+
+export const ProjectTimeline = z.enum(PROJECT_TIMELINES);
+export type ProjectTimeline = z.infer<typeof ProjectTimeline>;
 
 /**
  * `LeadSubmissionLocale` — which storefront locale the form was

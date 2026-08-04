@@ -21,7 +21,7 @@ describe("MegaMenu", () => {
         {/* Raw <a>, not next/link, is the point: the panel must close on ANY
             in-panel anchor click regardless of how the link was authored. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="/shop/sinks">Раковини</a>
+        <a href="/rakovyny">Раковини</a>
       </MegaMenu>,
     );
     return { onOpenChange };
@@ -40,7 +40,7 @@ describe("MegaMenu", () => {
         label="Каталог2"
       >
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="/shop/sinks">Раковини</a>
+        <a href="/rakovyny">Раковини</a>
       </MegaMenu>,
     );
     const openTrigger = screen.getByRole("button", { name: "Каталог2" });

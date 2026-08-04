@@ -29,7 +29,8 @@ export async function generateMetadata({
 
 /** `/shop` — all products, no category filter. See Prompt 5: the actual
  * filtering/sorting/pagination/grid all live in the shared `ShopCatalog`
- * (also used by `/shop/[category]`) so there is one reusable architecture. */
+ * (also used by `/[category]` and `/[category]/[subcategory]`) so there is
+ * one reusable architecture. */
 export default async function ShopPage({
   params,
   searchParams,

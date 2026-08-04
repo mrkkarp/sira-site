@@ -7,7 +7,8 @@ import { serializeJsonLd } from "@/lib/json-ld";
 
 /**
  * Renders `CollectionPage` + `ItemList` JSON-LD (Prompt 9 §4) for listing
- * pages (`/shop`, `/shop/[category]`, `/collections`, `/collections/[slug]`).
+ * pages (`/shop`, `/[category][/[subcategory]]`, `/collections`,
+ * `/collections/[slug]`).
  * Same rendering pattern as `BreadcrumbStructuredData`/`ProductStructuredData`.
  */
 export function CollectionStructuredData({

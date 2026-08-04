@@ -30,12 +30,21 @@ export type ShopFacets = {
 export function FilterFieldsets({
   dictionary,
   category,
+  lockedFacet,
   facets,
   value,
   onChange,
 }: {
   dictionary: Dictionary;
   category?: ShopCategory;
+  /**
+   * The facet a subcategory URL has already decided, if any. `/rakovyny/
+   * nakladni` *is* `mount=countertop`, so rendering the mount checkboxes there
+   * would offer a control whose only real options are "no change" and "empty
+   * the page" — and unticking it would silently contradict the `h1`. The
+   * subcategory nav (`category-nav.tsx`) is how you move between the two.
+   */
+  lockedFacet?: "mount" | "placement";
   facets: ShopFacets;
   value: FilterState;
   onChange: (next: FilterState) => void;
@@ -64,7 +73,9 @@ export function FilterFieldsets({
 
   return (
     <div className="flex flex-col gap-(--space-md)">
-      {category === "sinks" && facets.mount.some((f) => f.count > 0) ? (
+      {category === "sinks" &&
+      lockedFacet !== "mount" &&
+      facets.mount.some((f) => f.count > 0) ? (
         <fieldset className="flex flex-col gap-(--space-2xs)">
           <legend className="type-label text-text mb-(--space-3xs)">
             {copy.mountHeading}
@@ -88,7 +99,9 @@ export function FilterFieldsets({
         </fieldset>
       ) : null}
 
-      {category === "planters" && facets.placement.some((f) => f.count > 0) ? (
+      {category === "planters" &&
+      lockedFacet !== "placement" &&
+      facets.placement.some((f) => f.count > 0) ? (
         <fieldset className="flex flex-col gap-(--space-2xs)">
           <legend className="type-label text-text mb-(--space-3xs)">
             {copy.placementHeading}

@@ -11,7 +11,7 @@ import type {
 import { sinkTypes, planterPlacements } from "@/lib/schemas/product-categories";
 
 /**
- * URL-state filter engine for `/shop` and `/shop/[category]`. Pure functions
+ * URL-state filter engine for `/shop` and `/[category][/[subcategory]]`. Pure functions
  * only (no DOM/router access) so the parsing/filtering/sorting/serialising
  * logic is fully unit-testable — see `shop-filters.test.ts`.
  *

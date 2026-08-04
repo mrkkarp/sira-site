@@ -165,7 +165,7 @@ test("every page the sitemap offers to Google shares with a picture", async ({
   );
   expect(urls.length, "the sitemap is empty").toBeGreaterThan(0);
 
-  // `/products/odri` and `/products/mira` are one page; `/shop/basins` and
+  // `/products/odri` and `/products/mira` are one page; `/rakovyny` and
   // `/warranty` are not. Collapse only the parameterised segment.
   const byShape = new Map<string, string>();
   for (const path of urls) {

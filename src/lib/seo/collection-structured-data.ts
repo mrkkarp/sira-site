@@ -1,6 +1,6 @@
 /**
  * `CollectionPage` + `ItemList` JSON-LD (Prompt 9 §4 — structured data
- * audit) for listing pages: `/shop`, `/shop/[category]`, `/collections`,
+ * audit) for listing pages: `/shop`, `/[category][/[subcategory]]`, `/collections`,
  * `/collections/[slug]`. Pure/unit-testable, same split as
  * `buildProductJsonLd`/`buildBreadcrumbJsonLd`.
  *

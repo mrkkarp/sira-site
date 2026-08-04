@@ -5,9 +5,18 @@ import type { FormEvent } from "react";
 import { z } from "zod";
 import { PhoneNumber } from "@/domain/shared/phone";
 import type { Dictionary } from "@/i18n/get-dictionary";
+import type { Product, ProductVariant } from "@/lib/schemas/product";
+import { trackQuoteRequest } from "@/lib/analytics/events";
+import { hashUserData } from "@/lib/analytics/user-data";
+import {
+  projectTypeOptions,
+  qualificationBody,
+  timelineOptions,
+} from "@/lib/forms/qualification-fields";
 import { Button } from "@/components/ui/button";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { HoneypotField } from "@/components/forms/honeypot-field";
+import { SelectField } from "@/components/forms/form-field";
 import { HONEYPOT_FIELD } from "@/lib/forms/honeypot";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -35,19 +44,38 @@ const QuoteFormFields = z.object({
 export function QuoteRequestForm({
   dictionary,
   context,
-  productId,
-  variantId,
+  product,
+  variant,
 }: {
   dictionary: Dictionary;
   /** Real product/variant summary, e.g. "Odri (Odri color), колір: Свій колір" — sent as the lead's `message`. */
   context: string;
-  /** Real product slug, when the request is tied to an existing catalog product. */
-  productId?: string;
-  /** Real variant SKU, when the request is tied to a specific existing variant. */
-  variantId?: string;
+  /**
+   * The real catalogue objects, not their ids.
+   *
+   * They used to be a `productId?`/`variantId?` pair of strings, which was
+   * everything `/api/quote` needs — but `quote_request` is the site's main
+   * conversion, and Google Ads bids toward its `value`, which is the price of
+   * the variant the visitor actually had selected. `Odri` is 19 600 UAH and
+   * `Odri color` is 23 400; a string SKU cannot tell them apart.
+   *
+   * Both are required rather than optional so the event cannot be silently
+   * skipped: there is no branch of this form that submits without a product
+   * behind it, and making that a type error is cheaper than discovering a
+   * missing conversion in the Ads UI three weeks later. `productId` and
+   * `variantId` are derived from them below, so the request body is unchanged.
+   */
+  product: Product;
+  variant: ProductVariant;
 }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  // Both optional and both starting blank — see `qualification.ts`. This form
+  // is the site's main conversion and used to be two fields; the two selects
+  // are added below the required pair, visibly labelled as skippable, so the
+  // shortest path through it is exactly as short as it was.
+  const [projectType, setProjectType] = useState("");
+  const [timeline, setTimeline] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
   const baseId = useId();
@@ -95,18 +123,44 @@ export function QuoteRequestForm({
         body: JSON.stringify({
           ...parsed.data,
           message: context,
-          productId,
-          variantId,
+          productId: product.slug,
+          variantId: variant.sku,
+          ...qualificationBody(projectType, timeline),
           [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
         }),
       });
       if (!response.ok) throw new Error("request_failed");
       setStatus("success");
-      setName("");
-      setPhone("");
     } catch {
       setStatus("error");
+      return;
     }
+
+    // Everything below runs only once the lead is safely saved, and outside the
+    // try above so that a failure in measurement cannot present itself to the
+    // customer as a failed enquiry — see the same note in `use-lead-form.ts`.
+    //
+    // After the server accepted it, never before. A `quote_request` counted on
+    // submit would include every validation rejection and every network failure
+    // — inflating the one number the campaign is optimising toward.
+    try {
+      // This form asks for a phone and no email, so Enhanced Conversions has
+      // one match key here rather than two. Still worth sending: a phone number
+      // is exactly what a customer signed into Google on their own handset is
+      // matchable by.
+      const userData = await hashUserData({ phone: parsed.data.phone });
+      trackQuoteRequest(product, variant, {
+        ...qualificationBody(projectType, timeline),
+        userData,
+      });
+    } catch (error) {
+      console.error("[quote] the lead was accepted but not measured", error);
+    }
+
+    setName("");
+    setPhone("");
+    setProjectType("");
+    setTimeline("");
   }
 
   const inputClass =
@@ -183,6 +237,34 @@ export function QuoteRequestForm({
           </p>
         ) : null}
       </div>
+
+      {/*
+        The two qualification questions. Unlike the fields above they carry
+        visible labels — a select showing "Не вказувати" with no label beside
+        it is a control whose purpose nobody can guess, and a placeholder-only
+        pattern that works for "Ім'я" does not work for a dropdown.
+      */}
+      <p className="type-caption text-text-muted mt-(--space-3xs)">
+        {dictionary.leadQualification.note}
+      </p>
+      <SelectField
+        id={`${baseId}-project-type`}
+        label={dictionary.leadQualification.projectTypeLabel}
+        value={projectType}
+        onChange={setProjectType}
+        options={projectTypeOptions(dictionary)}
+        placeholder={dictionary.leadQualification.unset}
+        disabled={status === "submitting"}
+      />
+      <SelectField
+        id={`${baseId}-timeline`}
+        label={dictionary.leadQualification.timelineLabel}
+        value={timeline}
+        onChange={setTimeline}
+        options={timelineOptions(dictionary)}
+        placeholder={dictionary.leadQualification.unset}
+        disabled={status === "submitting"}
+      />
 
       <Button
         type="submit"

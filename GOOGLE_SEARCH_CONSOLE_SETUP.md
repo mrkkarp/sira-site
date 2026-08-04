@@ -133,7 +133,8 @@
 | `sitemap.xml`                         | `src/app/sitemap.ts`                            | Готово, автогенерація        |
 | `robots.txt` (+ посилання на sitemap) | `src/app/robots.ts`                             | Готово                       |
 | Канонічний домен / OG / sitemap URL   | `NEXT_PUBLIC_SITE_URL` (env)                    | Виставити на реальний домен  |
-| Google Analytics 4 (окремо від GSC)   | `NEXT_PUBLIC_GA_MEASUREMENT_ID` (env)           | Гніздо готове, ID за вами    |
+| GA4 / Google Ads / Meta (через GTM)   | `NEXT_PUBLIC_GTM_ID` (env) → теги в контейнері  | Гніздо готове, ID за вами    |
+| Цінність ліда для Ads                 | `NEXT_PUBLIC_LEAD_VALUE_UAH` (env)              | Чекає на ваше число          |
 
 ---
 

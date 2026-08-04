@@ -78,6 +78,67 @@ describe("POST /api/quote", () => {
     expect(createMock).not.toHaveBeenCalled();
   });
 
+  it("stores the qualification answers alongside the product reference", async () => {
+    // The two questions travel with a quote that already carries a product and
+    // a variant; they must not displace either — the structured reference is
+    // what makes the enquiry answerable without reading the prose.
+    const response = await POST(
+      makeRequest({
+        name: "Марко",
+        phone: "+380671112233",
+        message: "Odri (Odri color), колір: Свій колір",
+        productId: "odri",
+        variantId: "Odri color",
+        projectType: "private",
+        timeline: "now",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        productId: "odri",
+        variantId: "Odri color",
+        projectType: "private",
+        timeline: "now",
+      }),
+    );
+  });
+
+  it("accepts a quote request that answers neither question", async () => {
+    // Optional by design — see `domain/leads/qualification.ts`. Someone who
+    // skips them has still asked for a price on a 19 600 UAH product.
+    const response = await POST(
+      makeRequest({
+        name: "Марко",
+        phone: "+380671112233",
+        message: "Odri (Odri color)",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({ projectType: undefined, timeline: undefined }),
+    );
+  });
+
+  it("rejects a qualification value that is not one of the options", async () => {
+    // Same contract as `/api/designer`: `""` is an invalid answer, not an
+    // absent one. Coercing it here would hide a client that had stopped
+    // sending real answers.
+    const response = await POST(
+      makeRequest({
+        name: "Марко",
+        phone: "+380671112233",
+        message: "Odri (Odri color)",
+        timeline: "",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
   it("pretends to succeed when the honeypot field is filled", async () => {
     const response = await POST(
       makeRequest({

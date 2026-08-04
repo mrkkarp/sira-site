@@ -18,6 +18,16 @@ export {
   planterPlacements,
   shopCategories,
   sinkTypes,
+  shopCategorySlugs,
+  shopCategoryFromSlug,
+  shopCategoryPath,
+  shopSubcategories,
+  shopSubcategoriesOf,
+  findShopSubcategory,
+} from "./product-categories";
+export type {
+  ShopCategorySlug,
+  ShopSubcategory,
 } from "./product-categories";
 
 export const ShopCategorySchema = z.enum(shopCategories);

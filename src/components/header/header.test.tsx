@@ -57,7 +57,7 @@ describe("Header route-change overlay reset", () => {
     expect(screen.getByRole("link", { name: sinks })).toBeInTheDocument();
 
     // Simulate navigating to the clicked page.
-    mockPathname = "/shop/sinks";
+    mockPathname = "/rakovyny";
     rerender(<Header locale="uk" dictionary={dictionary} />);
 
     expect(trigger).toHaveAttribute("aria-expanded", "false");
@@ -73,7 +73,7 @@ describe("Header route-change overlay reset", () => {
     fireEvent.click(trigger);
     expect(trigger).toHaveAttribute("aria-expanded", "true");
 
-    // `/shop/sinks` → `/shop/sinks?mount=countertop` and back: `pathname` is
+    // `/rakovyny` → `/rakovyny?tap-hole=none` and back: `pathname` is
     // identical either way, so the route-change effect never fires and only
     // the `popstate` listener can catch this.
     fireEvent.popState(window);
@@ -96,7 +96,7 @@ describe("Header route-change overlay reset", () => {
     expect(document.body.style.overflow).toBe("hidden");
 
     // Simulate a route change (e.g. tapping a category, or Back/Forward).
-    mockPathname = "/shop/planters";
+    mockPathname = "/vazony";
     rerender(<Header locale="uk" dictionary={dictionary} />);
 
     await waitFor(() => {
@@ -108,5 +108,53 @@ describe("Header route-change overlay reset", () => {
     });
     // Body is scrollable again — nothing left locking it.
     expect(document.body.style.overflow).toBe("");
+  });
+});
+
+/**
+ * The categories moved out from under `/shop` to the top level
+ * (`/shop/sinks` → `/rakovyny`), which quietly broke the header's rule of
+ * "current for my own href and anything nested under it": `/rakovyny` is a
+ * *sibling* of `/shop`, not a descendant, so Каталог went dark on the five
+ * pages the live Google Ads campaign lands on. `alsoCurrentFor` in
+ * `src/config/navigation.ts` is the fix, and this is what stops it being
+ * deleted later as redundant-looking config.
+ *
+ * Asserting on `aria-current` rather than on a class name: it is the actual
+ * contract (the plain nav links have always carried it, and the mega-menu
+ * trigger now does too), it survives a restyle, and it is the part a screen
+ * reader can hear.
+ */
+describe("Header current-section state", () => {
+  afterEach(() => {
+    mockPathname = "/";
+  });
+
+  // A category and a subcategory fail differently: the first needs the
+  // exact-match arm of the check, the second the prefix arm.
+  it.each(["/rakovyny", "/rakovyny/nakladni", "/vulychni-mebli"])(
+    "marks the catalogue cell as current on %s",
+    async (pathname) => {
+      mockPathname = pathname;
+      const dictionary = await getDictionary("uk");
+      render(<Header locale="uk" dictionary={dictionary} />);
+
+      expect(
+        screen.getByRole("button", { name: dictionary.nav.shop }),
+      ).toHaveAttribute("aria-current", "page");
+    },
+  );
+
+  it("leaves the catalogue cell unmarked off the catalogue", async () => {
+    // Guards the guard: an `alsoCurrentFor` that matched everything (an empty
+    // string slipping into the list, say) would make the cases above pass
+    // while the header lit up on every page.
+    mockPathname = "/about";
+    const dictionary = await getDictionary("uk");
+    render(<Header locale="uk" dictionary={dictionary} />);
+
+    expect(
+      screen.getByRole("button", { name: dictionary.nav.shop }),
+    ).not.toHaveAttribute("aria-current");
   });
 });

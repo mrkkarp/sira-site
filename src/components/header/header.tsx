@@ -83,7 +83,7 @@ const DETACH_AT = 24;
  *  1. `pathname` change — covers internal links, the logo, category and
  *     product selections, and browser Back/Forward between different paths.
  *  2. `popstate` — covers Back/Forward between two URLs that differ only by
- *     query string (`/shop/sinks` → `/shop/sinks?mount=countertop`), which
+ *     query string (`/rakovyny` → `/rakovyny?tap-hole=none`), which
  *     leaves `pathname` untouched and would otherwise slip through (1).
  *     Listening for the event avoids pulling `useSearchParams()` into the
  *     header, which would push the whole tree behind a Suspense boundary.
@@ -278,9 +278,11 @@ export function Header({
   const utilityCell =
     "group relative flex h-full w-14 items-center justify-center transition-colors duration-(--duration-normal) ease-(--ease-nav)";
 
-  // A nav cell is "current" for its own page and anything nested under it, so
-  // /shop/sinks keeps Каталог lit. An open mega-menu lights its own cell too,
-  // which is why this is OR-ed with `openMenu` at each call site.
+  // A nav cell is "current" for its own page and anything nested under it, plus
+  // any prefix its config claims in `alsoCurrentFor` — which is how Каталог
+  // stays lit on `/rakovyny`, a sibling of `/shop` rather than a descendant of
+  // it. An open mega-menu lights its own cell too, which is why this is OR-ed
+  // with `openMenu` at each call site.
   //
   // Compare on the BARE path, never on `localeHref(locale, href)`. uk is
   // unprefixed in the address bar, but `src/proxy.ts` rewrites `/projects` to
@@ -289,8 +291,10 @@ export function Header({
   // hydration. Matching against the built href therefore missed every uk page
   // in the server HTML. Stripping the prefix makes both forms agree.
   const barePath = stripLocaleFromPathname(pathname, locales);
-  function isCurrent(href: string) {
-    return barePath === href || barePath.startsWith(`${href}/`);
+  function isCurrent(item: { href: string; alsoCurrentFor?: string[] }) {
+    return [item.href, ...(item.alsoCurrentFor ?? [])].some(
+      (href) => barePath === href || barePath.startsWith(`${href}/`),
+    );
   }
 
   // The bar is two clusters, not one row with a hole in it. Mega-menu items
@@ -307,7 +311,11 @@ export function Header({
   // other 1px divider in the bar.
   function renderNavItem(item: (typeof primaryNav)[number], isLead: boolean) {
     const label = dictionary.nav[item.key as keyof typeof dictionary.nav];
-    const active = isCurrent(item.href) || openMenu === item.mega;
+    // Two different questions that happen to share a colour. `current` is
+    // "which section is this page in" and is what assistive tech is told;
+    // `active` adds "…or this menu is open", which is purely a paint state.
+    const current = isCurrent(item);
+    const active = current || openMenu === item.mega;
     const rule = isLead ? undefined : cn("border-l", cellRule);
 
     return item.mega ? (
@@ -317,6 +325,7 @@ export function Header({
         openKey={openMenu}
         onOpenChange={setOpenMenu}
         label={label}
+        current={current}
         className={rule}
         triggerClassName={cn(navCell, active ? cellActive : cellIdle)}
         panelClassName="inset-x-(--space-2xs)"
@@ -331,7 +340,7 @@ export function Header({
       <Link
         key={item.key}
         href={localeHref(locale, item.href)}
-        aria-current={active ? "page" : undefined}
+        aria-current={current ? "page" : undefined}
         className={cn(navCell, "group", rule, active ? cellActive : cellIdle)}
       >
         <RollingLabel>{label}</RollingLabel>

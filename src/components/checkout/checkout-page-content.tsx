@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { z } from "zod";
 import { PhoneNumber } from "@/domain/shared/phone";
@@ -8,6 +8,11 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { useCart } from "@/lib/cart-store";
+import {
+  itemForCartLine,
+  trackBeginCheckout,
+  trackPurchase,
+} from "@/lib/analytics/events";
 import { Price } from "@/components/ui/price";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
@@ -185,6 +190,22 @@ export function CheckoutPageContent({
     setFields((prev) => ({ ...prev, [key]: value }));
   }
 
+  /**
+   * `begin_checkout`, once per visit to this page.
+   *
+   * It waits for `isLoading` to clear because the cart is a network round trip,
+   * not a synchronous read: firing on mount would send an empty basket on every
+   * checkout and make the funnel read as if nobody ever got this far with
+   * anything in it. The ref guard is what makes it once — this component
+   * re-renders on every keystroke in the form.
+   */
+  const beganCheckout = useRef(false);
+  useEffect(() => {
+    if (beganCheckout.current || isLoading || items.length === 0) return;
+    beganCheckout.current = true;
+    trackBeginCheckout({ items: items.map(itemForCartLine), value: subtotal });
+  }, [isLoading, items, subtotal]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const parsed = CheckoutFields.safeParse(fields);
@@ -242,6 +263,14 @@ export function CheckoutPageContent({
     setStatus("submitting");
     setErrorMessage(null);
 
+    // Taken before the request, because `/api/checkout` empties the cart: by
+    // the time a confirmation is on screen the lines that made up the order
+    // may already be gone, and a `purchase` with no `items` is a sale with no
+    // products in it — Ads can still count the conversion but nothing can say
+    // which product earned it.
+    const ordered = items.map(itemForCartLine);
+    const orderedValue = subtotal;
+
     try {
       const response = await fetch(`/api/checkout?locale=${locale}`, {
         method: "POST",
@@ -268,7 +297,16 @@ export function CheckoutPageContent({
       if (result.provider === "liqpay" && result.liqpay) {
         setLiqpayPayload(result.liqpay);
         setStatus("success");
-        // Auto-submit the hidden form to LiqPay's hosted checkout once it's rendered.
+        // Deliberately no `purchase` here. The order exists but is
+        // `awaitingPayment`, and the next thing that happens is a redirect to
+        // a page the customer can abandon — counting it as a sale would book
+        // revenue for every card that was never entered. The truthful moment
+        // is the signature-verified `/api/checkout/liqpay-callback`, which is
+        // server-side and so needs the Measurement Protocol or a server-side
+        // GTM container to report from. Nothing is lost today: LiqPay is not
+        // configured (`LIQPAY_PUBLIC_KEY` is unset), so this branch is
+        // unreachable in production — but it must be wired before card
+        // payment is switched on, or paid orders will simply not be measured.
         requestAnimationFrame(() => liqpayFormRef.current?.submit());
         return;
       }
@@ -288,6 +326,16 @@ export function CheckoutPageContent({
 
       setConfirmedOrderNumber(result.orderNumber);
       setStatus("success");
+      // Only past the honeypot check above, so a filtered submission — which
+      // returns `ok: true` with no order number precisely so a bot cannot tell
+      // it was filtered — never books a sale. `transaction_id` is the real
+      // order number, which is what lets GA4 and Ads discard a duplicate if
+      // this ever fires twice.
+      trackPurchase({
+        transactionId: result.orderNumber,
+        items: ordered,
+        value: orderedValue,
+      });
     } catch {
       setStatus("error");
       setErrorMessage(copy.errorMessage);

@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+/** The legacy-URL sweep, which gets a project of its own — see below. */
+const MIGRATION_SPEC = /legacy-urls\.spec\.ts/;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -43,14 +46,40 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: MIGRATION_SPEC,
     },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
+      testIgnore: MIGRATION_SPEC,
     },
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
+      testIgnore: MIGRATION_SPEC,
+    },
+    // Last, and alone. `legacy-urls.spec.ts` asks for all 184 old Horoshop
+    // URLs and then for each of their 108 distinct destinations — and those
+    // destinations are mostly product pages, so each one is a Payload query
+    // against a *remote* Neon database. That is ~300 requests and ~108 round
+    // trips to another continent, aimed at the single `next dev` process and
+    // the single connection pool that the rest of the suite is also using.
+    //
+    // Run inside the `chromium` project it sorts before `locale-switch`,
+    // `seo` and the two WebKit cart specs, and it starved them: the cart POST
+    // queued behind the sweep's pool traffic and missed the 5s assertion
+    // budget, so `Кошик (1)` read `Кошик (0)`. Those three tests pass on their
+    // own and passed in the run before this file existed — the sweep was the
+    // only new variable. Giving it its own project puts it after every browser
+    // project, where the load it creates has nothing left to slow down.
+    //
+    // One engine, deliberately: every assertion in it is an HTTP status code
+    // produced by the proxy before any markup exists, so a second engine would
+    // re-ask 300 questions with a known-identical answer.
+    {
+      name: "migration",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: MIGRATION_SPEC,
     },
   ],
 });

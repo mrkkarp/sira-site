@@ -1,5 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { PhoneNumber, phoneDigits } from "./phone";
+import { isValidPhoneNumber } from "./phone-rule";
+
+/** Everything either side is asked about below, in one list. */
+const ALL_INPUTS = [
+  "0501234567",
+  "+380 50 123 45 67",
+  "+380-50-123-45-67",
+  "+38 (050) 123-45-67",
+  "050.123.45.67",
+  "  +380501234567  ",
+  "2345678",
+  "",
+  "   ",
+  "0",
+  "12345",
+  "+1234567890123456",
+  "call me",
+  "050 call me 123",
+  "hello@example.com",
+];
 
 /**
  * `PhoneNumber` is the *one* phone rule — the client guards in the checkout,
@@ -49,6 +69,17 @@ describe("PhoneNumber", () => {
     expect(PhoneNumber.parse("  +380 (50) 123-45-67 ")).toBe(
       "+380 (50) 123-45-67",
     );
+  });
+});
+
+describe("the client rule and the server schema", () => {
+  it.each(ALL_INPUTS)("agree about %j", (value) => {
+    // The rule lives in `phone-rule.ts` (no dependencies, so the browser can
+    // use it) and `PhoneNumber` wraps it for the API. That split is exactly
+    // how the *original* bug happened — a client guard of `min(7)` against a
+    // server schema of `min(1)` — so the property is pinned rather than
+    // assumed: whatever one side accepts, so does the other.
+    expect(isValidPhoneNumber(value)).toBe(PhoneNumber.safeParse(value).success);
   });
 });
 

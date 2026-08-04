@@ -10,7 +10,10 @@ import { formatTemplate } from "@/lib/format-template";
 // The zod-free module, deliberately: this component is in the header, so it is
 // on every page, and importing the same seven strings from `./product` would
 // put zod's whole runtime into the shared client bundle.
-import { shopCategories } from "@/lib/schemas/product-categories";
+import {
+  shopCategories,
+  shopCategoryPath,
+} from "@/lib/schemas/product-categories";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
 import { Price } from "@/components/ui/price";
 import type { SearchResponse } from "@/app/api/search/route";
@@ -314,7 +317,7 @@ export function SearchDrawer({
                   {shopCategories.map((category) => (
                     <li key={category}>
                       <Link
-                        href={localeHref(locale, `/shop/${category}`)}
+                        href={localeHref(locale, shopCategoryPath(category))}
                         onClick={onClose}
                         className="type-body-sm border-border hover:border-border-strong border px-(--space-xs) py-(--space-3xs)"
                       >

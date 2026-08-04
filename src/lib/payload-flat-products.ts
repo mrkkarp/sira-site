@@ -350,7 +350,7 @@ async function loadPayloadFlatProductsUncached(
  * `depth: 1` (so each product's media, category and colour relations are
  * joined) plus the snapshot enrichment merge and a zod parse per product. It
  * used to run on **every** request to a dynamic catalogue route — `/shop`,
- * `/shop/[category]`, `/products/[slug]`, `/search` are all `ƒ` in the build
+ * `/[category]`, `/products/[slug]`, `/search` are all `ƒ` in the build
  * output because they read `searchParams` — which put a full catalogue
  * round-trip to Neon in front of every visitor. Measured against production
  * that was ~430–720 ms TTFB on those routes versus ~190–260 ms on the

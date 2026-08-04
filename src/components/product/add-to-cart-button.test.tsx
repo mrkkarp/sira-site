@@ -4,6 +4,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { AddToCartButton } from "@/components/product/add-to-cart-button";
 import { ToastProvider } from "@/components/ui/toast";
 import { __resetCartStoreForTests, useCart } from "@/lib/cart-store";
+import { resetConsentModeForTests } from "@/lib/analytics/consent-mode";
 import type { Product, ProductVariant } from "@/lib/schemas/product";
 
 const oneLineView = {
@@ -57,10 +58,19 @@ function CartCount() {
   return <span data-testid="cart-count">{count}</span>;
 }
 
+const addToCartEvents = () =>
+  (window.dataLayer ?? []).filter(
+    (entry): entry is Record<string, unknown> =>
+      Object.prototype.toString.call(entry) === "[object Object]" &&
+      (entry as { event?: string }).event === "add_to_cart",
+  );
+
 describe("AddToCartButton", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     __resetCartStoreForTests();
+    delete window.dataLayer;
+    resetConsentModeForTests();
   });
 
   it("adds the real selected variant to the cart and announces success", async () => {
@@ -136,5 +146,73 @@ describe("AddToCartButton", () => {
     await waitFor(() =>
       expect(screen.getByTestId("cart-count")).toHaveTextContent("1"),
     );
+  });
+
+  describe("measurement", () => {
+    async function clickAdd() {
+      const dictionary = await getDictionary("uk");
+      render(
+        <ToastProvider>
+          <AddToCartButton
+            product={product()}
+            variant={variant}
+            dictionary={dictionary}
+          />
+        </ToastProvider>,
+      );
+      fireEvent.click(
+        screen.getByRole("button", { name: dictionary.product.addToCartCta }),
+      );
+      return dictionary;
+    }
+
+    it("reports the add with the real variant and its real price", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((_url: string, init?: RequestInit) =>
+          Promise.resolve({
+            ok: true,
+            json: async () => ({
+              ok: true,
+              view: init?.method === "POST" ? oneLineView : emptyView,
+            }),
+          } as Response),
+        ),
+      );
+      await clickAdd();
+
+      await waitFor(() => expect(addToCartEvents()).toHaveLength(1));
+      expect(addToCartEvents()[0]).toMatchObject({
+        value: 15150,
+        currency: "UAH",
+        items: [{ item_id: "Odri", price: 15150, quantity: 1 }],
+      });
+    });
+
+    it("reports nothing when the cart refused the item", async () => {
+      // `addItem()` never throws — the cart store captures network and HTTP
+      // failures into its own error state instead. Measuring on the click
+      // rather than on this boolean would count an `add_to_cart` for every
+      // rate-limited or rejected attempt, and GA4 would show a cart
+      // abandonment that never happened.
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((_url: string, init?: RequestInit) =>
+          Promise.resolve({
+            ok: init?.method !== "POST",
+            json: async () =>
+              init?.method === "POST"
+                ? { ok: false, error: "rate_limited" }
+                : { ok: true, view: emptyView },
+          } as Response),
+        ),
+      );
+      const dictionary = await clickAdd();
+
+      expect(
+        await screen.findByText(dictionary.product.addToCartError),
+      ).toBeInTheDocument();
+      expect(addToCartEvents()).toHaveLength(0);
+    });
   });
 });

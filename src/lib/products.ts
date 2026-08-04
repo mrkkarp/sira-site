@@ -5,6 +5,7 @@ import {
   ProductSourceFileSchema,
   type Product,
   type ShopCategory,
+  type ShopSubcategory,
 } from "@/lib/schemas/product";
 import { groupProductSourceRows } from "@/lib/product-grouping";
 import { loadPayloadFlatProducts } from "@/lib/payload-flat-products";
@@ -122,6 +123,22 @@ export function getAllProducts(): Product[] {
 export function getProductsByCategory(category: ShopCategory): Product[] {
   return getAllProducts().filter(
     (product) => product.shopCategory === category,
+  );
+}
+
+/**
+ * The products behind one of the three subcategory routes. A subcategory is
+ * exactly its parent category narrowed by a single facet, so this stays in
+ * lockstep with `?mount=`/`?placement=` producing the same set — the URL is
+ * the only difference, and that difference is for crawlers, not for the data.
+ */
+export function getProductsBySubcategory(
+  subcategory: ShopSubcategory,
+): Product[] {
+  return getProductsByCategory(subcategory.category).filter((product) =>
+    subcategory.facet === "mount"
+      ? product.sinkType === subcategory.value
+      : product.planterPlacement === subcategory.value,
   );
 }
 

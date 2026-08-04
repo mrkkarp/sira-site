@@ -87,7 +87,12 @@ export const Leads: CollectionConfig = {
       type: "textarea",
       admin: {
         condition: (_data, siblingData) =>
-          ["contact", "quote", "designer"].includes(siblingData?.type),
+          // `sample` included since the storefront's product ids are slugs and
+          // cannot become `productIds` relations — the free-text answer is
+          // where "which colours do you want a sample of" actually lands.
+          ["contact", "quote", "designer", "sample"].includes(
+            siblingData?.type,
+          ),
       },
     },
     {
@@ -119,6 +124,48 @@ export const Leads: CollectionConfig = {
       min: 1,
       admin: {
         condition: (_data, siblingData) => siblingData?.type === "quote",
+      },
+    },
+    /**
+     * The two qualification answers (`src/domain/leads/qualification.ts`).
+     *
+     * Shown for `quote` and `designer` — the two main conversions, and the only
+     * forms that ask. Both are optional here as well as in the UI: a lead that
+     * arrives without them is a normal lead, not a broken one, and making them
+     * `required` would mean the admin panel refuses to save a submission the
+     * public API deliberately accepted.
+     *
+     * In the sidebar, beside `status`, because that is where they are used —
+     * whoever works the queue decides what to open next from "what kind of
+     * object" and "how soon", not from the message body.
+     */
+    {
+      name: "projectType",
+      type: "select",
+      options: [
+        { value: "private", label: "Приватний інтер'єр" },
+        { value: "commercial", label: "Комерційний об'єкт" },
+        { value: "outdoor", label: "Ландшафт / вулична зона" },
+        { value: "other", label: "Інше" },
+      ],
+      admin: {
+        position: "sidebar",
+        condition: (_data, siblingData) =>
+          ["quote", "designer"].includes(siblingData?.type),
+      },
+    },
+    {
+      name: "timeline",
+      type: "select",
+      options: [
+        { value: "now", label: "Готові замовляти зараз" },
+        { value: "quarter", label: "Протягом 1–3 місяців" },
+        { value: "exploring", label: "Збирає інформацію" },
+      ],
+      admin: {
+        position: "sidebar",
+        condition: (_data, siblingData) =>
+          ["quote", "designer"].includes(siblingData?.type),
       },
     },
     {

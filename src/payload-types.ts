@@ -843,6 +843,8 @@ export interface Lead {
   productId?: (number | null) | Product;
   variantSku?: string | null;
   quantity?: number | null;
+  projectType?: ('private' | 'commercial' | 'outdoor' | 'other') | null;
+  timeline?: ('now' | 'quarter' | 'exploring') | null;
   companyName?: string | null;
   portfolioUrl?: string | null;
   orderNumber?: string | null;
@@ -1560,6 +1562,8 @@ export interface LeadsSelect<T extends boolean = true> {
   productId?: T;
   variantSku?: T;
   quantity?: T;
+  projectType?: T;
+  timeline?: T;
   companyName?: T;
   portfolioUrl?: T;
   orderNumber?: T;

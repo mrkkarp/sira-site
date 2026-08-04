@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { ProductId, VariantId } from "@/domain/shared/ids";
+import { ProjectTimeline, ProjectType } from "@/domain/leads/lead-common";
 import { getLeadRepository } from "@/repositories/lead-repository";
 import { getLeadNotificationAdapter } from "@/lib/email/lead-notification-adapter";
 import { isHoneypotTripped } from "@/lib/forms/honeypot";
@@ -38,6 +39,10 @@ const QuoteFormInput = z.object({
   productId: ProductId.optional(),
   variantId: VariantId.optional(),
   quantity: z.number().int().positive().optional(),
+  // Optional qualification, same contract as `/api/designer` — see the note
+  // there for why `""` is not accepted in place of an absent key.
+  projectType: ProjectType.optional(),
+  timeline: ProjectTimeline.optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -113,6 +118,8 @@ export async function POST(request: NextRequest) {
       variantId: parsed.data.variantId,
       quantity: parsed.data.quantity,
       message: parsed.data.message,
+      projectType: parsed.data.projectType,
+      timeline: parsed.data.timeline,
     });
     // Notifying staff must never fail the request: the lead is already
     // committed, so a Resend outage answering 500 would tell a customer

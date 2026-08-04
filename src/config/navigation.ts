@@ -4,6 +4,11 @@
  * item stays translatable.
  */
 
+import {
+  shopCategories,
+  shopCategoryPath,
+} from "@/lib/schemas/product-categories";
+
 export type NavLink = { labelKey: string; href: string };
 
 /**
@@ -19,46 +24,88 @@ export type NavLink = { labelKey: string; href: string };
  *   "Вазони/Вуличні"     -> planters + placement=outdoor  (6 products)
  *   "Вазони/До дому"     -> planters + placement=indoor  (12 products)
  *
+ * Three of those four now have a *page* of their own rather than a query
+ * string — `/rakovyny/pidlohovi`, `/rakovyny/nakladni`, `/vazony/vulychni`,
+ * the three splits that were real URLs on the old site and are named in the
+ * keyword map (see `shopSubcategories` in
+ * `src/lib/schemas/product-categories.ts`). The menu links the page, not the
+ * filter: same listing either way, but one of the two is indexable and gets
+ * its own `h1`. "Вазони/До дому" has no page — no query targets it — so it
+ * stays a plain filter link. The asymmetry is deliberate, not an oversight.
+ *
+ * Category hrefs come from `shopCategoryPath`, so this file cannot drift from
+ * the addresses the routes actually serve.
+ *
  * The previous version of this file also linked `?tap-hole=`, `?size=`,
  * `?basins=` and `?shape=` — filters the parser silently ignores, so those
  * links quietly showed the *unfiltered* category. They are gone rather than
  * re-labelled: a menu entry that doesn't do what it says is worse than no
  * entry.
  *
- * `/shop/wall-modules` ("Бетонні модулі") has no products yet and renders
- * the category's honest empty state. It is listed deliberately — it is a
- * real route and a real part of the range, not a placeholder.
+ * `/betonni-moduli-dlia-stiny` ("Бетонні модулі") has no products yet and
+ * renders the category's honest empty state. It is listed deliberately — it
+ * is a real route and a real part of the range, not a placeholder.
  */
 export type CatalogNode = NavLink & { children?: NavLink[] };
 
 export const catalogTree: CatalogNode[] = [
   {
     labelKey: "sinks",
-    href: "/shop/sinks",
+    href: shopCategoryPath("sinks"),
     children: [
-      { labelKey: "sinksFreestanding", href: "/shop/sinks?mount=freestanding" },
-      { labelKey: "sinksCountertop", href: "/shop/sinks?mount=countertop" },
+      {
+        labelKey: "sinksFreestanding",
+        href: shopCategoryPath("sinks", "pidlohovi"),
+      },
+      {
+        labelKey: "sinksCountertop",
+        href: shopCategoryPath("sinks", "nakladni"),
+      },
     ],
   },
   {
     labelKey: "planters",
-    href: "/shop/planters",
+    href: shopCategoryPath("planters"),
     children: [
-      { labelKey: "plantersOutdoor", href: "/shop/planters?placement=outdoor" },
-      { labelKey: "plantersIndoor", href: "/shop/planters?placement=indoor" },
+      {
+        labelKey: "plantersOutdoor",
+        href: shopCategoryPath("planters", "vulychni"),
+      },
+      {
+        labelKey: "plantersIndoor",
+        href: `${shopCategoryPath("planters")}?placement=indoor`,
+      },
     ],
   },
-  { labelKey: "tables", href: "/shop/tables" },
-  { labelKey: "outdoorFurniture", href: "/shop/outdoor" },
-  { labelKey: "panels", href: "/shop/wall-panels" },
-  { labelKey: "modules", href: "/shop/wall-modules" },
-  { labelKey: "wallArt", href: "/shop/wall-art" },
+  { labelKey: "tables", href: shopCategoryPath("tables") },
+  { labelKey: "outdoorFurniture", href: shopCategoryPath("outdoor") },
+  { labelKey: "panels", href: shopCategoryPath("wall-panels") },
+  { labelKey: "modules", href: shopCategoryPath("wall-modules") },
+  { labelKey: "wallArt", href: shopCategoryPath("wall-art") },
   { labelKey: "custom", href: "/contact" },
 ];
 
 export type MegaMenuKey = "catalog";
 
-type PrimaryNavItem = { key: string; href: string; mega?: MegaMenuKey };
+type PrimaryNavItem = {
+  key: string;
+  href: string;
+  mega?: MegaMenuKey;
+  /**
+   * Extra path prefixes that should also light this cell up, for sections whose
+   * pages do not live under the item's own `href`.
+   *
+   * Only "Каталог" needs it, and only since the categories moved to the top
+   * level. The header's rule is "current for my `href` and anything nested
+   * under it", which used to cover the whole catalogue for free because every
+   * category was `/shop/<something>`. Now they are `/rakovyny`, `/vazony`, …
+   * — siblings of `/shop`, not descendants — so without this the header would
+   * go blank on the five pages the live Google Ads campaign lands on. Listing
+   * them here rather than special-casing the string "shop" in `header.tsx`
+   * keeps the rule declarative and the header ignorant of the catalogue.
+   */
+  alsoCurrentFor?: string[];
+};
 
 /**
  * Top-level header nav — `mega` names a mega-menu; omit for a plain link.
@@ -75,7 +122,14 @@ type PrimaryNavItem = { key: string; href: string; mega?: MegaMenuKey };
  * removing anything else from here.
  */
 export const primaryNav: PrimaryNavItem[] = [
-  { key: "shop", href: "/shop", mega: "catalog" },
+  {
+    key: "shop",
+    href: "/shop",
+    mega: "catalog",
+    // Subcategories come along for free: `/rakovyny/nakladni` is nested under
+    // `/rakovyny`, and the header already matches descendants.
+    alsoCurrentFor: shopCategories.map((category) => shopCategoryPath(category)),
+  },
   { key: "projects", href: "/projects" },
   { key: "about", href: "/about" },
   { key: "designers", href: "/designers" },

@@ -2,6 +2,19 @@ import type { NextConfig } from "next";
 import { withPayload } from "@payloadcms/next/withPayload";
 
 const nextConfig: NextConfig = {
+  // Hand the trailing-slash redirect to `src/proxy.ts`.
+  //
+  // Next's own runs *before* proxy, which put a `308` in front of every
+  // legacy redirect: the old Horoshop URLs all end in a slash, so
+  // `/oplata-i-dostavka/` cost `308` → `/oplata-i-dostavka` → `301` →
+  // `/payment-delivery`. That is all 162 migrated URLs paying an extra hop,
+  // on exactly the requests where the chain matters most. The proxy answers
+  // them in one hop instead.
+  //
+  // This disables the redirect *entirely*, in both directions — the proxy
+  // reissues it for live routes (`/shop/` → `308` → `/shop`), which is not
+  // optional: without it the site serves every page at two URLs.
+  skipTrailingSlashRedirect: true,
   images: {
     // Real product photography, exported from the existing Horoshop catalog
     // (see src/data/products.source.json) — not stock/placeholder imagery.

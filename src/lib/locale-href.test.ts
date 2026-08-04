@@ -16,13 +16,13 @@ describe("localeHref", () => {
 
 describe("stripLocaleFromPathname", () => {
   it("strips a known locale prefix", () => {
-    expect(stripLocaleFromPathname("/en/shop/sinks", locales)).toBe(
-      "/shop/sinks",
+    expect(stripLocaleFromPathname("/en/rakovyny/nakladni", locales)).toBe(
+      "/rakovyny/nakladni",
     );
     expect(stripLocaleFromPathname("/pl", locales)).toBe("/");
   });
 
   it("returns the path unchanged when there is no locale prefix", () => {
-    expect(stripLocaleFromPathname("/shop/sinks", locales)).toBe("/shop/sinks");
+    expect(stripLocaleFromPathname("/rakovyny", locales)).toBe("/rakovyny");
   });
 });

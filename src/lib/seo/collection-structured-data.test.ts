@@ -7,7 +7,7 @@ describe("buildCollectionPageJsonLd", () => {
       siteUrl: "https://example.com",
       name: "Раковини",
       description: "Раковини з декоративного бетону.",
-      path: "/shop/sinks",
+      path: "/rakovyny",
       items: [
         { name: "Раковина Alfa", path: "/products/alfa" },
         { name: "Раковина Beta", path: "/products/beta" },
@@ -19,7 +19,7 @@ describe("buildCollectionPageJsonLd", () => {
       "@type": "CollectionPage",
       name: "Раковини",
       description: "Раковини з декоративного бетону.",
-      url: "https://example.com/shop/sinks",
+      url: "https://example.com/rakovyny",
       mainEntity: {
         "@type": "ItemList",
         itemListElement: [
@@ -55,7 +55,7 @@ describe("buildCollectionPageJsonLd", () => {
     const json = buildCollectionPageJsonLd({
       siteUrl: "https://example.com",
       name: "Раковини",
-      path: "/shop/sinks",
+      path: "/rakovyny",
       items: [{ name: "Раковина Gamma", path: "/products/gamma" }],
       startPosition: 13,
     }) as { mainEntity: { itemListElement: Array<{ position: number }> } };

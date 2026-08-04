@@ -31,6 +31,7 @@ export function MobileFilterButton({
   basePath,
   dictionary,
   category,
+  lockedFacet,
   facets,
   filters,
   allProducts,
@@ -39,6 +40,9 @@ export function MobileFilterButton({
   basePath: string;
   dictionary: Dictionary;
   category?: ShopCategory;
+  /** On a subcategory page, the facet the URL itself already pins — see
+   * `FilterFieldsets`. */
+  lockedFacet?: "mount" | "placement";
   facets: ShopFacets;
   filters: FilterState;
   allProducts: Product[];
@@ -119,6 +123,7 @@ export function MobileFilterButton({
               key={resetKey}
               dictionary={dictionary}
               category={category}
+              lockedFacet={lockedFacet}
               facets={facets}
               value={pending}
               onChange={setPending}

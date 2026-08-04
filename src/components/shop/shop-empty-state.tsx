@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { ShopCategory } from "@/lib/schemas/product";
-import { shopCategories } from "@/lib/schemas/product";
+import { shopCategories, shopCategoryPath } from "@/lib/schemas/product";
 import { localeHref } from "@/lib/locale-href";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -90,7 +90,7 @@ function NearbyCategories({
         {others.map((category) => (
           <li key={category}>
             <Link
-              href={localeHref(locale, `/shop/${category}`)}
+              href={localeHref(locale, shopCategoryPath(category))}
               className="border-border-strong type-caption hover:border-text inline-flex items-center border px-(--space-2xs) py-(--space-3xs) transition-colors duration-(--duration-fast)"
             >
               {shopCategoryLabel(category, dictionary)}

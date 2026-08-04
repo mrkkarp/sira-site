@@ -16,13 +16,14 @@
  * reopening the banner itself is a separate affordance (see cookie-consent.tsx).
  */
 import type { NavLink } from "@/config/navigation";
+import { shopCategoryPath } from "@/lib/schemas/product-categories";
 
 export const footerCatalogLinks: NavLink[] = [
-  { labelKey: "sinks", href: "/shop/sinks" },
-  { labelKey: "planters", href: "/shop/planters" },
-  { labelKey: "tables", href: "/shop/tables" },
-  { labelKey: "wallPanels", href: "/shop/wall-panels" },
-  { labelKey: "outdoor", href: "/shop/outdoor" },
+  { labelKey: "sinks", href: shopCategoryPath("sinks") },
+  { labelKey: "planters", href: shopCategoryPath("planters") },
+  { labelKey: "tables", href: shopCategoryPath("tables") },
+  { labelKey: "wallPanels", href: shopCategoryPath("wall-panels") },
+  { labelKey: "outdoor", href: shopCategoryPath("outdoor") },
   { labelKey: "custom", href: "/contact" },
   { labelKey: "samples", href: "/samples" },
   // `/collections` and `/colours` live here, and only here, on desktop: both

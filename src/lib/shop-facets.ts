@@ -26,7 +26,7 @@ function numericBounds(values: number[]): { min: number; max: number } {
 /**
  * Assembles the full `ShopFacets` object (options + counts + disabled state
  * + numeric bounds) for a given product set — shared by `/shop` and
- * `/shop/[category]` so the two routes don't duplicate this wiring
+ * `/[category]` so the routes don't duplicate this wiring
  * (Prompt 5's "one reusable architecture" requirement).
  */
 export function buildShopFacets(

@@ -1,6 +1,7 @@
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { contact } from "@/config/contact";
 import { Section, Container } from "@/components/layout";
+import { ContactForm } from "@/components/contact/contact-form";
 
 /**
  * Real ODUDLAB contact page content (replaces the former `/stockists`
@@ -45,7 +46,15 @@ export function ContactContent({ dictionary }: { dictionary: Dictionary }) {
           </p>
         </header>
 
-        <div className="mt-(--space-xl) grid grid-cols-1 gap-(--space-lg) md:grid-cols-2 lg:grid-cols-3">
+        {/* `data-analytics-location`: read by `ContactLinkTracker` so a call
+            placed from this page is separable from one placed from the footer.
+            It sits on the grid rather than on the `Section` because `Section`
+            forwards only the props it declares — and see that file for why
+            this is an attribute and not a click handler. */}
+        <div
+          data-analytics-location="contact_page"
+          className="mt-(--space-xl) grid grid-cols-1 gap-(--space-lg) md:grid-cols-2 lg:grid-cols-3"
+        >
           {/* Direct contact — phone + email */}
           <div>
             <h2 className="type-h4 text-text">{copy.reachHeading}</h2>
@@ -115,6 +124,25 @@ export function ContactContent({ dictionary }: { dictionary: Dictionary }) {
               {copy.mapCta}
             </a>
           </div>
+        </div>
+
+        {/*
+          The form sits after the direct channels, not before them. Somebody
+          who wants to phone the workshop should not have to scroll past a
+          form to find the number — and the number converts faster than the
+          form does in this market. The form is here for the rest: people
+          reading at midnight, and people whose question needs a paragraph.
+
+          `ContactForm` is the only Client Component on this page. Everything
+          above stays server-rendered, so the phone number, address and every
+          heading are in the HTML before any JavaScript runs.
+        */}
+        <div className="mt-(--space-2xl) max-w-xl">
+          <h2 className="type-h3 text-text">{dictionary.contactForm.heading}</h2>
+          <p className="type-body text-text-muted mt-(--space-2xs) mb-(--space-md)">
+            {dictionary.contactForm.intro}
+          </p>
+          <ContactForm dictionary={dictionary} />
         </div>
       </Container>
     </Section>

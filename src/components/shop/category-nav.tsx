@@ -2,7 +2,11 @@ import Link from "next/link";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { ShopCategory } from "@/lib/schemas/product";
-import { shopCategories } from "@/lib/schemas/product";
+import {
+  shopCategories,
+  shopCategoryPath,
+  shopSubcategoriesOf,
+} from "@/lib/schemas/product";
 import { localeHref } from "@/lib/locale-href";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
 import { cn } from "@/lib/cn";
@@ -13,6 +17,12 @@ import { cn } from "@/lib/cn";
  * Deliberately does not filter out `wall-modules` even though it currently
  * has zero real products — the category itself is real and should stay
  * reachable (its page shows the honest "empty category" state).
+ *
+ * A second row appears under the active category when it has subcategories
+ * (`/rakovyny` → Підлогові / Накладні). That row is the *only* crawlable link
+ * to those three URLs from inside the catalogue, and it is why they are links
+ * and not a filter checkbox: a checkbox produces `?mount=countertop`, which is
+ * a query string a crawler has no reason to follow.
  *
  * The base class string carries the border *width* only; the colour lives
  * entirely inside the active/inactive ternary, in both branches. `cn()` is a
@@ -29,45 +39,88 @@ export function CategoryNav({
   locale,
   dictionary,
   active,
+  activeSubcategory,
 }: {
   locale: Locale;
   dictionary: Dictionary;
   active?: ShopCategory;
+  activeSubcategory?: string;
 }) {
+  const subcategories = active ? shopSubcategoriesOf(active) : [];
+
   return (
-    <nav aria-label={dictionary.shop.categoryNavHeading}>
-      <ul className="type-nav flex flex-wrap gap-x-(--space-sm) gap-y-(--space-2xs)">
-        <li>
-          <Link
-            href={localeHref(locale, "/shop")}
-            aria-current={active === undefined ? "page" : undefined}
-            className={cn(
-              "border-b-2 pb-(--space-3xs) transition-colors duration-(--duration-fast)",
-              active === undefined
-                ? "border-text text-text"
-                : "text-text-muted hover:text-text border-transparent",
-            )}
-          >
-            {dictionary.shop.allCategoriesHeading}
-          </Link>
-        </li>
-        {shopCategories.map((category) => (
-          <li key={category}>
+    <div className="flex flex-col gap-(--space-xs)">
+      <nav aria-label={dictionary.shop.categoryNavHeading}>
+        <ul className="type-nav flex flex-wrap gap-x-(--space-sm) gap-y-(--space-2xs)">
+          <li>
             <Link
-              href={localeHref(locale, `/shop/${category}`)}
-              aria-current={active === category ? "page" : undefined}
+              href={localeHref(locale, "/shop")}
+              aria-current={active === undefined ? "page" : undefined}
               className={cn(
                 "border-b-2 pb-(--space-3xs) transition-colors duration-(--duration-fast)",
-                active === category
+                active === undefined
                   ? "border-text text-text"
                   : "text-text-muted hover:text-text border-transparent",
               )}
             >
-              {shopCategoryLabel(category, dictionary)}
+              {dictionary.shop.allCategoriesHeading}
             </Link>
           </li>
-        ))}
-      </ul>
-    </nav>
+          {shopCategories.map((category) => (
+            <li key={category}>
+              <Link
+                href={localeHref(locale, shopCategoryPath(category))}
+                // A subcategory page is not the category page, so the parent
+                // gets the active *styling* but not `aria-current="page"` —
+                // that would tell a screen reader this link leads to where you
+                // already are, when it actually leads one level up.
+                aria-current={
+                  active === category && !activeSubcategory ? "page" : undefined
+                }
+                className={cn(
+                  "border-b-2 pb-(--space-3xs) transition-colors duration-(--duration-fast)",
+                  active === category
+                    ? "border-text text-text"
+                    : "text-text-muted hover:text-text border-transparent",
+                )}
+              >
+                {shopCategoryLabel(category, dictionary)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {subcategories.length > 0 ? (
+        <nav aria-label={dictionary.shop.subcategoryNavHeading}>
+          <ul className="type-body-sm flex flex-wrap gap-x-(--space-sm) gap-y-(--space-3xs)">
+            {subcategories.map((subcategory) => (
+              <li key={subcategory.slug}>
+                <Link
+                  href={localeHref(
+                    locale,
+                    shopCategoryPath(subcategory.category, subcategory.slug),
+                  )}
+                  aria-current={
+                    activeSubcategory === subcategory.slug ? "page" : undefined
+                  }
+                  className={cn(
+                    "underline-offset-4 transition-colors duration-(--duration-fast)",
+                    activeSubcategory === subcategory.slug
+                      ? "text-text underline"
+                      : "text-text-muted hover:text-text",
+                  )}
+                >
+                  {
+                    dictionary.shop.subcategories[subcategory.dictionaryKey]
+                      .navLabel
+                  }
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
+    </div>
   );
 }

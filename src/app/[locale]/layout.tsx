@@ -15,7 +15,7 @@ import { PageTransition } from "@/components/page-transition";
 import { BackToTop } from "@/components/back-to-top";
 import { SmoothWheelScroll } from "@/components/smooth-wheel-scroll";
 import { CookieConsent } from "@/components/cookie-consent";
-import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { GoogleTagManager } from "@/components/analytics/google-tag-manager";
 import { getSiteUrl } from "@/lib/site-url";
 import { robotsMetadata } from "@/lib/seo/indexing";
 
@@ -100,7 +100,7 @@ export default async function LocaleLayout({
           <Footer locale={locale} dictionary={dictionary} />
           <BackToTop label={dictionary.footerNav.backToTop} />
           <CookieConsent dictionary={dictionary} />
-          <GoogleAnalytics />
+          <GoogleTagManager />
         </ToastProvider>
       </body>
     </html>
