@@ -7,6 +7,7 @@ import {
   SEGMENTS_WITHOUT_INDEX_PAGE,
   SEGMENTS_WITH_CHILD_ROUTES,
   isServedPath,
+  proxy,
   redirectToCanonical,
 } from "./proxy";
 import { defaultLocale, locales } from "@/i18n/config";
@@ -206,6 +207,71 @@ describe("isServedPath", () => {
 
   it.each(notServed)("does not serve %s", (_label, segments) => {
     expect(isServedPath(segments)).toBe(false);
+  });
+});
+
+/**
+ * The status a URL that owns nothing answers with.
+ *
+ * This is a regression test with a specific production incident behind it.
+ * The branch used to be `NextResponse.rewrite("/_not-found")`, relying on
+ * Next's own not-found entry to carry the `404`. It does under `next start`,
+ * which is why the e2e suite was green and stayed green — and it does not on
+ * Vercel, where `/_not-found` is prerendered and served off the edge as a
+ * static file. Every unknown URL on the deployed site answered `200`, with no
+ * `<meta name="robots">` in the prerendered document at all: an unbounded
+ * supply of indexable duplicate pages, one per typo a crawler ever follows.
+ *
+ * `next start` cannot reproduce that, so the guard has to be here, on the
+ * response object the proxy actually returns, where the platform has no say.
+ *
+ * `/about/team` is the fixture rather than `/foo` on purpose: `about` is in
+ * `KNOWN_TOP_LEVEL_SEGMENTS`, so the request short-circuits past the
+ * `Redirects` lookup and the test needs no database.
+ */
+describe("proxy 404", () => {
+  const notFoundResponse = (url: string) =>
+    proxy(new NextRequest(new Request(url)));
+
+  it("answers with a real 404 status, not a rewrite", async () => {
+    const response = await notFoundResponse("https://odudlab.com/about/team");
+    expect(response.status).toBe(404);
+    // A rewrite would carry this instead of a body of its own.
+    expect(response.headers.get("x-middleware-rewrite")).toBeNull();
+  });
+
+  it("serves an HTML document the crawler is told not to index", async () => {
+    const response = await notFoundResponse("https://odudlab.com/about/team");
+    expect(response.headers.get("content-type")).toContain("text/html");
+    expect(response.headers.get("x-robots-tag")).toBe("noindex");
+    const html = await response.text();
+    expect(html).toContain('<meta name="robots" content="noindex">');
+    expect(html).toContain("Сторінку не знайдено");
+  });
+
+  /**
+   * Unlike the 410 list, which is closed and cacheable forever, a 404 is only
+   * ever "no route owns this *yet*" — a slug added in the admin, a redirect
+   * row created after launch. Caching it at the edge would outlive its reason.
+   */
+  it("does not let the answer be cached", async () => {
+    const response = await notFoundResponse("https://odudlab.com/about/team");
+    expect(response.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("keeps the visitor's language under a locale prefix", async () => {
+    const response = await notFoundResponse(
+      "https://odudlab.com/en/about/team",
+    );
+    expect(response.status).toBe(404);
+    const html = await response.text();
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain("Page not found");
+  });
+
+  it("still serves a page that exists", async () => {
+    const response = await notFoundResponse("https://odudlab.com/about");
+    expect(response.status).toBe(200);
   });
 });
 

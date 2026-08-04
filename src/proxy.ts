@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { defaultLocale, locales } from "@/i18n/config";
 import { isGonePath, renderGonePage } from "@/lib/gone-paths";
 import { findLegacyRedirect } from "@/lib/legacy-redirects";
+import { renderNotFoundPage } from "@/lib/status-page";
 import {
   shopCategorySlugs,
   shopSubcategories,
@@ -103,14 +104,6 @@ const subcategoryPaths = new Set(
     (sub) => `${shopCategorySlugs[sub.category]}/${sub.slug}`,
   ),
 );
-
-/**
- * Next's own generated not-found entry. `base-server.ts` maps this pathname to
- * `/404` and therefore serves it with a real `404` status — which is the whole
- * reason to rewrite here rather than let the request reach a page that calls
- * `notFound()`.
- */
-const NOT_FOUND_ROUTE = "/_not-found";
 
 /**
  * Does any route actually serve this (locale-stripped) path?
@@ -330,11 +323,46 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!isServedPath(segments)) {
-    // Rewrite, not `redirect`: the address the visitor typed is the address
-    // that should stay in the bar and in the logs. Rewritten to the root
-    // `/_not-found` (never locale-prefixed) — `src/app/not-found.tsx` picks its
-    // own language back up from `usePathname()`, which still reads the real URL.
-    return NextResponse.rewrite(new URL(NOT_FOUND_ROUTE, request.url));
+    /**
+     * Answered here, in full, rather than rewritten to a route — and the
+     * distinction is the whole point of this branch.
+     *
+     * It used to be `NextResponse.rewrite("/_not-found")`, on the premise
+     * that Next's own not-found entry carries a real `404`. Under `next
+     * start` it does. On Vercel it does not: `/_not-found` is statically
+     * prerendered (`x-nextjs-prerender: 1`), so the platform serves the file
+     * straight off the edge and never runs the server code that would have
+     * set the status. Every unknown URL on the deployed site came back
+     * `200` — and worse than a soft 404, because that prerendered document
+     * carries no `<meta name="robots">` at all. `/anything-at-all` was an
+     * indexable duplicate of the 404 page, unlimited in number. Measured on
+     * the wire against production with a cache MISS, not inferred.
+     *
+     * A status cannot be attached to a rewrite, and no `page.tsx` can set
+     * one either once `loading.tsx` has flushed (see `isServedPath` above),
+     * so the response has to be built here. This is the second of the two
+     * shapes Next documents for exactly this case: "run this check in
+     * `proxy` to rewrite missing slugs to a not-found route, *or produce a
+     * 404 response*" (`loading.md` §"Status Codes"). The 410 branch above
+     * has been built this way from the start; this now matches it.
+     *
+     * No redirect: the address the visitor typed is the address that stays
+     * in the bar and in the logs.
+     */
+    return new NextResponse(renderNotFoundPage(localePrefix ?? defaultLocale), {
+      status: 404,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        // Not cached, unlike the 410. That list is a closed historical fact;
+        // this one is "no route owns it *yet*" — a new product slug, a new
+        // category, a redirect row added in the admin. A cached 404 would
+        // outlive the reason for it.
+        "cache-control": "no-store",
+        // The site-wide `X-Robots-Tag` in next.config.ts disappears the day
+        // indexing is switched on, so the 404 says `noindex` for itself.
+        "x-robots-tag": "noindex",
+      },
+    });
   }
 
   // A real page, asked for with a slash it does not have. This is the one
