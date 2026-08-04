@@ -327,22 +327,7 @@
     "projects": {
       "eyebrow": "Zrealizowane projekty",
       "heading": "Projekty",
-      "demoLabel": "Przykład demonstracyjny",
-      "viewAllCta": "Wszystkie projekty",
-      "items": [
-        {
-          "title": "Prywatna łazienka",
-          "location": "Kijów"
-        },
-        {
-          "title": "Kawiarnia w centrum miasta",
-          "location": "Kijów"
-        },
-        {
-          "title": "Dziedziniec osiedla mieszkaniowego",
-          "location": "Kijów"
-        }
-      ]
+      "viewAllCta": "Wszystkie projekty"
     },
     "designers": {
       "eyebrow": "Dla projektantów",
@@ -538,6 +523,35 @@
     "ctaSecondary": "Omów projekt",
     "designersNote": "Pracujesz nad projektem jako architekt lub projektant?",
     "designersLink": "Warunki współpracy"
+  },
+  "projectsPage": {
+    "eyebrow": "Zrealizowane projekty",
+    "heading": "Projekty",
+    "seoDescription": "Zrealizowane projekty ODUDLAB: donice, ławki i kosze na śmieci z betonu architektonicznego dla przestrzeni publicznych, stref wejściowych i dziedzińców. Zdjęcia z realizacji.",
+    "intro": [
+      "Miejsca, dla których powstawały nasze wyroby: przestrzenie publiczne, strefy wejściowe, dziedzińce. Projekt to nie tylko to, co widać na zdjęciu, ale też decyzje, które do tego doprowadziły: jaki wymiar, jaki kolor, co pochodzi z katalogu, a co trzeba było wykonać pod konkretne miejsce.",
+      "Pokazujemy wyłącznie zdjęcia zrobione na miejscu — żadnych renderów ani zdjęć stockowych. Jeśli projektu nie ma na tej liście, znaczy to, że nie otrzymaliśmy jeszcze z niego dobrych zdjęć."
+    ],
+    "viewProjectCta": "Zobacz projekt",
+    "backToAll": "Wszystkie projekty",
+    "factsHeading": "O projekcie",
+    "factLabels": {
+      "client": "Klient",
+      "location": "Lokalizacja",
+      "year": "Rok",
+      "typology": "Rodzaj obiektu",
+      "scope": "Zakres",
+      "production": "Wyroby"
+    },
+    "galleryHeading": "Zdjęcia z realizacji",
+    "relatedHeading": "Te kategorie w katalogu",
+    "relatedNote": "Nie wymieniamy konkretnych modeli z tej realizacji: część wyrobów powstała pod wymiar działki i nie ma dla nich pozycji katalogowej.",
+    "ctaHeading": "Podobne zadanie?",
+    "ctaBody": "Opowiedz o obiekcie — teren, ilości, terminy. Powiemy, co da się wziąć z katalogu, co trzeba wykonać pod wymiar, ile to kosztuje i ile potrwa.",
+    "ctaPrimary": "Omów projekt",
+    "ctaSecondary": "Zobacz katalog",
+    "designersNote": "Pracujesz nad tym jako architekt lub projektant?",
+    "designersLink": "Warunki dla projektantów"
   },
   "contactPage": {
     "eyebrow": "Kontakt",

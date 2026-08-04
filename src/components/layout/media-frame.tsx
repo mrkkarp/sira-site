@@ -11,6 +11,16 @@ const ratioClass = {
   "product-card": "aspect-square",
   "product-gallery": "aspect-square",
   "project-cinematic": "aspect-[21/9]",
+  /**
+   * The native frame of a camera photographing a finished site — and, more to
+   * the point, the native frame of the project photographs actually on file.
+   * A 4:3 source shown at `project-cinematic` loses a third of its height to
+   * `object-cover`, and on this kind of picture the thirds that go are the
+   * building above and the paving below: exactly the context that proves the
+   * piece is installed somewhere real. Height is capped with
+   * `maxViewportHeight` instead, which narrows rather than crops.
+   */
+  "project-documentary": "aspect-[4/3]",
   "colour-sample": "aspect-square",
   "process-detail": "aspect-[3/2]",
 } as const;
@@ -26,6 +36,7 @@ const ratioValue = {
   "product-card": 1,
   "product-gallery": 1,
   "project-cinematic": 21 / 9,
+  "project-documentary": 4 / 3,
   "colour-sample": 1,
   "process-detail": 3 / 2,
 } as const;

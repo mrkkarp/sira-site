@@ -26,7 +26,7 @@ per-visitor/session utility pages, never a landing page worth ranking), via
 `buildPlaceholderMetadata()`. These are counted as real content below, not as
 placeholders.
 
-## Placeholder pages (18) — no real content yet
+## Placeholder pages (15) — no real content yet
 
 All use `PlaceholderPage` + `buildPlaceholderMetadata`, noindex, identical
 generic copy. Ordered alphabetically by route.
@@ -49,8 +49,6 @@ generic copy. Ordered alphabetically by route.
 | `/faq`              | Reference/calibration example for the placeholder convention.                                                                                                            |
 | `/payment-delivery` | Payment/logistics details need owner confirmation before this can become real.                                                                                           |
 | `/privacy-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
-| `/projects` (list)  | Notable: the homepage already has a real `ProjectsShowcase` section with real project data; this dedicated list route isn't wired to it yet.                             |
-| `/projects/[slug]`  | Has its own code comment confirming no real per-project slugs/detail content exist yet.                                                                                  |
 | `/public-offer`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
 | `/resources`        | —                                                                                                                                                                        |
 | `/returns`          | Returns policy needs owner confirmation before this can become real.                                                                                                     |
@@ -58,11 +56,13 @@ generic copy. Ordered alphabetically by route.
 | `/stockists`        | Stockist list needs owner confirmation before this can become real.                                                                                                      |
 | `/terms-of-use`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
 
-## Real-content pages (10)
+## Real-content pages (13)
 
 | Route                 | Indexable?     | Notes                                                                                                                                                                                       |
 | --------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/` (homepage)        | Yes            | 13 real sections, incl. `ProjectsShowcase` (see `/projects` note above).                                                                                                                    |
+| `/` (homepage)        | Yes            | 13 real sections, incl. `ProjectsShowcase`, which now reads the real project registry (`src/content/projects.ts`).                                                                          |
+| `/projects`           | Yes            | Real case-study index, driven by `src/content/projects.ts`; one published project today. Was a `PlaceholderPage` until that registry existed.                                               |
+| `/projects/[slug]`    | Yes            | Real case study: cover photo, fact sheet, narrative, gallery, catalogue links, `CreativeWork` + `BreadcrumbList` JSON-LD. Prerendered per slug via `generateStaticParams`.                  |
 | `/shop`               | Yes            | Real catalog listing.                                                                                                                                                                       |
 | `/shop/[category]`    | Yes            | Real catalog listing, per category.                                                                                                                                                         |
 | `/products/[slug]`    | Yes            | Real PDP.                                                                                                                                                                                   |
@@ -76,10 +76,14 @@ generic copy. Ordered alphabetically by route.
 
 ## Totals
 
-- 28 routes total (verified via `find src/app/[locale] -name page.tsx`).
-- 18 placeholder (noindex, generic copy, no real content).
-- 10 real-content (6 fully indexable, 4 real-but-intentionally-noindexed
-  utility pages).
+- 29 route files total (verified via `find src/app/[locale] -name page.tsx`).
+- 15 rows in the placeholder table, 13 in the real-content table (9 fully
+  indexable, 4 real-but-intentionally-noindexed utility pages).
+- These two counts do not reconcile to 29, and deliberately are not forced to:
+  per the caveat above, several routes listed as placeholders have since been
+  filled in, and a few `PlaceholderPage` imports survive only as a
+  locale-fallback branch inside an otherwise real page. The authoritative
+  answer for any single route is what it actually renders — not this table.
 
 ## Content still pending owner/legal confirmation
 
@@ -90,7 +94,7 @@ export data: `/contact`, `/payment-delivery`, `/returns`, `/stockists`,
 `/cookies-policy`, `/privacy-policy`, `/public-offer`, `/terms-of-use`.
 
 The remaining placeholders (`/care`, `/careers`, `/colours`,
-`/designers`, `/faq`, `/projects`, `/projects/[slug]`, `/resources`,
+`/designers`, `/faq`, `/resources`,
 `/samples`) are editorial/marketing content, not contact/financial/legal
 data, but still require real copy and imagery (see `IMAGE_REQUIREMENTS.md`)
 rather than fabricated placeholder text — none has been invented here.
