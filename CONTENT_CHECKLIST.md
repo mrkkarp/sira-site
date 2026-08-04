@@ -31,9 +31,15 @@ placeholders.
 All use `PlaceholderPage` + `buildPlaceholderMetadata`, noindex, identical
 generic copy. Ordered alphabetically by route.
 
+> **This table has not kept up with the site.** `/care`, `/contact`,
+> `/designers`, `/payment-delivery`, `/returns` and `/samples` all have real
+> content and are indexable now; they are still listed below. `/about` has
+> been removed from it because that page was filled in the same change that
+> added this note. Treat the rows as a to-do list to verify, not as truth —
+> the authoritative answer is whether a route still renders `PlaceholderPage`.
+
 | Route               | Notes                                                                                                                                                                    |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/about`            | —                                                                                                                                                                        |
 | `/care`             | —                                                                                                                                                                        |
 | `/careers`          | —                                                                                                                                                                        |
 | `/colours`          | Notable: real colour data already exists (`src/data/product-colours.ts`) and is used on the homepage/design-system page, but this dedicated route isn't wired to it yet. |
@@ -83,7 +89,7 @@ pages cannot be filled in without real, owner-supplied data or Horoshop
 export data: `/contact`, `/payment-delivery`, `/returns`, `/stockists`,
 `/cookies-policy`, `/privacy-policy`, `/public-offer`, `/terms-of-use`.
 
-The remaining placeholders (`/about`, `/care`, `/careers`, `/colours`,
+The remaining placeholders (`/care`, `/careers`, `/colours`,
 `/designers`, `/faq`, `/projects`, `/projects/[slug]`, `/resources`,
 `/samples`) are editorial/marketing content, not contact/financial/legal
 data, but still require real copy and imagery (see `IMAGE_REQUIREMENTS.md`)

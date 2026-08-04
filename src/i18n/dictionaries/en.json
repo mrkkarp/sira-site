@@ -443,6 +443,102 @@
     "publicOffer": "Public offer",
     "cookiesPolicy": "Cookies"
   },
+  "aboutPage": {
+    "eyebrow": "The workshop",
+    "heading": "ODUDLAB — an architectural concrete workshop",
+    "seoDescription": "ODUDLAB is an architectural concrete workshop in Kyiv. We have worked with the material since 2015: full in-house production, handmade pieces, made to order.",
+    "intro": "ODUDLAB is an architectural concrete workshop. We have worked with the material since 2015, making basins, planters, tables, wall panels and one-off objects — by hand, to order, in our own production in Kyiv.",
+    "storyHeading": "History",
+    "storyParagraphs": [
+      "We have worked with architectural concrete since 2015. Today that means full in-house production: the model, the mould, the pour, the hand finishing and the protective treatment all happen in one workshop in Kyiv.",
+      "We chose concrete not as a cheaper substitute for stone but as a material with a character of its own. It holds a complex form, takes pigment into its mass, and stays itself — it imitates neither marble nor timber.",
+      "Over these years our hands have made both single pieces for private bathrooms and series of objects for public spaces. Experience in this craft is measured not in years on a page but in the number of moulds made — and mistakes that are no longer repeated."
+    ],
+    "projectsHeading": "Large and small projects",
+    "projectsParagraphs": [
+      "A single basin for a bathroom interests us as much as a set of objects for a public space. The difference is scale and schedule, not attention: a small order goes through the same stages as a large one, made by the same team.",
+      "The best work comes from a brief rather than a catalogue number: a non-standard size, a difficult form, a colour matched to one particular interior. Those projects are why we keep a workshop rather than a warehouse."
+    ],
+    "clientHeading": "The client comes first",
+    "clientParagraphs": [
+      "Nobody buys a concrete piece in a hurry. It is a decision for years, often part of a renovation or a project prepared over months. So we do not rush you into paying: first we work out the brief, the dimensions and the context of the space, and only then talk about price and lead time.",
+      "If a standard model does not fit, we will suggest changing the size, the form or the colour. If concrete is not the best answer in your case, we will say so plainly. An order the client later regrets costs more than an invoice never sent."
+    ],
+    "clientStepsHeading": "How we work",
+    "clientSteps": [
+      "We discuss the brief: the space, dimensions, fixings and the schedule you need.",
+      "We prepare a quotation and, where it helps, a technical drawing.",
+      "We post a physical colour sample if the exact shade matters.",
+      "We make the piece and send it by courier, by Nova Poshta, or hold it for pickup."
+    ],
+    "clientNote": "Every piece carries a 12-month warranty, and all parcels are insured for their full value.",
+    "productionHeading": "Production",
+    "productionIntro": "Everything happens in one workshop in Kyiv: we do not subcontract the work and we do not resell anyone else's pieces. That is precisely why any model can be adapted to a particular space.",
+    "productionSteps": [
+      {
+        "title": "Model and mould",
+        "body": "Each model gets a mould of its own. The mould is what determines the geometry and the texture of the finished piece."
+      },
+      {
+        "title": "Mix and colour",
+        "body": "Pigment goes into the concrete mass itself, so the colour belongs to the material rather than to a coating on its surface."
+      },
+      {
+        "title": "Pour and reinforcement",
+        "body": "Reinforcement gives the strength that makes thin walls and large forms possible."
+      },
+      {
+        "title": "Curing",
+        "body": "Concrete gains strength gradually. This stage cannot be hurried, and it is usually what sets the lead time."
+      },
+      {
+        "title": "Hand finishing",
+        "body": "The surface is worked by hand. It is the longest part of the job, and what separates a workshop piece from a plain casting."
+      },
+      {
+        "title": "Protective treatment",
+        "body": "Basins and countertops are sealed with a two-component polyurethane in 3–4 coats. Planters and decorative pieces get a water-repellent treatment."
+      },
+      {
+        "title": "Inspection and packing",
+        "body": "We check the geometry and the surface, then pack the piece for transport."
+      }
+    ],
+    "productionNote": "Handmade means two pieces of the same model will never be perfectly identical. Fine pores, a barely visible difference in shade and the traces of finishing are the character of the material, not a defect.",
+    "materialsHeading": "Materials",
+    "materialsIntro": "We work with architectural concrete — a mix formulated for decorative pieces rather than for structures.",
+    "materialsItems": [
+      {
+        "title": "Reinforced concrete",
+        "body": "Reinforcement holds a thin wall and a large form without excess weight."
+      },
+      {
+        "title": "Colour in the mass",
+        "body": "Pigment is mixed into the concrete rather than applied on top, so a chip does not expose a different colour underneath. Shades are matched to the RAL and NCS palettes."
+      },
+      {
+        "title": "Protective compounds",
+        "body": "Basins and countertops: a hygienically safe two-component polyurethane with a matt finish. Planters and decorative pieces: a water-repellent treatment."
+      },
+      {
+        "title": "Texture",
+        "body": "A matt surface with visible pores. Concrete does not imitate stone or pretend to be another material."
+      }
+    ],
+    "materialsNote": "It is worth seeing a colour in person before ordering — a screen conveys it only approximately.",
+    "materialsCareLink": "Caring for your piece",
+    "materialsColoursLink": "Colour palette",
+    "materialsSamplesLink": "Order a sample",
+    "visitHeading": "Showroom & pickup",
+    "visitBody": "Concrete is worth seeing in person: no screen conveys either the shade or the texture. Our showroom and pickup point are at VDNG in Kyiv.",
+    "visitAddressLabel": "Address",
+    "ctaHeading": "Tell us about your project",
+    "ctaBody": "A catalogue model, a change of dimensions or an object from scratch — start with a conversation. We will tell you what is actually possible, what it costs and how long it takes.",
+    "ctaPrimary": "Browse the catalogue",
+    "ctaSecondary": "Discuss a project",
+    "designersNote": "Working on a project as an architect or designer?",
+    "designersLink": "Trade terms"
+  },
   "contactPage": {
     "eyebrow": "Contacts",
     "heading": "Get in touch",

@@ -30,15 +30,14 @@ import { indexableLocales } from "@/lib/seo/indexing";
  *   `PlaceholderPage` and must NOT appear here — hence these three are handled
  *   as locale-limited paths below (emitted only for content-bearing locales)
  *   rather than in the all-locale `staticPaths`.
- * - Every remaining `PlaceholderPage` route (`/about`, `/careers`,
+ * - Every remaining `PlaceholderPage` route (`/careers`,
  *   `/colours`, `/cookies-policy`, `/faq`,
  *   `/privacy-policy`, `/projects[/[slug]]`,
  *   `/public-offer`, `/resources`,
  *   `/terms-of-use`) — no real content yet, also explicitly `noindex`. See
- *   `CONTENT_CHECKLIST.md` for what each is waiting on. `/contact`,
+ *   `CONTENT_CHECKLIST.md` for what each is waiting on. `/about`, `/contact`,
  *   `/designers` and `/samples` are NOT in this list: they now have real
- *   content and a working enquiry form, so they appear in `staticPaths`
- *   below.
+ *   content, so they appear in `staticPaths` below.
  * - `/admin`, `/design-system` — not part of the public site.
  * - `/<category>` (and `/<category>/<subcategory>`) for anything with no
  *   products yet — a soft 404 to a crawler, and `noindex` in its own
@@ -109,6 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/shop",
     "/collections",
     "/warranty",
+    "/about",
     "/contact",
     "/designers",
     "/samples",

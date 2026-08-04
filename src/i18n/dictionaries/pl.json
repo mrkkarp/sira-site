@@ -443,6 +443,102 @@
     "publicOffer": "Oferta publiczna",
     "cookiesPolicy": "Cookies"
   },
+  "aboutPage": {
+    "eyebrow": "O pracowni",
+    "heading": "ODUDLAB — pracownia betonu architektonicznego",
+    "seoDescription": "ODUDLAB to pracownia betonu architektonicznego w Kijowie. Pracujemy z tym materiałem od 2015 roku: własna produkcja pełnego cyklu, praca ręczna, wyroby na zamówienie.",
+    "intro": "ODUDLAB to pracownia betonu architektonicznego. Z tym materiałem pracujemy od 2015 roku — wykonujemy umywalki, donice, stoliki, panele ścienne i obiekty indywidualne. Ręcznie, pod konkretne zamówienie, we własnej produkcji w Kijowie.",
+    "storyHeading": "Historia",
+    "storyParagraphs": [
+      "Z betonem architektonicznym pracujemy od 2015 roku. Dziś jest to własna produkcja pełnego cyklu: model, forma, wylewanie, obróbka ręczna i powłoka ochronna powstają w jednej pracowni w Kijowie.",
+      "Beton wybraliśmy nie jako tańszy zamiennik kamienia, lecz jako samodzielny materiał z własnym charakterem. Utrzymuje złożoną formę, przyjmuje kolor w masie i pozostaje sobą — nie udaje ani marmuru, ani drewna.",
+      "Przez te lata przeszły przez nasze ręce zarówno pojedyncze wyroby do prywatnych łazienek, jak i serie obiektów do przestrzeni publicznych. Doświadczenie w tym rzemiośle mierzy się nie latami w opisie, lecz liczbą wykonanych form — i błędów, które już się nie powtarzają."
+    ],
+    "projectsHeading": "Duże i małe projekty",
+    "projectsParagraphs": [
+      "Jedna umywalka do łazienki interesuje nas tak samo jak komplet obiektów do przestrzeni publicznej. Różnica jest w skali i terminach, a nie w uwadze: małe zamówienie przechodzi te same etapy co duże i realizuje je ten sam zespół.",
+      "Najciekawsze rzeczy powstają tam, gdzie jest zadanie, a nie gotowy numer katalogowy: nietypowy wymiar, trudna forma, kolor pod konkretne wnętrze. Właśnie dla takich projektów utrzymujemy własną produkcję, a nie magazyn."
+    ],
+    "clientHeading": "Klient jest tu najważniejszy",
+    "clientParagraphs": [
+      "Wyrobu z betonu nie kupuje się w pośpiechu. To decyzja na lata, często część remontu albo projektu przygotowywanego miesiącami. Dlatego nie poganiamy z płatnością: najpierw ustalamy zadanie, wymiary i kontekst przestrzeni, a dopiero potem rozmawiamy o cenie i terminach.",
+      "Jeśli gotowy model nie pasuje — zaproponujemy zmianę wymiaru, formy albo koloru. Jeśli beton nie jest w Twoim przypadku najlepszym rozwiązaniem — powiemy o tym wprost. Zamówienie, którego klient potem żałuje, kosztuje więcej niż niewystawiona faktura."
+    ],
+    "clientStepsHeading": "Jak pracujemy",
+    "clientSteps": [
+      "Omawiamy zadanie: przestrzeń, wymiary, mocowanie, oczekiwane terminy.",
+      "Przygotowujemy wycenę, a w razie potrzeby rysunek techniczny.",
+      "Wysyłamy fizyczną próbkę koloru, jeśli odcień ma znaczenie.",
+      "Wykonujemy wyrób i przekazujemy go kurierem, przez Nova Poshta albo do odbioru osobistego."
+    ],
+    "clientNote": "Gwarancja na wyroby wynosi 12 miesięcy, a wszystkie przesyłki są ubezpieczone na pełną wartość.",
+    "productionHeading": "Produkcja",
+    "productionIntro": "Wszystko dzieje się w jednej pracowni w Kijowie: nie zlecamy pracy podwykonawcom i nie odsprzedajemy cudzych wyrobów. To właśnie dlatego każdy model można dostosować do konkretnej przestrzeni.",
+    "productionSteps": [
+      {
+        "title": "Model i forma",
+        "body": "Pod każdy model powstaje własna forma. To ona decyduje o geometrii i fakturze gotowego wyrobu."
+      },
+      {
+        "title": "Zarób i kolor",
+        "body": "Pigment trafia wprost do masy betonowej, dlatego kolor należy do materiału, a nie do powłoki na jego powierzchni."
+      },
+      {
+        "title": "Wylewanie i zbrojenie",
+        "body": "Zbrojenie daje wytrzymałość, dzięki której możliwe są cienkie ścianki i duże formy."
+      },
+      {
+        "title": "Dojrzewanie",
+        "body": "Beton nabiera wytrzymałości stopniowo. Tego etapu nie da się przyspieszyć i to on najczęściej wyznacza termin realizacji."
+      },
+      {
+        "title": "Obróbka ręczna",
+        "body": "Powierzchnię wykańczamy ręcznie. To najdłuższa część pracy i to, co odróżnia wyrób pracowni od zwykłego odlewu."
+      },
+      {
+        "title": "Powłoka ochronna",
+        "body": "Umywalki i blaty nasączamy dwuskładnikowym preparatem poliuretanowym w 3–4 warstwach. Donice i dekoracje pokrywamy preparatem hydrofobowym."
+      },
+      {
+        "title": "Kontrola i pakowanie",
+        "body": "Sprawdzamy geometrię i powierzchnię, pakujemy wyrób do transportu."
+      }
+    ],
+    "productionNote": "Praca ręczna oznacza, że dwa wyroby tego samego modelu nigdy nie będą całkowicie identyczne. Drobne pory, ledwie widoczna różnica odcienia i ślady obróbki to charakter materiału, a nie wada.",
+    "materialsHeading": "Materiały",
+    "materialsIntro": "Pracujemy z betonem architektonicznym — mieszanką przeznaczoną do wyrobów dekoracyjnych, a nie do konstrukcji.",
+    "materialsItems": [
+      {
+        "title": "Beton zbrojony",
+        "body": "Zbrojenie utrzymuje cienką ściankę i dużą formę bez nadmiernego ciężaru."
+      },
+      {
+        "title": "Kolor w masie",
+        "body": "Pigment mieszany jest z betonem, a nie nakładany na wierzch: odprysk nie odsłania innego koloru pod farbą. Odcień dobieramy według palet RAL i NCS."
+      },
+      {
+        "title": "Preparaty ochronne",
+        "body": "Umywalki i blaty — higienicznie bezpieczny, dwuskładnikowy poliuretan w kolorze matowym. Donice i dekoracje — preparat hydrofobowy."
+      },
+      {
+        "title": "Faktura",
+        "body": "Matowa powierzchnia z widocznymi porami. Beton nie imituje kamienia ani nie udaje innego materiału."
+      }
+    ],
+    "materialsNote": "Przed zamówieniem warto zobaczyć kolor na żywo — ekran oddaje go tylko w przybliżeniu.",
+    "materialsCareLink": "Pielęgnacja wyrobów",
+    "materialsColoursLink": "Paleta kolorów",
+    "materialsSamplesLink": "Zamów próbkę",
+    "visitHeading": "Showroom i odbiór osobisty",
+    "visitBody": "Beton warto zobaczyć na żywo: żaden ekran nie odda ani odcienia, ani faktury. Nasz showroom i punkt odbioru znajdują się na terenie VDNG w Kijowie.",
+    "visitAddressLabel": "Adres",
+    "ctaHeading": "Opowiedz nam o swoim projekcie",
+    "ctaBody": "Gotowy model, zmiana wymiarów albo obiekt od zera — zacznij od rozmowy. Powiemy, co realnie da się zrobić, ile to kosztuje i ile potrwa.",
+    "ctaPrimary": "Zobacz katalog",
+    "ctaSecondary": "Omów projekt",
+    "designersNote": "Pracujesz nad projektem jako architekt lub projektant?",
+    "designersLink": "Warunki współpracy"
+  },
   "contactPage": {
     "eyebrow": "Kontakt",
     "heading": "Skontaktuj się z nami",
