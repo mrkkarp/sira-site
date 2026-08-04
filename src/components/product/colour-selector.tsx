@@ -99,10 +99,25 @@ export function ColourSelector({
     >
       <h2 className="type-caption text-text-muted">{t.colourSectionTitle}</h2>
 
+      {/* Plates sit side by side wherever two genuinely fit. Stacking them cost
+          ~90 px of height in the product page's info column, which was most of
+          why that column needed a scrollbar of its own — and a colour choice
+          the shopper has to scroll a box to find is a colour choice half of
+          them never see.
+
+          `auto-fit` above `sm` rather than a fixed column count, because the
+          deciding width is the *column's*, not the window's: this component is
+          ~800 px beside a photo on a wide laptop, ~420 px at the 1024 px
+          breakpoint, and full-width on a phone. Below 12 rem a plate's swatch
+          and its label stop reading as one row, so that is the floor at which
+          it falls back to one column. Phones stay stacked unconditionally —
+          a 430 px screen can technically fit two 12 rem plates, and the custom
+          colourway's RAL/NCS note then wraps to four lines. One colourway
+          still gets one full-width plate rather than a half-width one. */}
       <div
         role="radiogroup"
         aria-label={t.colourSectionTitle}
-        className="flex flex-col gap-(--space-2xs)"
+        className="grid gap-(--space-2xs) sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
         onKeyDown={handleKeyDown}
       >
         {choices.map((choice, index) => {
@@ -122,7 +137,7 @@ export function ColourSelector({
               disabled={!choice.available}
               onClick={() => onSelect(choice.id)}
               className={cn(
-                "group flex w-full flex-col gap-(--space-2xs) border p-(--space-sm) text-left transition-colors duration-(--duration-normal) ease-(--ease-nav) outline-none disabled:opacity-40",
+                "group flex w-full flex-col gap-(--space-3xs) border p-(--space-xs) text-left transition-colors duration-(--duration-normal) ease-(--ease-nav) outline-none disabled:opacity-40",
                 isSelected
                   ? "border-text"
                   : "border-drawing-line-subtle hover:border-drawing-line",
@@ -153,26 +168,26 @@ export function ColourSelector({
                 />
               </span>
 
-              <span className="flex items-center gap-(--space-sm)">
+              <span className="flex items-center gap-(--space-xs)">
                 {isCustom ? (
                   /* Palette chip — deliberately NOT a product photo, so the
                    * custom option can never duplicate a standard swatch and
                    * reads instantly as "any RAL/NCS colour". */
                   <span
                     aria-hidden="true"
-                    className="border-drawing-line-subtle block h-14 w-14 shrink-0 border"
+                    className="border-drawing-line-subtle block h-10 w-10 shrink-0 border"
                     style={{
                       background:
                         "conic-gradient(from 90deg, #d98c8c, #d9c48c, #a9d98c, #8cb8d9, #b08cd9, #d98c8c)",
                     }}
                   />
                 ) : (
-                  <span className="bg-surface-muted border-drawing-line-subtle relative block h-14 w-14 shrink-0 overflow-hidden border">
+                  <span className="bg-surface-muted border-drawing-line-subtle relative block h-10 w-10 shrink-0 overflow-hidden border">
                     {choice.photo ? (
                       <ProductImage
                         src={choice.photo}
                         alt=""
-                        sizes="56px"
+                        sizes="40px"
                         className="object-cover"
                         brokenLabel={brokenImageLabel}
                       />

@@ -58,10 +58,11 @@ const preloadQuoteForm = () => {
  * doesn't depend on the current selection, so it's rendered separately by
  * the page itself.
  *
- * Desktop layout: ~60/40 gallery/info split, right column sticky but capped
- * to the viewport height so it never overlaps the footer (same technique
- * as `DesktopFilterSidebar`). Mobile: stacked, plus a sticky bottom CTA bar
- * once the shopper scrolls past the main CTA.
+ * Desktop layout: ~60/40 gallery/info split, right column sticky and sized by
+ * its content — everything from the price to the CTA is on screen at once,
+ * with no scrollbar of its own (see the note at the column itself). Mobile:
+ * stacked, plus a sticky bottom CTA bar once the shopper scrolls past the
+ * main CTA.
  */
 export function ProductExperience({
   product,
@@ -178,7 +179,23 @@ export function ProductExperience({
         />
       </div>
 
-      <div className="mt-(--space-md) flex flex-col gap-(--space-sm) lg:sticky lg:top-(--header-stack-height) lg:mt-0 lg:max-h-[calc(100svh-var(--header-stack-height)-var(--space-lg))] lg:overflow-y-auto lg:pb-(--space-lg)">
+      {/* No scrollbar of its own. The panel used to be capped at the viewport
+          height with `overflow-y-auto`, which put a second scrollbar beside the
+          page's: the price and the colours were visible, the "add to cart"
+          button was below the fold *of a box*, and scrolling the page did not
+          bring it up — the shopper had to notice the panel scrolls separately
+          and scroll inside it. Nothing on the buying path may be reachable only
+          by that discovery.
+
+          Instead the panel is short enough to fit — the colour plates now sit
+          two-up, which is where the height went. It stays `sticky` so it holds
+          its place while the photo column scrolls; if a longer piece ever does
+          outgrow the viewport (a two-line name, a third colourway, or the quote
+          form opening inline), `sticky` simply stops pinning and the block
+          scrolls with the page like any other. Overflow that becomes ordinary
+          page scroll is a non-event; overflow hidden inside a fixed-height box
+          is a lost sale. */}
+      <div className="mt-(--space-md) flex flex-col gap-(--space-sm) lg:sticky lg:top-(--header-stack-height) lg:mt-0 lg:pb-(--space-md)">
         <ProductCoreInfo
           product={product}
           variant={variant}
