@@ -141,7 +141,7 @@ See `src/app/[locale]/` for the full tree: `/shop` + category sub-routes,
 pages (`/about`, `/payment-delivery`, `/returns`, `/care`, `/designers`,
 `/resources`, `/stockists`, `/faq`, `/contact`, and the legal pages). A
 handful of informational pages with no real content yet (`/colours`,
-`/projects`, `/samples`, `/careers`, and the legal/policy pages) remain on
+`/samples`, `/careers`, and the legal/policy pages) remain on
 the `PlaceholderPage` component — see
 [Known gaps](#known-gaps--deliberately-deferred).
 
@@ -176,12 +176,15 @@ from the real Horoshop export. Day-to-day authoring:
   re-import from an updated Horoshop export instead, edit
   `src/data/products.source.json` and run `npm run import:horoshop` (dry
   run) then `npm run import:horoshop:live`.
-- **Add a project** — the project domain schema (`src/domain/content/
-project.ts`), search indexing, and the `/projects/[slug]` route metadata
-  exist, but `/projects` itself is still a `PlaceholderPage`: wiring it to
-  a real data source (Payload collection or a `src/data/` file) is the
-  remaining step. Provide imagery per `IMAGE_REQUIREMENTS.md` (urban/
-  interior crops).
+- **Add a project** — append a `Project` literal to the `projects` array in
+  `src/content/projects.ts` and commit its photographs under
+  `public/projects/<slug>/`. Everything else follows automatically: the
+  `/projects` index, the prerendered `/projects/[slug]` case study, the
+  homepage `ProjectsShowcase`, the sitemap and the `CreativeWork` JSON-LD all
+  read that one array. Facts are all-optional and an absent fact renders no
+  row — write only what the owner confirmed or what the photograph shows.
+  `src/content/projects.test.ts` fails the build if a referenced image file is
+  missing. Provide imagery per `IMAGE_REQUIREMENTS.md` (urban/interior crops).
 - **Replace photographs** — every image renders through the shared
   `ProductImage`/`MediaFrame` wrappers (responsive `sizes`, blur
   placeholder, width/height baked in). Swap the asset in Payload `Media` or
@@ -255,7 +258,7 @@ work doesn't reinvent or second-guess them:
   single-instance deployment; a multi-instance deployment would need a
   shared store (e.g. Redis) instead.
 - **A few informational pages remain placeholders**: `/colours`,
-  `/projects`, `/samples`, `/careers`, and the legal/policy pages have no
+  `/samples`, `/careers`, and the legal/policy pages have no
   real content yet — left as `PlaceholderPage` rather than filled with
   invented copy.
 - **Product/content copy is Ukrainian-only.** English/Polish translation

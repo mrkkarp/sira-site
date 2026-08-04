@@ -4,6 +4,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { pageSeo } from "@/lib/seo/page-seo";
+import { missingEntityMetadata } from "@/lib/seo/indexing";
 import { getCollectionBySlug, getCollectionProducts } from "@/lib/collections";
 import { preloadProducts } from "@/lib/products";
 import { getAllProductColours } from "@/lib/product-colours";
@@ -30,7 +31,14 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
   const dictionary = await getDictionary(locale);
   const collection = getCollectionBySlug(slug);
-  if (!collection) return { title: dictionary.collectionsPage.notFoundHeading };
+  // Same as the product route: an unknown slug streams a `200` it cannot take
+  // back, so `noindex` is what actually retires the URL. See
+  // `missingEntityMetadata`.
+  if (!collection)
+    return {
+      title: dictionary.collectionsPage.notFoundHeading,
+      ...missingEntityMetadata,
+    };
 
   // A collection has no cover image of its own — it is a grouping of real
   // products (see `src/lib/collections.ts`), so its first member's photo is

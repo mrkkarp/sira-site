@@ -52,10 +52,11 @@ export async function generateMetadata({
       template: `%s — ${dictionary.site.name}`,
     },
     description: dictionary.site.tagline,
-    // Indexable only on the real production deployment (and only while the
-    // SEO_NOINDEX kill-switch is off) — every non-production deploy is
-    // noindex. This `<meta robots>` agrees with the authoritative site-wide
-    // `X-Robots-Tag` header in next.config.ts; see src/lib/seo/indexing.ts.
+    // Indexable only on the real production deployment *serving its own
+    // domain* — a `*.vercel.app` value in NEXT_PUBLIC_SITE_URL means the
+    // cutover has not happened, so nothing is indexable yet. This
+    // `<meta robots>` agrees with the authoritative site-wide `X-Robots-Tag`
+    // header in next.config.ts; see src/lib/seo/indexing.ts.
     // Individual routes still opt out via their own generateMetadata (e.g.
     // placeholder pages, /search).
     robots: robotsMetadata(locale),

@@ -327,22 +327,7 @@
     "projects": {
       "eyebrow": "Completed projects",
       "heading": "Projects",
-      "demoLabel": "Demonstration example",
-      "viewAllCta": "All projects",
-      "items": [
-        {
-          "title": "Private bathroom",
-          "location": "Kyiv"
-        },
-        {
-          "title": "City-centre café",
-          "location": "Kyiv"
-        },
-        {
-          "title": "Residential courtyard",
-          "location": "Kyiv"
-        }
-      ]
+      "viewAllCta": "All projects"
     },
     "designers": {
       "eyebrow": "For designers",
@@ -538,6 +523,35 @@
     "ctaSecondary": "Discuss a project",
     "designersNote": "Working on a project as an architect or designer?",
     "designersLink": "Trade terms"
+  },
+  "projectsPage": {
+    "eyebrow": "Completed projects",
+    "heading": "Projects",
+    "seoDescription": "ODUDLAB completed projects: architectural concrete planters, benches and litter bins for public spaces, building entrances and courtyards. Photographed on site.",
+    "intro": [
+      "The places our pieces were made for: public spaces, building entrances, courtyards. A project is not only what stands in the photograph — it is also the decisions behind it: what size, what colour, what came from the catalogue and what had to be made for that particular spot.",
+      "Everything here was shot on the actual site — no renders, no stock photography. If a project is missing from this list, it means we have not been given usable photographs of it yet."
+    ],
+    "viewProjectCta": "View project",
+    "backToAll": "All projects",
+    "factsHeading": "Project details",
+    "factLabels": {
+      "client": "Client",
+      "location": "Location",
+      "year": "Year",
+      "typology": "Type of site",
+      "scope": "Scope",
+      "production": "Pieces"
+    },
+    "galleryHeading": "Photographs from the site",
+    "relatedHeading": "These categories in the catalogue",
+    "relatedNote": "We do not list individual SKUs from this site: some pieces were made to the dimensions of the plot, so there is no catalogue entry for them.",
+    "ctaHeading": "A similar brief?",
+    "ctaBody": "Tell us about the site — the area, the quantities, the deadline. We will tell you what can come from the catalogue, what has to be made to size, what it costs and how long it takes.",
+    "ctaPrimary": "Discuss a project",
+    "ctaSecondary": "Browse the catalogue",
+    "designersNote": "Working on this as an architect or designer?",
+    "designersLink": "Terms for designers"
   },
   "contactPage": {
     "eyebrow": "Contacts",

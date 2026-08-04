@@ -4,6 +4,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { pageSeo } from "@/lib/seo/page-seo";
+import { missingEntityMetadata } from "@/lib/seo/indexing";
 import {
   getProductBySlug,
   getProductsByCategory,
@@ -47,7 +48,11 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
   await preloadProducts(locale);
   const product = getProductBySlug(slug);
-  if (!product) return {};
+  // The page below calls `notFound()` for this slug. It cannot answer with a
+  // 404 *status* — `loading.tsx` has already flushed by then — so the one
+  // thing that keeps the URL out of the index is this. See
+  // `missingEntityMetadata`.
+  if (!product) return missingEntityMetadata;
 
   const dictionary = await getDictionary(locale);
   const model = buildVariantModel(product);

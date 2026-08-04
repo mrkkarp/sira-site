@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import { clientStrings } from "@/i18n/client-strings";
-import { localeHref } from "@/lib/locale-href";
+import { renderStatusPage } from "@/lib/status-page";
 
 /**
  * Old Horoshop URLs that must answer `410 Gone` — never `301`, never `404`.
@@ -104,42 +104,21 @@ export function isGonePath(barePath: string): boolean {
  * the few that do: correct `lang`, `noindex` so the tombstone itself is not
  * indexed, and a way back into the catalogue.
  *
- * Self-contained on purpose. The proxy runs on the Edge runtime with no
- * access to `globals.css` or the font pipeline, so the colours are inlined
- * from the same tokens (`--color-background`, `--color-text`,
- * `--color-text-muted`) and the type falls back to the system stack.
+ * The document itself lives in `@/lib/status-page` — the proxy's `404` needs
+ * exactly the same self-contained shell, for exactly the same reason, and
+ * two copies of one inline stylesheet would drift the first time either is
+ * touched. The 410 sends people to the catalogue rather than the homepage:
+ * these are all product URLs, so the useful answer is "here is what we
+ * actually make".
  */
 export function renderGonePage(locale: Locale): string {
-  const { gone, siteName } = clientStrings[locale];
-  return `<!doctype html>
-<html lang="${locale}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>${gone.title} — ${siteName}</title>
-<style>
-:root { color-scheme: light }
-body { margin:0; min-height:100vh; display:flex; align-items:center;
-  background:#f1eee7; color:#1d1d1b;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  line-height:1.5 }
-main { max-width:38rem; margin:0 auto; padding:6rem 1.5rem }
-.eyebrow { margin:0; font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; color:#68655f }
-h1 { margin:.5rem 0 0; font-size:clamp(1.75rem, 5vw, 2.5rem); font-weight:500; letter-spacing:-.01em }
-p.body { margin:.75rem 0 0; color:#68655f }
-a { display:inline-block; margin-top:2rem; padding:.75rem 1.5rem;
-  border:1px solid #1d1d1b; border-radius:999px; color:#1d1d1b; text-decoration:none }
-a:hover { background:#1d1d1b; color:#f1eee7 }
-</style>
-</head>
-<body>
-<main>
-<p class="eyebrow">${gone.eyebrow}</p>
-<h1>${gone.title}</h1>
-<p class="body">${gone.body}</p>
-<a href="${localeHref(locale, "/shop")}">${gone.cta}</a>
-</main>
-</body>
-</html>`;
+  const { gone } = clientStrings[locale];
+  return renderStatusPage({
+    locale,
+    eyebrow: gone.eyebrow,
+    title: gone.title,
+    body: gone.body,
+    cta: gone.cta,
+    ctaPath: "/shop",
+  });
 }

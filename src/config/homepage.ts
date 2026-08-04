@@ -243,15 +243,14 @@ export const paletteColourSlugs = [
   "graphite",
 ] as const;
 
-/**
- * Homepage "Реалізовані проєкти" teaser entries. Intentionally empty: no
- * real project has been photographed or confirmed yet, and the section must
- * never present fabricated case studies with "Фото очікується" placeholders
- * (Prompt 4 §9). While this stays empty, `<ProjectsShowcase>` renders `null`
- * — the same self-hiding pattern as `pressPartners`. Populate with real
- * `{ slug }` entries (and wire their delivered photography) to bring it back.
+/*
+ * `demoProjects` used to live here — an intentionally empty array that kept
+ * `<ProjectsShowcase>` rendering `null` while no real project had been
+ * photographed. Real projects now exist, so the showcase reads them straight
+ * from `src/content/projects.ts` (which is also what `/projects` renders) and
+ * the placeholder array is gone. Its self-hiding behaviour survives: the
+ * section still returns `null` when the registry is empty.
  */
-export const demoProjects: { slug: string }[] = [];
 
 /**
  * Homepage testimonials, index-aligned with

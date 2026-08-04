@@ -43,21 +43,37 @@ Environment Variables). See `.env.example` for the annotated list.
 | `ORDER_NOTIFICATION_EMAIL`                                                          | Where **new-order** notifications go. Unset → falls back to `LEADS_NOTIFICATION_EMAIL`; if that is unset too, the order is only logged to the server console. Set this to route orders to a different inbox than leads. |
 | `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_ENDPOINT` | S3-compatible media storage. Unset → local disk (not durable on Vercel).                                                                                                                                                |
 | `LIQPAY_PUBLIC_KEY`, `LIQPAY_PRIVATE_KEY`                                           | Online card payment at checkout. Unset → LiqPay path inactive.                                                                                                                                                          |
-| `SEO_NOINDEX`                                                                       | Set to `true` on the **production** deploy to force `noindex` during the pre-launch window; unset at launch. See "Search-engine indexing" below.                                                                        |
+| `SEO_NOINDEX`                                                                       | Manual `noindex` override, on top of the automatic domain gate. Leave unset unless you need to de-index a non-`vercel.app` staging host. See "Search-engine indexing" below.                                            |
 
 ### Search-engine indexing
 
-Indexing is gated automatically: the site is indexable **only** on the real
-production deployment (`VERCEL_ENV=production`, which Vercel sets on its own).
-Every preview/development deploy — and local dev — emits a site-wide
-`X-Robots-Tag: noindex, nofollow` response header **and** a matching
-`<meta name="robots">`, so staging/`*.vercel.app` URLs never enter Google's
-index (see `src/lib/seo/indexing.ts` and the header in `next.config.ts`).
+Indexing is gated automatically, on **two** conditions, both of which must hold:
 
-To keep the **production** deployment out of the index until the real domain is
-switched on, set `SEO_NOINDEX=true` on it; remove the variable at launch to open
-the site to indexing. No code change or redeploy logic is needed beyond the env
-var (a redeploy applies it).
+1. `VERCEL_ENV=production` (Vercel sets it on its own). Every
+   preview/development deploy — and local dev — fails this.
+2. `NEXT_PUBLIC_SITE_URL` is the site's own domain, i.e. **not** a
+   `*.vercel.app` host.
+
+Anything that fails either one emits a site-wide `X-Robots-Tag: noindex,
+nofollow` response header **and** a matching `<meta name="robots">`
+(see `src/lib/seo/indexing.ts` and the header in `next.config.ts`).
+
+The second condition is what keeps the pre-launch production deploy out of the
+index, and it is deliberately **derived rather than remembered**. Condition 1
+alone was true of `sira-site.vercel.app`, which was therefore serving
+`index, follow` plus canonicals pointing at itself — an indexable duplicate of
+the whole shop on a throwaway host. `SEO_NOINDEX` was supposed to cover that
+window and was simply never set, which is what happens to a kill-switch whose
+safe position is "on". Tying the answer to `NEXT_PUBLIC_SITE_URL` means
+indexing turns on at exactly the moment the canonicals, hreflang, sitemap and
+OG URLs start pointing at the real domain — one edit, and the two cannot
+disagree.
+
+**At cutover** the only required change is therefore
+`NEXT_PUBLIC_SITE_URL=https://odudlab.com` (plus a redeploy, which Vercel does
+for an env-var change). `SEO_NOINDEX=true` remains as a manual override for
+anything this rule cannot see — a staging host that is not a `vercel.app`, or
+an emergency de-index — and must be left unset for the launch to take effect.
 
 > On Vercel, uploaded media on local disk is **not** durable (the filesystem
 > is ephemeral per-invocation). Configure the S3 variables for any deploy
@@ -95,9 +111,9 @@ var (a redeploy applies it).
 
 > **Why `ci:migrate` pipes `echo y`.** If the database has ever had a dev
 > server pointed at it, Payload's push writes a row into `payload_migrations`
-> with `batch = -1`, and every later `payload migrate` stops to ask *"It looks
+> with `batch = -1`, and every later `payload migrate` stops to ask _"It looks
 > like you've run Payload in dev mode… data loss will occur. Would you like to
-> proceed?"*. There is no flag for this — `forceAcceptWarning` is wired only to
+> proceed?"_. There is no flag for this — `forceAcceptWarning` is wired only to
 > `migrate:create` and `migrate:fresh`, not to plain `migrate` — so the answer
 > has to come over stdin. Answering **no** makes `payload migrate` exit **0**
 > without running anything, so the build goes green while the schema silently

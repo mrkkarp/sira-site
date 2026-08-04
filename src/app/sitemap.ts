@@ -9,6 +9,7 @@ import {
   shopSubcategories,
 } from "@/lib/schemas/product";
 import { getInfoPageContent } from "@/content/info-pages";
+import { getPublishedProjects, projectPath } from "@/content/projects";
 import { indexableLocales } from "@/lib/seo/indexing";
 
 /**
@@ -32,12 +33,13 @@ import { indexableLocales } from "@/lib/seo/indexing";
  *   rather than in the all-locale `staticPaths`.
  * - Every remaining `PlaceholderPage` route (`/careers`,
  *   `/colours`, `/cookies-policy`, `/faq`,
- *   `/privacy-policy`, `/projects[/[slug]]`,
+ *   `/privacy-policy`,
  *   `/public-offer`, `/resources`,
  *   `/terms-of-use`) — no real content yet, also explicitly `noindex`. See
  *   `CONTENT_CHECKLIST.md` for what each is waiting on. `/about`, `/contact`,
- *   `/designers` and `/samples` are NOT in this list: they now have real
- *   content, so they appear in `staticPaths` below.
+ *   `/designers`, `/samples` and `/projects[/[slug]]` are NOT in this list:
+ *   they now have real content, so they appear in `staticPaths` and
+ *   `projectPaths` below.
  * - `/admin`, `/design-system` — not part of the public site.
  * - `/<category>` (and `/<category>/<subcategory>`) for anything with no
  *   products yet — a soft 404 to a crawler, and `noindex` in its own
@@ -112,15 +114,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/contact",
     "/designers",
     "/samples",
+    "/projects",
     ...nonEmptyCategoryPaths,
     ...nonEmptySubcategoryPaths,
   ];
+  /**
+   * Only *published* projects — `getPublishedProjects` drops any record with
+   * no photographs, which is the same condition the route itself renders on.
+   * The index page is listed unconditionally: even at zero projects it is a
+   * real page with real prose, unlike an empty category.
+   */
+  const projectPaths = getPublishedProjects().map((project) =>
+    projectPath(project.slug),
+  );
   const productPaths = products.map((product) => `/products/${product.slug}`);
   const collectionPaths = collections.map(
     (collection) => `/collections/${collection.slug}`,
   );
 
-  const allPaths = [...staticPaths, ...productPaths, ...collectionPaths];
+  const allPaths = [
+    ...staticPaths,
+    ...productPaths,
+    ...collectionPaths,
+    ...projectPaths,
+  ];
 
   /**
    * Info-page routes that are indexable for some but not all locales. Each is
