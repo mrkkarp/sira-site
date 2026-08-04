@@ -215,6 +215,22 @@ export function getProjectBySlug(slug: string): Project | undefined {
 }
 
 /**
+ * The slugs `/projects/[slug]` actually serves — read by `src/proxy.ts`.
+ *
+ * `notFound()` inside the page cannot set a `404` status (there is a
+ * `loading.tsx` above it, so the `200` headers are already on the wire by the
+ * time the page runs — see the long note in `proxy.ts`). The proxy therefore
+ * has to know whether a slug exists *before* anything streams, and unlike
+ * `/products/<slug>` and `/collections/<slug>`, which would each cost a
+ * database round-trip on every request, this answer is a static in-memory set.
+ * Exported as the set rather than as a predicate so the proxy builds nothing
+ * per request, and derived from the registry so it cannot drift from it.
+ */
+export const publishedProjectSlugs: ReadonlySet<string> = new Set(
+  getPublishedProjects().map((project) => project.slug),
+);
+
+/**
  * The written content for a locale, falling back to {@link defaultLocale}.
  * Returns `undefined` only if the project has no content in any locale, which
  * a `Project` literal cannot express usefully — callers treat it as "not

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { publishedProjectSlugs } from "@/content/projects";
 import { defaultLocale, locales } from "@/i18n/config";
 import { isGonePath, renderGonePage } from "@/lib/gone-paths";
 import { findLegacyRedirect } from "@/lib/legacy-redirects";
@@ -89,7 +90,14 @@ export const SEGMENTS_WITHOUT_INDEX_PAGE = new Set(["products"]);
  *
  * What happens *inside* them is still their own business: `/products/nonsense`
  * reaches the products route and gets its `notFound()`, streamed `200` and all.
- * Validating slugs here would mean a database lookup on every request.
+ * Validating those slugs here would mean a database lookup on every request.
+ *
+ * `projects` is the exception, and is validated below rather than waved
+ * through: its slugs are a static in-memory set (`publishedProjectSlugs`), so
+ * checking costs nothing and `/projects/anything-else` gets a real `404`
+ * instead of a soft one. Left in this set anyway — the length-2 branch reads
+ * it first — so that the disk-derived drift test in `proxy.test.ts` keeps
+ * covering the folder.
  */
 export const SEGMENTS_WITH_CHILD_ROUTES = new Set([
   "collections",
@@ -153,9 +161,12 @@ export function isServedPath(segments: string[]): boolean {
   if (segments.length === 1) return !SEGMENTS_WITHOUT_INDEX_PAGE.has(first);
 
   if (segments.length === 2) {
-    return categorySlugs.has(first)
-      ? subcategoryPaths.has(`${first}/${second}`)
-      : SEGMENTS_WITH_CHILD_ROUTES.has(first);
+    if (categorySlugs.has(first)) {
+      return subcategoryPaths.has(`${first}/${second}`);
+    }
+    // The one child route whose slugs are knowable without a database.
+    if (first === "projects") return publishedProjectSlugs.has(second);
+    return SEGMENTS_WITH_CHILD_ROUTES.has(first);
   }
 
   // Nothing in the app is three segments deep — the deepest `page.tsx` under

@@ -10,6 +10,7 @@ import {
   proxy,
   redirectToCanonical,
 } from "./proxy";
+import { getPublishedProjects } from "@/content/projects";
 import { defaultLocale, locales } from "@/i18n/config";
 import {
   shopCategorySlugs,
@@ -174,6 +175,10 @@ describe("isServedPath", () => {
     ["about"],
     ["products", "some-slug"], // the route's own notFound() answers for this
     ["collections", "some-slug"],
+    // Not a fixture string: the real registry, so renaming a project slug
+    // without telling the proxy fails here rather than 404ing a live case
+    // study that Google has already indexed.
+    ...getPublishedProjects().map((project) => ["projects", project.slug]),
     ...Object.values(shopCategorySlugs).map((slug) => [slug]),
     ...shopSubcategories.map((sub) => [
       shopCategorySlugs[sub.category],
@@ -202,6 +207,11 @@ describe("isServedPath", () => {
     // `/stolyky/zhurnalni` is the one deliberate omission: every table is a
     // coffee table, so the page would duplicate its own parent. It redirects.
     ["the deliberately-absent /stolyky/zhurnalni", ["stolyky", "zhurnalni"]],
+    // Unlike `/products/<slug>`, a project slug is a static in-memory set, so
+    // the proxy can answer a real 404 here instead of letting the page stream
+    // a soft one. A case study is exactly the kind of URL that gets pasted
+    // into a chat with a typo, so the wrong answer would be indexable.
+    ["a project slug nobody has published", ["projects", "no-such-project"]],
     ["anything below a subcategory", ["rakovyny", "nakladni", "extra"]],
   ];
 
