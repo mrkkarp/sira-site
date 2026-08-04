@@ -56,21 +56,13 @@ export function ProductCoreInfo({
       <p className="type-caption text-text-muted">{typeLabel}</p>
       <h1 className="type-h2 text-text">{product.name}</h1>
 
-      {/* The price is set at the product page's own size (`size="lg"`), not
-          the 1rem catalogue size it used to share with the cards. On a card
-          the price is one line among several and body size is correct; here
-          it is the figure the shopper opened the page to see, and at 1rem it
-          sat below the name looking like a caption. The "від" prefix stays
-          small and muted on purpose — it qualifies the number without
-          competing with it, and it is the one word that must not be mistaken
-          for part of the amount. */}
-      <div className="mt-(--space-3xs) flex flex-wrap items-baseline gap-(--space-2xs)">
+      <div className="flex flex-wrap items-baseline gap-(--space-2xs)">
         {priceDisplay.type === "from" ? (
           <span className="type-caption text-text-muted">
             {cardCopy.fromPricePrefix}
           </span>
         ) : null}
-        <Price amount={priceDisplay.amount} locale={locale} size="lg" />
+        <Price amount={priceDisplay.amount} locale={locale} />
       </div>
 
       <div className="flex flex-wrap gap-(--space-3xs)">

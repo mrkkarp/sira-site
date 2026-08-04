@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Manrope, Cormorant_Garamond } from "next/font/google";
+import { Manrope, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { clientStrings } from "@/i18n/client-strings";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,11 @@ const interfaceSans = Manrope({
   subsets: ["latin", "cyrillic"],
 });
 
-/** Cormorant Garamond, not Instrument Serif: the old face had no Cyrillic at
- * all, so Ukrainian headings rendered in the OS fallback. Kept identical to
- * `[locale]/layout.tsx`, which carries the full note — these are independent
- * roots and each must declare the fonts itself. */
-const editorialSerif = Cormorant_Garamond({
+const editorialSerif = Instrument_Serif({
   variable: "--font-editorial-serif",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500"],
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
 /**

@@ -39,30 +39,18 @@ export function Price({
   amount,
   compareAtAmount,
   locale,
-  size = "md",
   className,
 }: {
   amount: number;
   /** Original price, shown struck through, when the item is discounted. */
   compareAtAmount?: number;
   locale: Locale;
-  /**
-   * `"md"` — the catalogue size: one line among several on a card, in the
-   * cart, in the search drawer. `"lg"` — the product page's headline price.
-   *
-   * A prop rather than a `className` the caller passes in, because both sizes
-   * are set by a `type-*` utility and both of those set `font-size`: stacking
-   * two of them on one element makes the winner depend on the order the
-   * utilities appear in the compiled stylesheet, which no call site can see.
-   */
-  size?: "md" | "lg";
   className?: string;
 }) {
   return (
     <span
       className={cn(
-        size === "lg" ? "type-price-lg" : "type-price",
-        "text-text inline-flex items-baseline gap-(--space-2xs)",
+        "type-price text-text inline-flex items-baseline gap-(--space-2xs)",
         className,
       )}
     >

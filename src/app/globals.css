@@ -414,19 +414,10 @@ body {
    Tailwind's own font-size utility namespace.
    ============================================================ */
 
-/* The four serif roles are set ~8% larger than they were under Instrument
-   Serif, and the smallest of them a step heavier. Not a redesign — a
-   correction for the new face's proportions: Cormorant Garamond is a
-   small-on-the-body Garamond with a low x-height and fine strokes, so it
-   reads visibly smaller and lighter than Instrument Serif at the identical
-   `font-size`. Holding the numbers constant would have quietly shrunk every
-   heading on the site. The `em`-based halves of each `clamp()` are scaled by
-   the same factor as the caps, so the fluid curve keeps its shape. */
-
 @utility type-display-xl {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(3rem, 2.2rem + 4.2vw, 6.5rem);
+  font-size: clamp(2.75rem, 2rem + 4vw, 6rem);
   line-height: 0.98;
   letter-spacing: -0.02em;
 }
@@ -434,7 +425,7 @@ body {
 @utility type-display-l {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(2.5rem, 2rem + 2.6vw, 4.375rem);
+  font-size: clamp(2.25rem, 1.8rem + 2.5vw, 4rem);
   line-height: 1.02;
   letter-spacing: -0.015em;
 }
@@ -442,19 +433,16 @@ body {
 @utility type-h1 {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(2.0625rem, 1.75rem + 1.3vw, 3rem);
+  font-size: clamp(1.875rem, 1.6rem + 1.2vw, 2.75rem);
   line-height: 1.05;
   letter-spacing: -0.01em;
 }
 
-/* Weight 500, alone among the serif roles: this is the smallest size the
-   serif is used at — and it is what a product name is set in — so it is the
-   one place Cormorant's 400 goes thin against the surrounding Manrope. */
 @utility type-h2 {
   font-family: var(--font-serif);
-  font-weight: 500;
-  font-size: clamp(1.625rem, 1.4rem + 0.85vw, 2.125rem);
-  line-height: 1.15;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+  line-height: 1.1;
 }
 
 @utility type-h3 {
@@ -515,25 +503,6 @@ body {
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 1rem;
-  font-variant-numeric: tabular-nums;
-}
-
-/* The product page's own price. `type-price` is the catalogue-grid size: at
-   1rem it is the same size as body text, which is right in a card where the
-   price is one line of several, and wrong on the page where the price is the
-   number the shopper came to find. Set as a separate role rather than a
-   size override at the call site, because `type-price` also fixes the
-   font-size — two size-setting utilities on one element resolve by stylesheet
-   order, not by which one was written last in the JSX.
-   Weight stays 600 and numerals stay tabular: this figure sits directly above
-   the colour plates, whose surcharges are also tabular, and the digits should
-   line up in the same column when the price changes with the selection. */
-@utility type-price-lg {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: clamp(1.375rem, 1.25rem + 0.5vw, 1.75rem);
-  line-height: 1.2;
-  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 
