@@ -55,7 +55,14 @@ describe("ProductCoreInfo", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows the may-be-out-of-stock badge and lead time only when the real variant data has them", async () => {
+  it("says nothing about stock even for a variant the source flagged, and still shows the lead time", async () => {
+    // `mayBeOutOfStock` is still parsed and still reaches the Payload admin as
+    // `stockNote`; it is the *badge* the owner asked for gone. Passing the flag
+    // as `true` here is the point of the test — the assertion has to fail if
+    // someone wires the data back to a badge, not merely if the flag is
+    // missing. `dictionary.product.inStock` and `.mayBeOutOfStock` survive in
+    // the dictionaries for exactly this: they are the two claims this page must
+    // never make, and naming them here is what keeps them checkable.
     const dictionary = await getDictionary("uk");
     render(
       <ProductCoreInfo
@@ -67,8 +74,9 @@ describe("ProductCoreInfo", () => {
       />,
     );
     expect(
-      screen.getByText(dictionary.product.mayBeOutOfStock),
-    ).toBeInTheDocument();
+      screen.queryByText(dictionary.product.mayBeOutOfStock),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/відсутн/i)).not.toBeInTheDocument();
     expect(
       screen.getByText("Термін виготовлення — 2 тиж."),
     ).toBeInTheDocument();

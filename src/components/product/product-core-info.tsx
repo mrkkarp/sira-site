@@ -12,12 +12,23 @@ import { Badge } from "@/components/ui/badge";
  * Deliberately does NOT render a strikethrough "old price" (`compareAtAmount`)
  * anywhere: the source export has exactly one `price` per colour row, never
  * an original-vs-discounted pair, so there is no genuine discount to show.
- * Also deliberately never claims "У наявності" (in stock) — the only real
- * stock signal in the source data is the negative "may be out of stock"
- * note (`ProductVariant.mayBeOutOfStock`); its absence is not proof of
- * availability (see `parseMayBeOutOfStock`), so an unconditional positive
- * claim would be fabricated. Every ODUDLAB piece is handmade to order, so
- * the "made to order" badge is unconditional (matches `ProductCard`).
+ *
+ * No stock claim is made in either direction. "У наявності" was never shown,
+ * because the source data has no positive stock signal to base it on. The
+ * negative one — "можлива тимчасова відсутність на складі", parsed out of
+ * nine products' Horoshop descriptions by `parseMayBeOutOfStock` — is no
+ * longer shown either, on the owner's instruction. It never belonged beside
+ * the price of a made-to-order piece: every ODUDLAB item is cast after the
+ * order is placed, so "may be out of stock" answers a question ("is one
+ * sitting on a shelf?") that does not apply, and answers it with a doubt.
+ * The lead time below says the useful version of the same fact.
+ *
+ * The flag itself is untouched in the data — `stockNote` still reaches the
+ * Payload admin, so the workshop keeps the note it wrote; it just stops being
+ * a red badge on the shopfront.
+ *
+ * Every ODUDLAB piece is handmade to order, so the "made to order" badge is
+ * unconditional (matches `ProductCard`).
  */
 export function ProductCoreInfo({
   product,
@@ -45,20 +56,25 @@ export function ProductCoreInfo({
       <p className="type-caption text-text-muted">{typeLabel}</p>
       <h1 className="type-h2 text-text">{product.name}</h1>
 
-      <div className="flex flex-wrap items-baseline gap-(--space-2xs)">
+      {/* The price is set at the product page's own size (`size="lg"`), not
+          the 1rem catalogue size it used to share with the cards. On a card
+          the price is one line among several and body size is correct; here
+          it is the figure the shopper opened the page to see, and at 1rem it
+          sat below the name looking like a caption. The "від" prefix stays
+          small and muted on purpose — it qualifies the number without
+          competing with it, and it is the one word that must not be mistaken
+          for part of the amount. */}
+      <div className="mt-(--space-3xs) flex flex-wrap items-baseline gap-(--space-2xs)">
         {priceDisplay.type === "from" ? (
           <span className="type-caption text-text-muted">
             {cardCopy.fromPricePrefix}
           </span>
         ) : null}
-        <Price amount={priceDisplay.amount} locale={locale} />
+        <Price amount={priceDisplay.amount} locale={locale} size="lg" />
       </div>
 
       <div className="flex flex-wrap gap-(--space-3xs)">
         <Badge>{cardCopy.madeToOrderBadge}</Badge>
-        {variant.mayBeOutOfStock ? (
-          <Badge tone="error">{dictionary.product.mayBeOutOfStock}</Badge>
-        ) : null}
       </div>
 
       <dl className="type-body-sm text-text-muted flex flex-col gap-(--space-3xs)">

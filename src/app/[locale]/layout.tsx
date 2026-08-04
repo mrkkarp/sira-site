@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
-import { Instrument_Serif } from "next/font/google";
+import { Cormorant_Garamond } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { isLocale, locales } from "@/i18n/config";
@@ -26,11 +26,40 @@ const interfaceSans = Manrope({
   subsets: ["latin", "cyrillic"],
 });
 
-const editorialSerif = Instrument_Serif({
+/**
+ * The editorial serif carries every display role — product names, page H1s,
+ * section headings — for a catalogue whose primary language is Ukrainian.
+ *
+ * It was Instrument Serif, loaded `subsets: ["latin"]` because that is the
+ * only subset Instrument Serif publishes: the family has no Cyrillic at all.
+ * So every Ukrainian heading on the site rendered *half* in it. A CDP
+ * `CSS.getPlatformFontsForNode` audit of production said so exactly — the
+ * product title "Журнальний столик з бетону Caiman" came back as
+ * `Instrument Serif(web)×10, Times New Roman(local)×23`: the Latin model name
+ * in the brand face, the Ukrainian words beside it in whatever serif the OS
+ * had lying around. Two typefaces inside one heading, and 23 of its 33 glyphs
+ * in the one nobody chose.
+ *
+ * Cormorant Garamond replaces it because it ships a real Cyrillic (drawn with
+ * the family, not bolted on), and because of the three Cyrillic-complete
+ * candidates it is the narrowest — which matters here and not in the
+ * abstract: the product page's info column is ~420 px at the 1024 px
+ * breakpoint, and a wider display face pushes long names onto a third line
+ * inside a panel that was just made to fit without a scrollbar of its own.
+ * Its fine stroke contrast also belongs beside this site's hairline drawing
+ * rules in a way a heavy didone would not — it sits in the same weight class
+ * as the rest of the page instead of shouting over it.
+ *
+ * Weights 400 and 500: Cormorant is a small-on-the-body face, so the large
+ * display roles take 400 and the smallest serif role (`type-h2`, which is
+ * what a product name is) takes 500 to hold its colour. No italic — nothing
+ * in the site sets italic on serif text, and shipping the file would be two
+ * network requests for zero glyphs.
+ */
+const editorialSerif = Cormorant_Garamond({
   variable: "--font-editorial-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500"],
 });
 
 export function generateStaticParams() {

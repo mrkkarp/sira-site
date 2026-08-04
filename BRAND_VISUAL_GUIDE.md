@@ -119,11 +119,21 @@ Two families, loaded via `next/font/google` in
 `src/app/[locale]/layout.tsx` (and mirrored in
 `src/app/design-system/layout.tsx` for the dev-only showcase):
 
-- **Display / editorial — Instrument Serif** (`--font-editorial-serif`,
+- **Display / editorial — Cormorant Garamond** (`--font-editorial-serif`,
   `font-serif` utility / the `type-display-*` and `type-h1`/`type-h2`
-  utilities below). Large scale only, normal weight, tight leading, small
-  negative tracking, max 2–4 lines. Never for nav, forms, filters, specs, or
-  long paragraphs. Never combine bold + italic.
+  utilities below), weights 400 and 500, subsets `latin` + `cyrillic`. Large
+  scale only, tight leading, small negative tracking, max 2–4 lines. Never
+  for nav, forms, filters, specs, or long paragraphs.
+
+  **A replacement font must ship Cyrillic — this is a hard requirement, not a
+  preference.** The previous face here was Instrument Serif, which publishes
+  a Latin subset only; because the site's primary language is Ukrainian, every
+  heading rendered split between it and the OS fallback (a production audit of
+  one product title returned `Instrument Serif(web)×10, Times New
+  Roman(local)×23`). Cormorant is set ~8% larger and its smallest role a step
+  heavier than the numbers Instrument Serif used, to compensate for a lower
+  x-height; a future swap should re-tune the same way rather than inherit
+  these figures.
 - **Interface — Manrope** (`--font-interface-sans`, `font-sans` utility,
   the `body` default). Everything else: nav, body copy, buttons, forms,
   technical specs, prices.
@@ -138,10 +148,10 @@ baked into these classes — pair with a `text-*` colour utility explicitly
 
 | Utility                | Family    | Notes                                       |
 | ---------------------- | --------- | ------------------------------------------- |
-| `type-display-xl`      | serif     | `clamp(2.75rem, …, 6rem)`, tightest leading |
-| `type-display-l`       | serif     | `clamp(2.25rem, …, 4rem)`                   |
-| `type-h1`              | serif     | `clamp(1.875rem, …, 2.75rem)`               |
-| `type-h2`              | serif     | `clamp(1.5rem, …, 2rem)`                    |
+| `type-display-xl`      | serif     | `clamp(3rem, …, 6.5rem)`, tightest leading  |
+| `type-display-l`       | serif     | `clamp(2.5rem, …, 4.375rem)`                |
+| `type-h1`              | serif     | `clamp(2.0625rem, …, 3rem)`                 |
+| `type-h2`              | serif, 500 | `clamp(1.625rem, …, 2.125rem)`             |
 | `type-h3`              | sans, 600 | `clamp(1.25rem, …, 1.5rem)`                 |
 | `type-h4`              | sans, 600 | `1.125rem`                                  |
 | `type-body-lg`         | sans      | `1.125rem`                                  |
@@ -150,7 +160,8 @@ baked into these classes — pair with a `text-*` colour utility explicitly
 | `type-label`           | sans, 500 | uppercase, `0.08em` tracking                |
 | `type-eyebrow`         | sans, 500 | uppercase, `0.12em` tracking, smaller       |
 | `type-caption`         | sans      | `0.75rem`                                   |
-| `type-price`           | sans, 600 | tabular numerals                            |
+| `type-price`           | sans, 600 | tabular numerals, catalogue/cart size       |
+| `type-price-lg`        | sans, 600 | tabular, `clamp(1.375rem, …, 1.75rem)` — the product page's headline price |
 | `type-nav`             | sans, 500 | `0.875rem`                                  |
 | `type-technical-value` | sans, 600 | tabular numerals, for spec values           |
 | `type-technical-label` | sans      | uppercase, spec labels                      |
