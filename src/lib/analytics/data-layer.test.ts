@@ -41,6 +41,66 @@ describe("data-layer", () => {
     ]);
   });
 
+  /**
+   * Found against the live container, not reasoned about: GTM merges every
+   * push into one running model, so a key keeps its last value until something
+   * overwrites it. A visitor who priced a 19 600 UAH sink and then tapped the
+   * phone number sent a `phone_click` still carrying that value — and the
+   * Google Ads conversion tag sent it too, which would teach Smart Bidding
+   * that phone taps are worth 19 600 UAH each.
+   */
+  describe("each event describes only itself", () => {
+    it("clears a parameter the next event does not set", () => {
+      pushEvent({ event: "quote_request", value: 19600, currency: "UAH" });
+      pushEvent({ event: "phone_click", location: "header" });
+
+      const phoneClick = window.dataLayer?.[1] as Record<string, unknown>;
+      expect(phoneClick.location).toBe("header");
+      // Present and `undefined`, not absent: absent would leave 19 600 standing
+      // in GTM's model. `undefined` overwrites it and is then dropped from the
+      // outgoing hit — measured, where `null` sends an empty string instead.
+      expect("value" in phoneClick).toBe(true);
+      expect(phoneClick.value).toBeUndefined();
+      expect(phoneClick.currency).toBeUndefined();
+    });
+
+    it("leaves the parameters the event does set alone", () => {
+      pushEvent({
+        event: "purchase",
+        transaction_id: "TX-1",
+        value: 19600,
+        currency: "UAH",
+        items: [{ item_id: "Odri" }],
+      });
+      expect(window.dataLayer?.[0]).toEqual({
+        event: "purchase",
+        transaction_id: "TX-1",
+        value: 19600,
+        currency: "UAH",
+        items: [{ item_id: "Odri" }],
+      });
+    });
+
+    it("clears every parameter the measurement plan can carry", () => {
+      // The list has to cover all of them. One omission is a single parameter
+      // that silently keeps a stale value on every later event, which is
+      // exactly the failure this whole mechanism exists to make impossible.
+      pushEvent({ event: "phone_click" });
+      expect(Object.keys(window.dataLayer?.[0] as object).sort()).toEqual([
+        "channel",
+        "currency",
+        "event",
+        "items",
+        "location",
+        "projectType",
+        "timeline",
+        "transaction_id",
+        "user_data",
+        "value",
+      ]);
+    });
+  });
+
   it("pushes gtag commands as a real Arguments object, not an array", () => {
     // The distinction is the entire reason `toArguments` exists. GTM tells a
     // command from an event by the type of what was pushed: an `Arguments`

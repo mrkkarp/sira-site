@@ -41,14 +41,57 @@ function dataLayer(): unknown[] | null {
 export type DataLayerEvent = { event: string } & Record<string, unknown>;
 
 /**
+ * Every optional parameter any event in `events.ts` can carry.
+ *
+ * This list exists because the dataLayer is **not** a stream of independent
+ * messages — GTM merges each push into one running model, and a key stays at
+ * its last value forever unless something overwrites it. So a visitor who asks
+ * for a quote on a 19 600 UAH sink and then taps the phone number sends a
+ * `phone_click` that still carries `value: 19600`, `items: [...]` and the
+ * `transaction_id` of whatever they bought last. The tag is configured
+ * correctly and the number is still wrong.
+ *
+ * That is not a cosmetic reporting flaw. Those values go to the Google Ads
+ * conversion tag, so Smart Bidding would learn that phone taps are worth
+ * 19 600 UAH each and buy more of them — the exact opposite of the goal, which
+ * is a few genuine project inquiries.
+ *
+ * Measured against the live container rather than assumed: a key set to
+ * `undefined` is dropped from the hit entirely, which is what we want, while
+ * `null` clears the model but makes GA4 send the parameter as an empty string.
+ * Hence `undefined`, and hence a list rather than per-call-site discipline —
+ * the failure is silent, so it has to be impossible rather than remembered.
+ */
+const EVENT_PARAMETERS = [
+  "value",
+  "currency",
+  "items",
+  "transaction_id",
+  "location",
+  "channel",
+  "projectType",
+  "timeline",
+  "user_data",
+] as const;
+
+/**
  * Push one named event. Returns whether it actually went anywhere, which is
  * what the tests assert on — a silent no-op that reports success is how a
  * measurement plan quietly stops measuring.
+ *
+ * Every parameter this event does not set is explicitly cleared first, so each
+ * event describes only itself. See `EVENT_PARAMETERS`.
  */
 export function pushEvent(entry: DataLayerEvent): boolean {
   const queue = dataLayer();
   if (!queue) return false;
-  queue.push(entry);
+
+  const cleared: Record<string, undefined> = {};
+  for (const key of EVENT_PARAMETERS) {
+    if (!(key in entry)) cleared[key] = undefined;
+  }
+
+  queue.push({ ...cleared, ...entry });
   return true;
 }
 

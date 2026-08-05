@@ -143,11 +143,16 @@ describe("analytics events", () => {
     it("refuses a zero or unparseable figure rather than reporting it", () => {
       // Zero and NaN both read as "this lead was worth nothing" to a
       // value-based bidding strategy, and the brief forbids a zero value.
+      //
+      // `undefined` rather than an absent key: `pushEvent` clears every
+      // parameter an event does not set, and a key set to `undefined` is
+      // dropped from the outgoing hit entirely. Absent and `undefined` are the
+      // same thing to GTM; what matters is that no number reaches the bidder.
       for (const bad of ["0", "-100", "не число"]) {
         vi.stubEnv("NEXT_PUBLIC_LEAD_VALUE_UAH", bad);
         delete window.dataLayer;
         trackContactSubmit({ location: "contact" });
-        expect(lastEvent(), `value ${bad}`).not.toHaveProperty("value");
+        expect(lastEvent().value, `value ${bad}`).toBeUndefined();
       }
     });
 
@@ -267,15 +272,16 @@ describe("analytics events", () => {
       });
     });
 
-    it("omits the key entirely when nothing could be hashed", () => {
+    it("sends no user_data at all when nothing could be hashed", () => {
       // Not `user_data: {}`. An empty object is a value the tag would read as
       // "we tried and got nothing", and it is indistinguishable in the UI from
-      // a hashing bug affecting every visitor.
+      // a hashing bug affecting every visitor. `undefined` is dropped from the
+      // hit; an empty object would not be.
       trackDesignerInquiry({ location: "designers_page", userData: {} });
-      expect(lastEvent()).not.toHaveProperty("user_data");
+      expect(lastEvent().user_data).toBeUndefined();
 
       trackQuoteRequest(product, base);
-      expect(lastEvent()).not.toHaveProperty("user_data");
+      expect(lastEvent().user_data).toBeUndefined();
     });
 
     it("never puts a raw `userData` key on the event", () => {
