@@ -69,6 +69,19 @@ export async function sendStaffEmail(params: {
   });
 
   if (!response.ok) {
-    throw new Error(`${failureCode}: ${response.status}`);
+    // Resend names the actual cause in the response body — an unverified
+    // domain, a `from` address that isn't on it, a revoked key. Without the
+    // body the log reads `..._failed: 403` and the only way to learn why is
+    // to open Resend's dashboard, which nobody does at 2am. The read is
+    // best-effort: a body that can't be consumed must not mask the failure.
+    let detail = "";
+    try {
+      detail = (await response.text()).slice(0, 500);
+    } catch {
+      detail = "";
+    }
+    throw new Error(
+      `${failureCode}: ${response.status}${detail ? ` ${detail}` : ""}`,
+    );
   }
 }
