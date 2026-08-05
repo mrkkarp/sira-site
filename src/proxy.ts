@@ -4,6 +4,10 @@ import { publishedProjectSlugs } from "@/content/projects";
 import { defaultLocale, locales } from "@/i18n/config";
 import { isGonePath, renderGonePage } from "@/lib/gone-paths";
 import { findLegacyRedirect } from "@/lib/legacy-redirects";
+import {
+  findStaticLegacyRedirect,
+  normaliseLegacyPath,
+} from "@/lib/legacy-url-map";
 import { renderNotFoundPage } from "@/lib/status-page";
 import {
   shopCategorySlugs,
@@ -303,9 +307,38 @@ export async function proxy(request: NextRequest) {
    * Skipped when the first segment is a live route, which is what keeps the
    * fossil `/rakovyny → /shop/sinks` row from 301ing the category away from
    * itself.
+   *
+   * ## Three answers, in this order
+   *
+   * 1. The normalised path is itself a real page. This is `/ru/rakovyny` —
+   *    the Russian twin of an address that still exists — and it is checked
+   *    first for the same reason `KNOWN_TOP_LEVEL_SEGMENTS` is checked at
+   *    all: that fossil `/rakovyny → /shop/sinks` row is still in the
+   *    collection, and left to the lookups below it would answer, sending a
+   *    live category into a 404.
+   * 2. `legacy-url-map.ts` — the 466 pre-Horoshop addresses, in memory.
+   *    Before the database on the `gone-paths.ts` precedent: these are closed
+   *    historical facts, and answering them from a `Map` keeps the most
+   *    bot-heavy class of request on the site from costing a round-trip.
+   *    The consequence is worth stating plainly — a `Redirects` row added in
+   *    the admin for one of those 466 paths will not win. If one ever needs
+   *    to, it goes in the map.
+   * 3. The `Redirects` collection, queried on the *normalised* path, so the
+   *    193 `/ru/…` twins of the 184 rows already in there resolve through the
+   *    rows that exist rather than needing 193 more.
    */
   if (segments.length > 0 && !KNOWN_TOP_LEVEL_SEGMENTS.has(segments[0])) {
-    const legacyRedirect = await findLegacyRedirect(barePath);
+    const legacyPath = normaliseLegacyPath(barePath);
+    const liveTwin =
+      legacyPath !== barePath &&
+      isServedPath(legacyPath.split("/").filter(Boolean))
+        ? legacyPath
+        : null;
+    const staticTarget = liveTwin ?? findStaticLegacyRedirect(barePath);
+
+    const legacyRedirect = staticTarget
+      ? ({ toPath: staticTarget, statusCode: 301 } as const)
+      : await findLegacyRedirect(legacyPath);
     if (legacyRedirect) {
       // `/blog → /` under a prefix would compose `/en/`, which Next then 308s
       // to `/en` — a wasted hop on a redirect that is already a hop. Trimming

@@ -369,3 +369,137 @@ describe("redirectToCanonical", () => {
     );
   });
 });
+
+/**
+ * The pre-Horoshop URL families, end to end through the proxy.
+ *
+ * `src/lib/legacy-url-map.test.ts` proves the map is complete and its targets
+ * are real. What it cannot prove is that the proxy *reaches* it — that the
+ * branch order is right, that the query string survives, that `/ru` is
+ * stripped before anything is looked up. That is what this block is for, and
+ * every case in it is one that was measured returning `404` on production
+ * before the map existed.
+ *
+ * No database is needed: `findStaticLegacyRedirect` answers from memory, and
+ * that is the point of consulting it first.
+ */
+describe("proxy legacy 301s", () => {
+  const redirectFor = async (url: string) => {
+    const response = await proxy(new NextRequest(new Request(url)));
+    return {
+      status: response.status,
+      location: response.headers.get("location"),
+    };
+  };
+
+  /** The one the owner reported: a live URL the *old* server still 301s and
+   *  the new site answered with a 404. */
+  it("answers the WooCommerce category that started this", async () => {
+    expect(
+      await redirectFor("https://odudlab.com/kategoriya/umyvalnuku/"),
+    ).toEqual({ status: 301, location: "https://odudlab.com/rakovyny" });
+  });
+
+  it("sends an old product URL to the product that replaced it", async () => {
+    expect(
+      await redirectFor(
+        "https://odudlab.com/katalog/rakovina-betonnaya-tower/",
+      ),
+    ).toEqual({ status: 301, location: "https://odudlab.com/products/tower" });
+  });
+
+  it("sends a discontinued product to the category that succeeded it", async () => {
+    expect(
+      await redirectFor("https://odudlab.com/katalog/betonna-vaza-slim-70/"),
+    ).toEqual({ status: 301, location: "https://odudlab.com/vazony" });
+  });
+
+  it("sends an abandoned product line to the homepage", async () => {
+    // «Якщо немає відповідної — то просто на головну». Concrete lamps: the
+    // catalogue has no lighting and nothing close to it.
+    expect(
+      await redirectFor(
+        "https://odudlab.com/katalog/betonnyj-svitylnyk-kulya/",
+      ),
+    ).toEqual({ status: 301, location: "https://odudlab.com/" });
+  });
+
+  it("sends a faceted filter to the catalogue", async () => {
+    expect(await redirectFor("https://odudlab.com/price/1000-2000/")).toEqual({
+      status: 301,
+      location: "https://odudlab.com/shop",
+    });
+  });
+
+  it("resolves a /ru twin through the Ukrainian rule", async () => {
+    // 193 of the 490 dead addresses are Russian. There is no Russian site to
+    // send them to, and there are no Russian rules either.
+    expect(
+      await redirectFor(
+        "https://odudlab.com/ru/katalog/rakovina-betonnaya-tower/",
+      ),
+    ).toEqual({ status: 301, location: "https://odudlab.com/products/tower" });
+  });
+
+  it("sends the /ru twin of a live page to that page", async () => {
+    // Not a legacy address — the category, spelled with a locale that never
+    // existed here. It must not reach the lookups: the `Redirects` collection
+    // still holds the fossil `/rakovyny → /shop/sinks` row, and `/shop/sinks`
+    // is a 404 today.
+    expect(await redirectFor("https://odudlab.com/ru/rakovyny/")).toEqual({
+      status: 301,
+      location: "https://odudlab.com/rakovyny",
+    });
+  });
+
+  it("keeps the visitor's language under a locale prefix", async () => {
+    expect(
+      await redirectFor(
+        "https://odudlab.com/en/katalog/rakovina-betonnaya-tower",
+      ),
+    ).toEqual({
+      status: 301,
+      location: "https://odudlab.com/en/products/tower",
+    });
+  });
+
+  it("does not compose /en/ when the target is the homepage", async () => {
+    // `/en` + `/` would be `/en/`, which Next then 308s to `/en` — a second
+    // hop on a redirect that is already a hop.
+    expect(
+      await redirectFor(
+        "https://odudlab.com/en/katalog/betonnyj-svitylnyk-kulya",
+      ),
+    ).toEqual({ status: 301, location: "https://odudlab.com/en" });
+  });
+
+  it("carries gclid and utm over the hop", async () => {
+    // The redirect must not cost the attribution the ads setup exists for.
+    const { location } = await redirectFor(
+      "https://odudlab.com/katalog/rakovina-betonnaya-tower/?gclid=abc123&utm_source=google",
+    );
+    const target = new URL(location as string);
+    expect(target.pathname).toBe("/products/tower");
+    expect(target.searchParams.get("gclid")).toBe("abc123");
+    expect(target.searchParams.get("utm_source")).toBe("google");
+  });
+
+  it("still 404s an address that was never on the old site", async () => {
+    // The map is not a catch-all. Only the dead namespaces have safety nets
+    // under them; a bare invented segment is still a hard 404.
+    const response = await proxy(
+      new NextRequest(new Request("https://odudlab.com/definitely-not-a-page")),
+    );
+    expect(response.status).toBe(404);
+  });
+
+  it("still answers 410 for the demo catalogue", async () => {
+    // The `GONE_PATHS` check runs before all of this and stays that way: the
+    // template's own iPhones were never ODUDLAB pages, so there is nothing
+    // "similar" to send anyone to.
+    const response = await proxy(
+      new NextRequest(new Request("https://odudlab.com/iphone-13")),
+    );
+    expect(response.status).toBe(410);
+  });
+});

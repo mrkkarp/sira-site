@@ -34,6 +34,30 @@ import { renderStatusPage } from "@/lib/status-page";
  * These are never coming back, and saying so is the whole point: it is the
  * difference between 56 URLs being re-crawled for months and being retired.
  *
+ * ## Why the *other* dead URLs are 301s
+ *
+ * `src/lib/legacy-url-map.ts` handles 466 pre-Horoshop addresses and answers
+ * every one of them with a `301` — no `410`s at all. The two files look like
+ * they contradict each other. They don't, because the URLs are not the same
+ * kind of thing.
+ *
+ * These 34 are a *template's* demo catalogue. ODUDLAB never sold an iPhone,
+ * never sold shampoo, and `/apple/` was never its brand. Nobody has ever
+ * arrived on one of them looking for ODUDLAB, so there is no visitor to
+ * rescue and nothing on the site that is "similar" — the honest answer is
+ * that the page was never real.
+ *
+ * The 466 are the opposite: real products the workshop really made, at
+ * addresses that are still linked and still clicked. The owner's rule for
+ * them is «ідентичні або схожі сторінки… якщо немає — на головну», and it is
+ * the right rule for that set — a discontinued planter has a planters
+ * category behind it, and a person who followed a three-year-old link should
+ * land on it rather than on a tombstone. It costs something (a mass 301 to
+ * `/` reads to Google as a soft 404, so index-wise those behave much like
+ * the 404s they replace) and buys something (nobody hits a dead end), and
+ * for pages that were once real that trade is worth making. For a demo
+ * iPhone it isn't.
+ *
  * ## Why a constant and not a `Redirects` row
  *
  * `Redirects` models a redirect — it requires a `toPath`, and a 410 has no
