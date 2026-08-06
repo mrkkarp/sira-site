@@ -75,7 +75,11 @@ export function ProductExperience({
   product: Product;
   dictionary: Dictionary;
   locale: Locale;
-  /** Locale-prefixed path with no query string, e.g. "/uk/products/odri". */
+  /**
+   * The product's own path, no query string — built by `localeHref`, which
+   * omits the prefix for the default locale. So it is "/products/odri" for uk
+   * and "/en/products/odri" for en; "/uk/..." is not a route and 404s.
+   */
   basePath: string;
   initialSelection: VariantSelection;
   brokenImageLabel: string;
