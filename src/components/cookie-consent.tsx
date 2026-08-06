@@ -72,7 +72,7 @@ export function CookieConsent({ dictionary }: { dictionary: Dictionary }) {
   // contradicted the dialog's `aria-modal="true"`, which tells assistive tech
   // everything outside it is unavailable. A notice is page furniture, not an
   // overlay: it belongs under the modal tier, and above the sticky bars
-  // (back-to-top, mobile CTA) that it must not be buried by.
+  // (currently the product page's mobile CTA) that it must not be buried by.
   return (
     <div
       role="region"

@@ -10,8 +10,8 @@ import { readConsent, subscribeConsent } from "@/lib/cookie-consent";
  * The banner is `fixed inset-x-0 bottom-0 z-[45]`, so it covers the full
  * width of the bottom of the viewport and sits above every sticky bottom
  * bar. Anything else pinned to the bottom must yield to it or it becomes
- * un-clickable — not visually obviously so, which is how the back-to-top
- * button silently stopped working for first-time visitors.
+ * un-clickable — not visually obviously so, which is how the since-removed
+ * back-to-top button silently stopped working for first-time visitors.
  *
  * Deliberately subscribes via `subscribeConsent` (custom event *and*
  * `storage`) rather than `storage` alone: `storage` only fires in *other*

@@ -87,8 +87,8 @@ describe("writeConsent / readConsent", () => {
  * The bug this guards: `setItem` was unguarded, so on a phone that refuses
  * storage the throw escaped the banner's `onClick`. React never reached
  * `setDismissed(true)`, so tapping "Прийняти" did nothing and the notice could
- * not be dismissed — and `BackToTop`, which stands down while the banner is
- * undecided, stayed hidden for the whole visit.
+ * not be dismissed — and every bottom-pinned control that stands down while
+ * the banner is undecided stayed hidden for the whole visit.
  */
 describe("storage that refuses to cooperate", () => {
   it.each(["access", "setItem"] as const)(

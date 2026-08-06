@@ -153,7 +153,7 @@ export function ProductExperience({
     return () => observer.disconnect();
   }, []);
 
-  // Shared with `BackToTop` — both yield the bottom edge to the banner.
+  // Yields the bottom edge to the cookie banner, which sits above it at z-45.
   // (The local subscription this replaced listened to `storage` only, which
   // never fires in the tab that made the change, so the sticky CTA stayed
   // hidden after accepting cookies until the visitor reloaded.)

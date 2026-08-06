@@ -36,8 +36,8 @@ const CONSENT_EVENT = "odudlab:consent-changed";
  * `SecurityError`, and a full or partitioned store throws `QuotaExceededError`
  * on write. Without this the visitor's choice evaporated the instant it was
  * made and every consumer went on believing the banner was still undecided —
- * so the banner could not be got rid of, and `BackToTop`, which stands down
- * while the banner is up, never appeared at all.
+ * so the banner could not be got rid of, and every bottom-pinned control that
+ * stands down while it is up (the product page's mobile CTA) stayed hidden.
  *
  * It must NOT double as a cache of successful writes. Doing that would make
  * this module ignore a store that was legitimately cleared — the visitor

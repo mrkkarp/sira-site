@@ -12,7 +12,6 @@ import { SkipToContent } from "@/components/skip-to-content";
 import { NoScriptNav } from "@/components/no-script-nav";
 import { RouteProgress } from "@/components/route-progress";
 import { PageTransition } from "@/components/page-transition";
-import { BackToTop } from "@/components/back-to-top";
 import { SmoothWheelScroll } from "@/components/smooth-wheel-scroll";
 import { CookieConsent } from "@/components/cookie-consent";
 import { GoogleTagManager } from "@/components/analytics/google-tag-manager";
@@ -99,7 +98,6 @@ export default async function LocaleLayout({
               imported by the client component. */}
           <PageTransition>{children}</PageTransition>
           <Footer locale={locale} dictionary={dictionary} />
-          <BackToTop label={dictionary.footerNav.backToTop} />
           <CookieConsent dictionary={dictionary} />
           <GoogleTagManager />
         </ToastProvider>
