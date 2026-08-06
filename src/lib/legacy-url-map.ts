@@ -362,63 +362,63 @@ export const LEGACY_URL_MAP: ReadonlyMap<string, string> = new Map([
   ["/katalog/zhuk-olen-5", "/"],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrado-1100",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrado-140",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrado-190",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrado-230-700",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrado-240",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrado-4",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrado-5",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-cuadrodo-310",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-linea-1100",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-linea-400",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-podstavka-dlya-tsvetov-linea-700",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-polka-dlya-tsvetov",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-polka-dlya-tsvetov-cuadrado-200",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-polka-dlya-tsvetov-cuadrado-320",
-    "/",
+    "/vazony",
   ],
   [
     "/produkciya/podstavki-dlya-tsvetov/metallicheskaya-polka-dlya-tsvetov-suadrado-150",
-    "/",
+    "/vazony",
   ],
   ["/produkciya/skylptyru/kaktus", "/"],
   ["/produkciya/skylptyru/pingvin", "/"],
@@ -481,9 +481,9 @@ export const LEGACY_URL_MAP: ReadonlyMap<string, string> = new Map([
   ["/produkciya/umyvalniki/umyvlnik", "/rakovyny"],
 
   // category retired, no equivalent on this site → /
-  ["/kategoriya/pidstavku-dlya-kvitiv", "/"],
-  ["/kategoriya/pidstavky-dlya-kvitiv", "/"],
-  ["/kategoriya/podstavki-dlya-tsvetov", "/"],
+  ["/kategoriya/pidstavku-dlya-kvitiv", "/vazony"],
+  ["/kategoriya/pidstavky-dlya-kvitiv", "/vazony"],
+  ["/kategoriya/podstavki-dlya-tsvetov", "/vazony"],
   ["/kategoriya/s3t", "/"],
   ["/kategoriya/s3t-ru", "/"],
   ["/kategoriya/skulptury-z-betonu-ta-armatury", "/"],

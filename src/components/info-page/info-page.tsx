@@ -3,9 +3,9 @@ import { Section, Container } from "@/components/layout";
 
 /**
  * Presentational shell for the real INFO pages (`/payment-delivery`,
- * `/returns`, `/care`). It renders long-form body prose transcribed verbatim
- * from the live-site export (`src/content/info-pages.ts`) — it invents no copy
- * of its own beyond the passed-in `title`.
+ * `/returns`, `/care`). It renders long-form body prose from
+ * `src/content/info-pages.ts` — it invents no copy of its own beyond the
+ * passed-in `title`.
  *
  * Typography/spacing mirror `contact-content.tsx` so the info pages read as
  * part of the same site: `type-h1` for the page title, `type-h2` for section
