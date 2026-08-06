@@ -57,4 +57,27 @@ describe("BackToTop", () => {
 
     expect(screen.getByRole("button", { name: "Нагору" })).toBeInTheDocument();
   });
+
+  /**
+   * The bug this guards: the inverted colours were passed as `className`
+   * (`bg-text text-background`), but `cn` only joins — it resolves nothing.
+   * `text-background` therefore lost to the `text-text` in `IconButton`'s own
+   * base, since both are plain single-class selectors and Tailwind's emission
+   * order decides the winner. The fill applied, the glyph colour did not, and
+   * the arrow was stroked in `#1d1d1b` on a `#1d1d1b` square: a featureless
+   * black block fading in mid-scroll on every page.
+   *
+   * jsdom has no Tailwind, so the colours cannot be computed here. Asserting
+   * that the two never co-occur is the honest proxy — it is precisely the
+   * collision that made the arrow disappear.
+   */
+  it("does not put the icon's colour in reach of IconButton's default", () => {
+    writeConsent({ analytics: false, marketing: false });
+    render(<BackToTop label="Нагору" />);
+    scrollTo(window.innerHeight * 2);
+
+    const button = screen.getByRole("button", { name: "Нагору" });
+    expect(button).toHaveClass("text-background");
+    expect(button).not.toHaveClass("text-text");
+  });
 });

@@ -16,6 +16,14 @@ import { useCookieBannerUndecided } from "@/lib/use-cookie-banner";
  * landed on the banner instead. It looked enabled and did nothing — worse
  * than being absent. `MobileStickyCta` already yielded the bottom edge the
  * same way; this one had simply been missed.
+ *
+ * The inverted colours come from `variant="solid"`, not from `className`.
+ * Passing `bg-text text-background` here looked like it worked and did not:
+ * `cn` does no conflict resolution, so `text-background` lost to the
+ * `text-text` in `IconButton`'s own base and the arrow was stroked black on
+ * the black square. On a phone the result was a blank dark block that
+ * appeared out of nowhere once you scrolled past 1.5 screens — on every page,
+ * which is exactly how it was reported.
  */
 export function BackToTop({ label }: { label: string }) {
   const [visible, setVisible] = useState(false);
@@ -36,7 +44,8 @@ export function BackToTop({ label }: { label: string }) {
     <IconButton
       aria-label={label}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="bg-text text-background hover:bg-graphite fixed right-(--space-sm) bottom-(--space-sm) z-40 shadow-none"
+      variant="solid"
+      className="fixed right-(--space-sm) bottom-(--space-sm) z-40"
       icon={
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
           <path
