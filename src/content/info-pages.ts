@@ -44,8 +44,8 @@ import type { Locale } from "@/i18n/config";
  * export at all. Both are built from the same recovered WordPress posts, which
  * were themselves written as customer Q&As:
  * - `.../chi-mojna-zrobutu-kolir-betony-v-ral` — grey is natural, pigment in
- *   mass on white cement, RAL for orientation only, RAL-exact via tinted
- *   lacquer, pores as a decorative feature
+ *   mass on white cement, RAL for orientation only, RAL-exact as a separate
+ *   surface treatment, pores as a decorative feature
  * - `.../vidpovid-na-pytannya-shho-znachyt-tehnika-terrazzoo...` — Terrazzo:
  *   Venice 15th c., 3–5 mm ground back with diamond discs, the two shape
  *   limits, the four reasons it costs more
@@ -56,13 +56,28 @@ import type { Locale } from "@/i18n/config";
  * site (care, payment-delivery, returns) in one or two sentences and then
  * `link` to the full page, rather than repeating it — see `InfoPageSection.link`.
  *
- * DELIBERATELY OMITTED: the source posts quote surcharges (+20% for pigment in
- * mass, +15% for RAL-exact lacquer, +100% for Terrazzo). Those are 2016-2019-era
- * commercial terms from a site that has since changed platform twice. They are
- * described qualitatively here ("дорожче") and must not be reinstated as
- * numbers without the owner confirming them as current.
+ * OWNER CORRECTION (2026-08-06) — the archive is WRONG on one point, so do not
+ * "restore" it from the source posts. The RAL post describes hitting an exact
+ * RAL by tinting the protective lacquer, and calls the result "поверхневе
+ * фарбування" — a surface treatment. The workshop no longer offers that. What
+ * it does today is add pigments to the two-component polyurethane COATING (the
+ * same protective layer described on `/care`) to match a RAL. So:
+ * - `/colours` → "Якщо потрібен точний RAL" and `/faq` → "Яким може бути колір
+ *   бетону?" describe pigments in the polyurethane coating, never "лак" and
+ *   never "поверхневе фарбування".
+ * - `/care` consequently must NOT call that coating flatly "прозорим" — it is
+ *   transparent by default but pigmented when a RAL is ordered. Those two
+ *   pages describe the same physical layer and have to agree.
  *
- * Nothing here is invented. Do not add claims without a source.
+ * DELIBERATELY OMITTED: the source posts quote surcharges (+20% for pigment in
+ * mass, +15% for the RAL-exact surface treatment, +100% for Terrazzo). Those
+ * are 2016-2019-era commercial terms from a site that has since changed
+ * platform twice, and the +15% priced a service that no longer exists at all.
+ * They are described qualitatively here ("дорожче") and must not be reinstated
+ * as numbers without the owner confirming them as current.
+ *
+ * Nothing here is invented. Do not add claims without a source — either the
+ * archive, or the owner directly (as above, which then overrides the archive).
  */
 
 export type InfoPageSection = {
@@ -156,7 +171,7 @@ export const infoPages: Record<
             "Бетон — природний матеріал з пористою структурою, як дерево чи мармур. Саме тому кожен виріб проходить обов'язкову поверхневу обробку ще в майстерні, перед тим як потрапити до вас.",
           ],
           bullets: [
-            "Стільниці й умивальники просочуємо двокомпонентним поліуретановим складом — прозорим, матовим, гігієнічно безпечним. Наносимо 3–4 шари: вони закривають пори бетону й утворюють захисну плівку, яка не пропускає рідину.",
+            "Стільниці й умивальники просочуємо двокомпонентним поліуретановим складом — матовим, гігієнічно безпечним, зазвичай прозорим (а для точного відтінку RAL — з доданими пігментами). Наносимо 3–4 шари: вони закривають пори бетону й утворюють захисну плівку, яка не пропускає рідину.",
             "Вазони, кашпо та декор покриваємо водовідштовхувальним гідрофобізатором.",
           ],
         },
@@ -263,7 +278,7 @@ export const infoPages: Record<
         {
           heading: "Якщо потрібен точний RAL",
           paragraphs: [
-            "Тоді колорується не бетон, а сам захисний лак, яким покриваємо умивальники та стільниці. Влучання в еталон точне, але фарбування в цьому разі поверхневе, а не наскрізне.",
+            "Тоді колір підбираємо не в масі бетону, а в поліуретановому покритті — тому самому захисному шарі, який наносимо на стільниці й умивальники. У нього додаються спеціальні пігменти, підібрані під потрібний RAL, тож влучання в еталон точне.",
           ],
         },
         {
@@ -335,7 +350,7 @@ export const infoPages: Record<
         {
           heading: "Яким може бути колір бетону?",
           paragraphs: [
-            "Натуральний — відтінки сірого. Також можливе колорування пігментом у масі майже в будь-який відтінок, точне влучання в RAL через колорований лак і техніка Terrazzo з кольоровим камінням.",
+            "Натуральний — відтінки сірого. Також можливе колорування пігментом у масі майже в будь-який відтінок, точне влучання в RAL через пігменти в поліуретановому покритті та техніка Terrazzo з кольоровим камінням.",
           ],
           link: { href: "/colours", label: "Детально про кольори і Terrazzo" },
         },

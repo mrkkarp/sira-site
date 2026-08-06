@@ -46,23 +46,23 @@ generic copy. Ordered alphabetically by route.
 > written from a template. `/careers` and `/resources` likewise have no source,
 > but are discretionary rather than legally required.
 
-| Route               | Notes                                                                                                                                                                    |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/care`             | —                                                                                                                                                                        |
-| `/careers`          | —                                                                                                                                                                        |
+| Route               | Notes                                                                                                                                                                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/care`             | —                                                                                                                                                                                                                                               |
+| `/careers`          | —                                                                                                                                                                                                                                               |
 | `/colours`          | FILLED. Real prose in `src/content/info-pages.ts` (uk), recovered from the archived WordPress colour + Terrazzo posts. Note it is deliberately NOT built around `src/data/product-colours.json` — all six entries there are still `demo: true`. |
-| `/contact`          | Contact details need owner confirmation before this can become real (Prompt 9's standing rule — never fabricate a phone/email/address).                                  |
-| `/cookies-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
-| `/designers`        | —                                                                                                                                                                        |
-| `/faq`              | FILLED. Real prose in `src/content/info-pages.ts` (uk). Custom-order answer recovered from the archived WordPress post; the rest are one-paragraph answers that `link` to the full page rather than duplicating it. |
-| `/payment-delivery` | Payment/logistics details need owner confirmation before this can become real.                                                                                           |
-| `/privacy-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
-| `/public-offer`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
-| `/resources`        | —                                                                                                                                                                        |
-| `/returns`          | Returns policy needs owner confirmation before this can become real.                                                                                                     |
-| `/samples`          | —                                                                                                                                                                        |
-| `/stockists`        | Stockist list needs owner confirmation before this can become real.                                                                                                      |
-| `/terms-of-use`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
+| `/contact`          | Contact details need owner confirmation before this can become real (Prompt 9's standing rule — never fabricate a phone/email/address).                                                                                                         |
+| `/cookies-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                          |
+| `/designers`        | —                                                                                                                                                                                                                                               |
+| `/faq`              | FILLED. Real prose in `src/content/info-pages.ts` (uk). Custom-order answer recovered from the archived WordPress post; the rest are one-paragraph answers that `link` to the full page rather than duplicating it.                             |
+| `/payment-delivery` | Payment/logistics details need owner confirmation before this can become real.                                                                                                                                                                  |
+| `/privacy-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                          |
+| `/public-offer`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                          |
+| `/resources`        | —                                                                                                                                                                                                                                               |
+| `/returns`          | Returns policy needs owner confirmation before this can become real.                                                                                                                                                                            |
+| `/samples`          | —                                                                                                                                                                                                                                               |
+| `/stockists`        | Stockist list needs owner confirmation before this can become real.                                                                                                                                                                             |
+| `/terms-of-use`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                          |
 
 ## Real-content pages (13)
 
@@ -108,6 +108,14 @@ none has been invented here.
 
 One commercial detail is pending owner confirmation specifically: the archived
 2016-2019 posts quoted surcharges of +20% for pigment in the mass, +15% for a
-RAL-exact tinted lacquer and +100% for Terrazzo. `/colours` and `/faq` describe
-these qualitatively ("дорожче") on purpose. Restore the numbers only once the
-owner confirms they are still current.
+RAL-exact surface treatment and +100% for Terrazzo. `/colours` and `/faq`
+describe these qualitatively ("дорожче") on purpose. Restore the numbers only
+once the owner confirms they are still current — and note the +15% priced a
+service that no longer exists (see below), so that one is dead regardless.
+
+The archive is also outdated on one factual point, corrected by the owner on
+2026-08-06: the RAL post describes tinting the protective lacquer as a separate
+"поверхневе фарбування". The workshop no longer does surface painting. An exact
+RAL is now achieved by adding pigments to the two-component polyurethane
+coating itself. `/colours`, `/faq` and `/care` were all updated to match and
+must stay consistent — do not regenerate them from the archive.
