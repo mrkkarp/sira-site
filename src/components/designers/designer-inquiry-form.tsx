@@ -242,8 +242,8 @@ export function DesignerInquiryForm({ dictionary }: { dictionary: Dictionary }) 
       />
 
       <Button
+        variant="accent"
         type="submit"
-        variant="primary-dark"
         disabled={busy}
         className="self-start"
       >

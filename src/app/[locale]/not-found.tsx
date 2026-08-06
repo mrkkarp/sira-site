@@ -5,6 +5,7 @@ import { defaultLocale, locales } from "@/i18n/config";
 import { clientStrings, detectLocaleFromPathname } from "@/i18n/client-strings";
 import { localeHref } from "@/lib/locale-href";
 import { LinkButton } from "@/components/ui/link-button";
+import { BrandEyebrow, HoopoeCrest } from "@/components/brand";
 
 /**
  * `not-found.js` receives no props in Next.js 16 (confirmed via
@@ -20,7 +21,12 @@ export default function NotFound() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-start justify-center px-6 py-24">
-      <p className="type-eyebrow text-text-muted">{strings.notFound.eyebrow}</p>
+      {/* A 404 is the one screen with nothing on it, which makes it the one
+          screen where a mark is not competing with anything. `lg` here and
+          nowhere else: this is the only place the crest gets a block to
+          itself. */}
+      <HoopoeCrest size="lg" className="mb-(--space-sm)" />
+      <BrandEyebrow>{strings.notFound.eyebrow}</BrandEyebrow>
       <h1 className="type-h1 text-text mt-(--space-2xs)">
         {strings.notFound.title}
       </h1>

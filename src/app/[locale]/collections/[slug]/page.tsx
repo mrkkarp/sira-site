@@ -21,6 +21,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { TextLink } from "@/components/ui/text-link";
 import { LinkButton } from "@/components/ui/link-button";
 import { Swatch } from "@/components/ui/swatch";
+import { BrandEyebrow } from "@/components/brand";
 
 export async function generateMetadata({
   params,
@@ -196,7 +197,7 @@ export default async function CollectionPage({
           </MediaFrame>
 
           <div className="flex max-w-2xl flex-col gap-(--space-2xs)">
-            <p className="type-eyebrow text-text-muted">{copy.demoLabel}</p>
+            <BrandEyebrow>{copy.demoLabel}</BrandEyebrow>
             <h1 className="type-h1 text-text">{collection.name}</h1>
             <p className="type-body text-text-muted">
               {collection.description}
@@ -248,9 +249,9 @@ export default async function CollectionPage({
                 </MediaFrame>
               }
             >
-              <p className="type-eyebrow text-text-muted">
+              <BrandEyebrow>
                 {shopCategoryLabel(editorialProduct.shopCategory, dictionary)}
-              </p>
+              </BrandEyebrow>
               <h2 className="type-h2 text-text mt-(--space-xs)">
                 {editorialProduct.name}
               </h2>

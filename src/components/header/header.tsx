@@ -377,7 +377,7 @@ export function Header({
                 cellRule,
               )}
             >
-              <Logo locale={locale} />
+              <Logo locale={locale} inverted={inverted} />
             </div>
 
             {/* One `<nav>`, two clusters. The free width sits *between* them

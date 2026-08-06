@@ -2,6 +2,7 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { contact } from "@/config/contact";
 import { Section, Container } from "@/components/layout";
 import { ContactForm } from "@/components/contact/contact-form";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * Real ODUDLAB contact page content (replaces the former `/stockists`
@@ -39,7 +40,7 @@ export function ContactContent({ dictionary }: { dictionary: Dictionary }) {
     <Section spacing="xl">
       <Container>
         <header className="max-w-2xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
           <p className="type-body text-text-muted mt-(--space-sm)">
             {copy.intro}

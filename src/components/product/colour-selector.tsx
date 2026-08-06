@@ -8,6 +8,7 @@ import type { VariantChoice } from "@/lib/variant-model";
 import { ProductImage } from "@/components/product/product-image";
 import { Price } from "@/components/ui/price";
 import { DrawingMarker } from "@/components/technical-drawing";
+import { BrandAccentLine } from "@/components/brand";
 import { cn } from "@/lib/cn";
 
 /**
@@ -151,22 +152,24 @@ export function ColourSelector({
               </span>
 
               {/* The plate's rule. Always present as construction weight, with
-                  an ink overlay that draws itself across on hover and stays
+                  an accent overlay that draws itself across on hover and stays
                   drawn while selected — the "animated line" the brief asks for,
-                  as a transform, so it costs one composited frame. */}
-              <span
-                aria-hidden="true"
-                className="bg-drawing-line-subtle relative block h-(--drawing-stroke) w-full"
-              >
-                <span
-                  className={cn(
-                    "bg-text absolute inset-0 origin-left transition-transform duration-(--duration-normal) ease-(--ease-nav)",
-                    isSelected
-                      ? "scale-x-100"
-                      : "scale-x-0 group-hover:scale-x-100 group-focus-visible:scale-x-100",
-                  )}
-                />
-              </span>
+                  as a transform, so it costs one composited frame.
+
+                  This is the brand accent rather than plain ink because
+                  choosing a colourway is the one decision on the page that is
+                  actually about colour, so it is where the brand's own colour
+                  has something to say. It is safe to spend it here precisely
+                  because selection was never resting on this rule alone: the
+                  plate's border goes to `--color-text` and the position marker
+                  fills, both independently of the accent. Someone who cannot
+                  distinguish the terracotta still has two unambiguous signals,
+                  which is what keeps this clear of 1.4.1.
+
+                  The *marker* deliberately does not take the accent. Filling it
+                  terracotta would put an 11px `--color-background` numeral on
+                  a 3.93:1 ground — fine as a shape, a failure as text. */}
+              <BrandAccentLine drawn={isSelected} onHover />
 
               <span className="flex items-center gap-(--space-xs)">
                 {isCustom ? (

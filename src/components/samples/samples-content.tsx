@@ -1,6 +1,7 @@
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { Section, Container } from "@/components/layout";
 import { SampleRequestForm } from "@/components/samples/sample-request-form";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * `/samples` — "Замовити зразок кольору".
@@ -23,7 +24,7 @@ export function SamplesContent({ dictionary }: { dictionary: Dictionary }) {
     <Section spacing="xl">
       <Container>
         <header className="max-w-2xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
           <p className="type-body text-text-muted mt-(--space-sm)">
             {copy.intro}

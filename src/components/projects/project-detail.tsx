@@ -10,6 +10,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { TextLink } from "@/components/ui/text-link";
 import { ProductImage } from "@/components/product/product-image";
 import { CoordinateLabel, drawingIndex } from "@/components/technical-drawing";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * `/projects/[slug]` — one realised project.
@@ -101,7 +102,7 @@ export function ProjectDetail({
         />
 
         <header className="mt-(--space-md) max-w-4xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">
             {content.title}
           </h1>

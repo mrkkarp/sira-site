@@ -1,6 +1,7 @@
 import type { Locale } from "@/i18n/config";
 import { clientStrings } from "@/i18n/client-strings";
 import { localeHref } from "@/lib/locale-href";
+import { renderCrestSvg } from "@/lib/hoopoe-crest";
 
 /**
  * The HTML `src/proxy.ts` serves when it has to answer with a status a page
@@ -20,9 +21,24 @@ import { localeHref } from "@/lib/locale-href";
  * `next/font` pipeline, so the colours are inlined from the same design
  * tokens (`--color-background` `#f1eee7`, `--color-text` `#1d1d1b`,
  * `--color-text-muted` `#68655f`) and the type falls back to the system
- * stack. The shape deliberately matches `src/app/not-found.tsx` — eyebrow,
- * heading, one paragraph, one pill link — so the two read as the same page in
- * different fonts rather than as two different sites.
+ * stack. The shape deliberately matches `src/app/not-found.tsx` — crest,
+ * eyebrow, heading, one paragraph, one pill link — so the two read as the same
+ * page in different fonts rather than as two different sites.
+ *
+ * ## Why the brand mark is here of all places
+ *
+ * This is not a rarely-seen file. It is what answers *every* URL no route
+ * owns, plus the 44 dead Horoshop demo URLs that still return `410`, which
+ * means it is one of the most-served pages on the site and the one people
+ * reach when something has already gone wrong. Leaving it as the only
+ * unbranded screen would put the site's worst moment in a generic voice.
+ *
+ * The mark and the accent are inlined as literals (`#b85b42` tips, `#8a8579`
+ * shafts, `#9d4832` eyebrow) because there is no stylesheet here to name them
+ * with. `#9d4832` is `--brand-accent-ink`, which measures 5.32:1 on this
+ * background — the ink and not `--brand-accent`, because this eyebrow is
+ * text. The geometry is imported rather than copied so the mark cannot drift
+ * away from the one the rest of the site draws.
  *
  * `src/app/not-found.tsx` is *not* dead as a result: it still renders for an
  * explicit `notFound()` thrown inside an already-matched route (an unknown
@@ -60,7 +76,8 @@ body { margin:0; min-height:100vh; display:flex; align-items:center;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height:1.5 }
 main { max-width:38rem; margin:0 auto; padding:6rem 1.5rem }
-.eyebrow { margin:0; font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; color:#68655f }
+svg { display:block; margin:0 0 1.25rem }
+.eyebrow { margin:0; font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; color:#9d4832 }
 h1 { margin:.5rem 0 0; font-size:clamp(1.75rem, 5vw, 2.5rem); font-weight:500; letter-spacing:-.01em }
 p.body { margin:.75rem 0 0; color:#68655f }
 a { display:inline-block; margin-top:2rem; padding:.75rem 1.5rem;
@@ -70,6 +87,7 @@ a:hover { background:#1d1d1b; color:#f1eee7 }
 </head>
 <body>
 <main>
+${renderCrestSvg({ width: 64, shaft: "#8a8579", tip: "#b85b42" })}
 <p class="eyebrow">${eyebrow}</p>
 <h1>${title}</h1>
 <p class="body">${body}</p>

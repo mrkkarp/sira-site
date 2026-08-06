@@ -290,7 +290,7 @@ export function ProductExperience({
                 ) : (
                   <Button
                     type="button"
-                    variant="primary-dark"
+                    variant="accent"
                     className="self-start"
                     onPointerEnter={preloadQuoteForm}
                     onFocus={preloadQuoteForm}

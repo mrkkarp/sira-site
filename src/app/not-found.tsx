@@ -7,6 +7,7 @@ import { defaultLocale, locales } from "@/i18n/config";
 import { clientStrings, detectLocaleFromPathname } from "@/i18n/client-strings";
 import { localeHref } from "@/lib/locale-href";
 import { LinkButton } from "@/components/ui/link-button";
+import { BrandEyebrow, HoopoeCrest } from "@/components/brand";
 
 const interfaceSans = Manrope({
   variable: "--font-interface-sans",
@@ -49,9 +50,13 @@ export default function RootNotFound() {
     >
       <body className="bg-background text-text flex min-h-screen flex-col font-sans antialiased">
         <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-1 flex-col items-start justify-center px-6 py-24">
-          <p className="type-eyebrow text-text-muted">
-            {strings.notFound.eyebrow}
-          </p>
+          {/* Same treatment as the nested 404, and for a stronger reason: per
+              the note above, *this* is the file a mistyped URL actually lands
+              on. The nested one only fires for an explicit `notFound()`. If
+              only one of the two carried the mark it should have been this
+              one — so they are kept identical deliberately, not by accident. */}
+          <HoopoeCrest size="lg" className="mb-(--space-sm)" />
+          <BrandEyebrow>{strings.notFound.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">
             {strings.notFound.title}
           </h1>

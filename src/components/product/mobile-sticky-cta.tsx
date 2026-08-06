@@ -68,6 +68,7 @@ export function MobileStickyCta({
         {contactRequired ? (
           <Button
             type="button"
+            variant="accent"
             size="sm"
             onClick={onRequestQuote}
             className="shrink-0"
@@ -77,6 +78,7 @@ export function MobileStickyCta({
         ) : (
           <Button
             type="button"
+            variant="accent"
             size="sm"
             onClick={handleAdd}
             disabled={isAdding}

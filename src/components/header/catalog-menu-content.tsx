@@ -9,6 +9,7 @@ import { localeHref } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
 import { catalogTree } from "@/config/navigation";
 import { RollingLabel } from "@/components/header/rolling-label";
+import { BrandAccentLine } from "@/components/brand";
 import {
   CoordinateLabel,
   DrawingFrame,
@@ -170,16 +171,20 @@ export function CatalogMenuContent({
                     {label(copy, node.labelKey)}
                   </span>
                 </span>
-                {/* The row's rule: construction weight always, with an ink
-                    overlay that draws itself across on hover. A transform, so
-                    it is one composited frame and the reduced-motion rule
-                    already removes it. */}
-                <span
-                  aria-hidden="true"
-                  className="bg-drawing-line-subtle relative block h-(--drawing-stroke) w-full"
-                >
-                  <span className="bg-text absolute inset-0 origin-left scale-x-0 transition-transform duration-(--duration-normal) ease-(--ease-nav) group-hover:scale-x-100 group-focus-visible:scale-x-100" />
-                </span>
+                {/* The row's rule: construction weight always, with an overlay
+                    that draws itself across on hover. A transform, so it is one
+                    composited frame and the reduced-motion rule already removes
+                    it. This markup used to be written out here by hand and was
+                    character-for-character `BrandAccentLine`, so it is now that
+                    component — the only change being that the overlay is the
+                    brand accent rather than full ink.
+
+                    Only the seven top-level rows get the colour. The child
+                    links below keep their ink underline on purpose: there are
+                    dozens of them set close together, and colouring every one
+                    turns a dense list into confetti. Seven rows lit strictly
+                    one at a time is a single coloured stroke on screen. */}
+                <BrandAccentLine onHover />
               </Link>
 
               {node.children ? (

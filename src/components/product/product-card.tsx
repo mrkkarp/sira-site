@@ -8,11 +8,8 @@ import { Price } from "@/components/ui/price";
 import { Badge } from "@/components/ui/badge";
 import { MediaFrame } from "@/components/layout/media-frame";
 import { ProductImage } from "@/components/product/product-image";
-import {
-  CoordinateLabel,
-  TechnicalLine,
-  drawingIndex,
-} from "@/components/technical-drawing";
+import { CoordinateLabel, drawingIndex } from "@/components/technical-drawing";
+import { BrandAccentLine } from "@/components/brand";
 
 /**
  * Universal product card — used on the homepage "Популярні вироби" slider
@@ -74,8 +71,13 @@ export function ProductCard({
           className="transition-transform duration-(--duration-normal) ease-(--ease-standard) group-hover:scale-[1.03]"
           brokenLabel={dictionary.shop.states.brokenImageAlt}
         />
+        {/* "На замовлення" in the brand tone. This is the one mark on a
+            catalogue card that is visible without hovering, and it is the right
+            one to colour: it sits in the corner rather than over the object,
+            and what it says — every piece is cast to order — is the claim the
+            brand is actually making. */}
         <div className="pointer-events-none absolute top-(--space-2xs) left-(--space-2xs) flex flex-wrap gap-(--space-3xs)">
-          <Badge>{cardCopy.madeToOrderBadge}</Badge>
+          <Badge tone="accent">{cardCopy.madeToOrderBadge}</Badge>
         </div>
         {index === undefined ? null : (
           // Opaque plate, not translucent: catalogue photos run from luminance
@@ -87,7 +89,15 @@ export function ProductCard({
         )}
       </MediaFrame>
       <div className="mt-(--space-2xs) flex flex-col gap-(--space-3xs)">
-        <TechnicalLine />
+        {/* The card's one brand beat, and it is the rule that was already
+            here — not a new mark. At rest this is the same construction
+            hairline it has always been, so a grid of twenty cards is exactly
+            as quiet as before; the terracotta only draws itself across the
+            card the cursor is actually on. That is the whole reason the accent
+            lives on hover rather than at rest: a catalogue page is twenty
+            photographs competing for attention, and twenty coloured rules
+            would compete with all of them at once. */}
+        <BrandAccentLine onHover />
         <div className="flex items-center justify-between gap-(--space-2xs)">
           <p className="type-drawing-label text-drawing-text truncate">
             {typeLabel}

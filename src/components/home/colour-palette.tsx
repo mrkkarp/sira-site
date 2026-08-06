@@ -9,6 +9,7 @@ import { Section, Container } from "@/components/layout";
 import { TextLink } from "@/components/ui/text-link";
 import { LinkButton } from "@/components/ui/link-button";
 import { Swatch } from "@/components/ui/swatch";
+import { BrandEyebrow } from "@/components/brand";
 
 function hexToSoftWash(hex: string): string {
   const value = hex.replace("#", "");
@@ -53,7 +54,7 @@ export function ColourPalette({
     >
       <Container>
         <div className="max-w-2xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h2 className="type-display-l text-text mt-(--space-xs)">
             {copy.heading}
           </h2>

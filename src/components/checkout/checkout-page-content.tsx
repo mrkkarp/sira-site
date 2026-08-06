@@ -570,6 +570,7 @@ export function CheckoutPageContent({
         </FormField>
 
         <Button
+          variant="accent"
           type="submit"
           disabled={status === "submitting"}
           className="self-start"

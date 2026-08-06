@@ -7,6 +7,7 @@ import { clientStrings, detectLocaleFromPathname } from "@/i18n/client-strings";
 import { localeHref } from "@/lib/locale-href";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * Route-segment error boundary. Must be a Client Component (React error
@@ -32,7 +33,7 @@ export default function ErrorPage({
 
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-start justify-center px-6 py-24">
-      <p className="type-eyebrow text-text-muted">{strings.error.eyebrow}</p>
+      <BrandEyebrow>{strings.error.eyebrow}</BrandEyebrow>
       <h1 className="type-h1 text-text mt-(--space-2xs)">
         {strings.error.title}
       </h1>

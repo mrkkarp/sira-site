@@ -267,8 +267,8 @@ export function QuoteRequestForm({
       />
 
       <Button
+        variant="accent"
         type="submit"
-        variant="primary-dark"
         disabled={status === "submitting"}
         className="self-start"
       >

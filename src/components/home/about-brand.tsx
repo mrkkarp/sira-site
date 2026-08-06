@@ -4,6 +4,7 @@ import { localeHref } from "@/lib/locale-href";
 import { Section, Container } from "@/components/layout";
 import { LinkButton } from "@/components/ui/link-button";
 import { CoordinateLabel, drawingIndex } from "@/components/technical-drawing";
+import { BrandEyebrow, HoopoeCrest } from "@/components/brand";
 
 /**
  * "Про бренд" (Prompt 4 §7) — the in-house-production story. The original
@@ -27,7 +28,17 @@ export function AboutBrand({
     <Section spacing="xl">
       <Container>
         <div className="max-w-3xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          {/* The crest marks this section and no other on the homepage.
+              Putting it on `SectionHeader`'s eyebrow was the obvious way to
+              spread it and is the wrong one: only six of the eleven sections
+              rendered here route through that component, so it would have
+              marked half the page and skipped the rest — the same
+              some-but-not-all failure that got section numbering reverted
+              once already (see `technical-drawing/marker.tsx`). One section
+              that is genuinely about the brand carries the brand's mark; the
+              other ten stay clean. */}
+          <HoopoeCrest className="mb-(--space-xs)" />
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h2 className="type-display-l text-text mt-(--space-xs)">
             {copy.heading}
           </h2>

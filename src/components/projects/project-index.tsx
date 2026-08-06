@@ -13,6 +13,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { TextLink } from "@/components/ui/text-link";
 import { ProductImage } from "@/components/product/product-image";
 import { CoordinateLabel, drawingIndex } from "@/components/technical-drawing";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * `/projects` — the index of realised projects.
@@ -63,7 +64,7 @@ export function ProjectIndex({
         />
 
         <header className="mt-(--space-md) max-w-3xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
           {copy.intro.map((paragraph) => (
             <p

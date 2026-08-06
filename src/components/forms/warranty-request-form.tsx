@@ -446,7 +446,7 @@ export function WarrantyRequestForm({
 
       <Button
         type="submit"
-        variant="primary-dark"
+        variant="accent"
         disabled={status === "submitting" || isUploading}
         className="self-start"
       >

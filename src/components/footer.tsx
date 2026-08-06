@@ -16,6 +16,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import type { AccordionItemData } from "@/components/ui/accordion";
 import { drawingIndex } from "@/components/technical-drawing";
+import { HoopoeCrest } from "@/components/brand";
 
 // `inline-block` + padding, because vertical padding on an inline box does not
 // grow the line: a 19px-tall link is under the 24px minimum target (WCAG 2.5.8)
@@ -49,12 +50,19 @@ function LinkColumn({
     <div>
       <h2 className="type-technical-label text-background/60 flex items-center gap-(--drawing-gap)">
         {/* Column number in the drawing's voice. `aria-hidden` so the heading
-            is still announced as just the section name, and set in the same ink
-            as the name — on the sheet a position number is not a fainter mark,
-            it is the same ink held apart by the gap. Tinting it down was worth
-            2.9:1 on this band, which is a number you can only find if you
-            already know it is there. */}
-        <span aria-hidden="true">{drawingIndex(index)}</span>
+            is still announced as just the section name.
+
+            It carries the brand accent, and the earlier note here still holds:
+            a position number must never be a *fainter* mark than the name it
+            indexes. `--brand-accent-on-dark` measures 5.75:1 on this band and
+            the surrounding `text-background/60` resolves to ~5.8:1, so this
+            changes the hue and not the weight — which is the only way to
+            colour a number on a technical sheet without demoting it. Tinting
+            it down was worth 2.9:1, a number you can only find if you already
+            know it is there; this is not that. */}
+        <span aria-hidden="true" className="text-brand-accent-on-dark">
+          {drawingIndex(index)}
+        </span>
         {heading}
       </h2>
       <ul className="type-body-sm mt-(--space-sm) flex flex-col gap-(--space-3xs)">
@@ -127,6 +135,13 @@ export function Footer({
       data-analytics-location="footer"
       className="col-span-2 lg:col-span-1"
     >
+      {/* The one place on the site where the bird appears outside the logo.
+          The footer is where a maker signs the sheet, and this column is the
+          only block on any page whose subject is ODUDLAB itself — so the crest
+          sits above the name here and nowhere else. It is `aria-hidden` and
+          the name is right beneath it in real text, so nothing is lost by
+          skipping it. */}
+      <HoopoeCrest className="mb-(--space-2xs)" tone="dark" />
       <p className="type-h4 text-background font-serif">
         {dictionary.site.name}
       </p>

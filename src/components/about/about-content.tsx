@@ -6,6 +6,7 @@ import { Section, Container } from "@/components/layout";
 import { LinkButton } from "@/components/ui/link-button";
 import { TextLink } from "@/components/ui/text-link";
 import { CoordinateLabel, drawingIndex } from "@/components/technical-drawing";
+import { BrandEyebrow, HoopoeCrest } from "@/components/brand";
 
 /**
  * `/about` — the workshop page, and the last stop for a visitor deciding
@@ -60,7 +61,11 @@ export function AboutContent({
     <Section spacing="xl">
       <Container>
         <header className="max-w-3xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          {/* The workshop's own page carries the mark. It is the one route
+              whose subject *is* the brand, so it is the one route where the
+              crest is describing the content rather than decorating it. */}
+          <HoopoeCrest className="mb-(--space-xs)" />
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
           <p className="type-body-lg text-text-muted mt-(--space-sm)">
             {copy.intro}

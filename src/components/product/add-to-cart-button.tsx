@@ -31,7 +31,7 @@ export function AddToCartButton({
   return (
     <Button
       type="button"
-      variant="primary-dark"
+      variant="accent"
       onClick={handleAdd}
       disabled={isAdding}
       aria-busy={isAdding}

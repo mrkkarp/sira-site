@@ -36,6 +36,64 @@
   --color-industrial-blue: #5d7882;
   --color-warm-cream: #d8d0b8;
 
+  /* ---- Brand accent (the ODUDLAB terracotta, promoted) ----
+     Not a new colour. `--color-terracotta` above has always been in the
+     palette as a *material* swatch — a concrete pigment you can order. These
+     six aliases promote that same value to an *interface* accent, which is a
+     different job with a different burden of proof: a swatch only has to look
+     like the pigment, an accent has to be legible.
+
+     So this is one hue at six measured strengths, not a ramp picked by eye.
+     Each is gated at the threshold for the role it actually performs, and the
+     numbers are checked by `scripts/check-brand-contrast.ts` rather than
+     asserted here — this file already records three separate colours that had
+     to be darkened after an audit caught them failing, and the point of the
+     script is that the fourth one gets caught before it ships, not after.
+
+       --brand-accent      #b85b42  3.53–4.32:1 on the light surfaces.
+                                    Non-text only: strokes, rules, marker
+                                    rings, borders. Clears 1.4.11's 3:1, does
+                                    NOT clear 1.4.3's 4.5:1 — never set body
+                                    copy in it.
+       --brand-accent-ink  #9d4832  4.78–5.85:1. The same accent darkened
+                                    until it is a *text* colour: links, small
+                                    labels. This is what body-sized terracotta
+                                    has to be. Also the only fill a *filled*
+                                    button may use: light text measures 5.85:1
+                                    on it, where the same text on --brand-accent
+                                    is 4.32:1 and fails.
+       --brand-accent-ink-hover
+                           #8a3c28  The filled button's hover. It goes *down*,
+                                    not up, and that direction is forced: the
+                                    label is light, so lightening the fill walks
+                                    it toward the 4.32:1 that already failed.
+                                    7.23:1 with the label, 5.90–7.23:1 as text
+                                    on the light surfaces — a hover state is not
+                                    allowed to be the moment contrast drops.
+       --brand-accent-on-dark
+                           #d98368  5.75:1 on --color-footer. Light enough to
+                                    read on the dark band, where both values
+                                    above collapse (the ink measures 2.83:1
+                                    there — it is a light-surface colour and
+                                    nothing else).
+       --brand-accent-tint #eadcd3  A wash, never a foreground. --color-text
+                                    still measures 12.60:1 on it.
+       --brand-accent-soft #ddbbad  1.54:1 on the page background. Far under
+                                    3:1, so it is decoration and only ever
+                                    decoration: it may sit *alongside* a
+                                    stronger signal, but it must never be the
+                                    sole indicator of a control's state or the
+                                    sole boundary of one. Recorded rather than
+                                    deleted so the next person to reach for a
+                                    soft terracotta border sees the number
+                                    first. */
+  --brand-accent: var(--color-terracotta);
+  --brand-accent-ink: #9d4832;
+  --brand-accent-ink-hover: #8a3c28;
+  --brand-accent-on-dark: #d98368;
+  --brand-accent-tint: #eadcd3;
+  --brand-accent-soft: #ddbbad;
+
   /* ---- Spacing scale ---- */
   --space-3xs: 0.25rem; /* 4px  — label/inline gaps */
   --space-2xs: 0.5rem; /* 8px  */
@@ -256,6 +314,17 @@
   --color-drawing-line: var(--drawing-line);
   --color-drawing-line-subtle: var(--drawing-line-subtle);
   --color-drawing-text: var(--drawing-text);
+
+  /* Same reasoning for the brand accent: `bg-brand-accent`,
+     `text-brand-accent-ink`, `border-brand-accent` rather than arbitrary
+     values, so the four strengths stay nameable at every call site and a
+     reviewer can see which role was chosen. */
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-ink: var(--brand-accent-ink);
+  --color-brand-accent-ink-hover: var(--brand-accent-ink-hover);
+  --color-brand-accent-on-dark: var(--brand-accent-on-dark);
+  --color-brand-accent-tint: var(--brand-accent-tint);
+  --color-brand-accent-soft: var(--brand-accent-soft);
 
   --radius-none: 0px;
 }

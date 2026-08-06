@@ -12,6 +12,7 @@ import { formatTemplate } from "@/lib/format-template";
 import { cn } from "@/lib/cn";
 import { catalogTree, primaryNav } from "@/config/navigation";
 import { useDialogBehaviour } from "@/components/ui/use-dialog-behaviour";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * The mobile navigation is a *different object* from the desktop bar, not the
@@ -124,7 +125,7 @@ export function MobileMenu({
       </div>
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-(--space-sm) py-(--space-md)">
-        <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+        <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
         <ul className="mt-(--space-2xs)">
           {catalogTree.map((node) => {
             const index = row++;

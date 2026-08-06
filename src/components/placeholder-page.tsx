@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/i18n/get-dictionary";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * Shared shell for routes that are architecturally wired up but not yet
@@ -14,9 +15,7 @@ export function PlaceholderPage({
 }) {
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-3xl flex-col items-start justify-center px-6 py-24">
-      <p className="type-eyebrow text-text-muted">
-        {dictionary.placeholder.title}
-      </p>
+      <BrandEyebrow>{dictionary.placeholder.title}</BrandEyebrow>
       <h1 className="type-h1 text-text mt-3">{title}</h1>
       <p className="type-body text-text-muted mt-4">
         {dictionary.placeholder.body}

@@ -2,6 +2,7 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { contact } from "@/config/contact";
 import { Section, Container } from "@/components/layout";
 import { DesignerInquiryForm } from "@/components/designers/designer-inquiry-form";
+import { BrandEyebrow } from "@/components/brand";
 
 /**
  * `/designers` — the trade page, and one of the two conversions that matter.
@@ -34,7 +35,7 @@ export function DesignersContent({ dictionary }: { dictionary: Dictionary }) {
     <Section spacing="xl">
       <Container>
         <header className="max-w-2xl">
-          <p className="type-eyebrow text-text-muted">{copy.eyebrow}</p>
+          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
           <p className="type-body text-text-muted mt-(--space-sm)">
             {copy.intro}

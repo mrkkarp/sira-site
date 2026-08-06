@@ -66,7 +66,7 @@ export function ProductCoreInfo({
       </div>
 
       <div className="flex flex-wrap gap-(--space-3xs)">
-        <Badge>{cardCopy.madeToOrderBadge}</Badge>
+        <Badge tone="accent">{cardCopy.madeToOrderBadge}</Badge>
       </div>
 
       <dl className="type-body-sm text-text-muted flex flex-col gap-(--space-3xs)">
