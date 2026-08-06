@@ -16,6 +16,7 @@ import { buildGalleryMedia } from "@/lib/gallery-media";
 import { buildQuoteContext } from "@/lib/quote-context";
 import { formatTemplate } from "@/lib/format-template";
 import { useCookieBannerUndecided } from "@/lib/use-cookie-banner";
+import { PRODUCT_GRID_CLASS } from "@/components/product/product-layout";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductCoreInfo } from "@/components/product/product-core-info";
 import { ProductTrustDetails } from "@/components/product/product-trust-details";
@@ -164,17 +165,12 @@ export function ProductExperience({
   const cookieBannerUndecided = useCookieBannerUndecided();
 
   return (
-    // The gallery column was a flat `3fr`, which on a 1440×751 laptop made it
-    // 755 px wide — and a square photo 755 px wide is 755 px tall, taller than
-    // the viewport. Capping the photo alone would have left a few hundred
-    // pixels of dead space beside it, so the cap lives on the *column*:
-    // `min(60%, <height budget>)`. On a tall screen 60% wins and the split is
-    // the old 3fr/2fr; on a short one the height budget wins, the gallery
-    // narrows, and the info column absorbs the difference instead of the
-    // layout growing a hole. (`ProductGallery` carries the same expression as
-    // its own max-width, which is what caps it on phones in landscape, where
-    // there is no grid at all.)
-    <div className="lg:grid lg:grid-cols-[minmax(0,min(60%,calc(100svh-var(--header-stack-height,74px)-9rem)))_minmax(0,1fr)] lg:items-start lg:gap-x-(--space-lg)">
+    // The gallery/info split and the gallery's own width budget both live in
+    // `product-layout.ts`, because this route's `loading.tsx` has to draw the
+    // same two columns — see the note there. (`ProductGallery` carries the
+    // same expression as its own max-width, which is what caps it on phones in
+    // landscape, where there is no grid at all.)
+    <div className={PRODUCT_GRID_CLASS}>
       <div>
         <ProductGallery
           media={media}
