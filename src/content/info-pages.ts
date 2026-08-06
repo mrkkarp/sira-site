@@ -1,4 +1,8 @@
 import type { Locale } from "@/i18n/config";
+import {
+  colourPaletteShades,
+  type PaletteShade,
+} from "@/content/colour-palette";
 
 /**
  * Long-form INFO-page body content. `payment-delivery` and `returns` are
@@ -74,7 +78,19 @@ import type { Locale } from "@/i18n/config";
  * are 2016-2019-era commercial terms from a site that has since changed
  * platform twice, and the +15% priced a service that no longer exists at all.
  * They are described qualitatively here ("дорожче") and must not be reinstated
- * as numbers without the owner confirming them as current.
+ * as numbers without the owner confirming them as current. The owner has since
+ * (2026-08-06) confirmed the shape of the answer without giving a number:
+ * "націнка на індивідуальні вироби рахується індивідуально, на серійні і так у
+ * нас є" — so `/colours` → "Скільки коштує колір" splits the two cases and, for
+ * serial pieces, simply points at the option that already exists on the product
+ * page ("Стандартний колір" without a surcharge vs. `contactColourCta`,
+ * "Уточнити індивідуальний колір"). It states no percentage anywhere.
+ *
+ * The `/colours` → "Популярні відтінки" swatch grid is likewise the owner's
+ * call, 2026-08-06: "вони можуть бути впринципі будь які, можеш додати палітру
+ * самих популярних елегантних та красивий опис". Its shades live in
+ * `src/content/colour-palette.ts`, apart from the orderable product colours, and
+ * the copy labels them as examples rather than a range — see that module.
  *
  * Nothing here is invented. Do not add claims without a source — either the
  * archive, or the owner directly (as above, which then overrides the archive).
@@ -92,6 +108,19 @@ export type InfoPageSection = {
    * `InfoPage` runs it through `localeHref`.
    */
   link?: { href: string; label: string };
+  /**
+   * Optional swatch grid. Used by exactly one section — `/colours` →
+   * "Популярні відтінки" — because colour is the one subject on this site that
+   * prose genuinely cannot carry on its own. `note` is the caption printed
+   * under the grid and is REQUIRED, not optional: a hex swatch of a mineral
+   * material is an approximation, and the page must say so next to the
+   * swatches rather than only in a distant section.
+   *
+   * These shades are illustrative, NOT catalogue options — see
+   * `src/content/colour-palette.ts` for why they are kept away from
+   * `src/data/product-colours.json`.
+   */
+  palette?: { shades: PaletteShade[]; note: string };
 };
 
 export type InfoPageContent = { sections: InfoPageSection[] };
@@ -272,7 +301,24 @@ export const infoPages: Record<
           paragraphs: [
             "Порошковий пігмент (або їх комбінацію) додаємо прямо в масу бетону, замішаного на білому цементі. Колір виходить наскрізним — він не стирається й не сколюється разом з поверхнею, бо це колір самого матеріалу.",
             "Відтінок можна підбирати за палітрою RAL, але для орієнтування: стовідсоткового попадання ми не гарантуємо. Бетон змінює відтінок при замішуванні, висиханні, обробці та покритті лаком. Загальний обраний колір при цьому зберігається.",
-            "У кольоровому варіанті використовуються дорожчі інгредієнти, тому він коштує більше за сірий — особливо на великих виробах на кшталт умивальників.",
+          ],
+        },
+        {
+          heading: "Популярні відтінки",
+          paragraphs: [
+            "Жорсткої палітри в нас немає — пігмент можна підібрати практично під будь-який відтінок. Але за роки роботи склалося коло кольорів, які просять найчастіше: стримана мінеральна гама, у якій виріб виглядає так, ніби матеріал таким і добули, а не пофарбували.",
+            "Це приклади, а не перелік доступного. Якщо потрібного тут немає — опишіть, який маєте на увазі, і ми підберемо.",
+          ],
+          palette: {
+            shades: colourPaletteShades,
+            note: "Відтінки на екрані передані приблизно: монітор не показує ні глибини кольору в масі, ні фактури. Перед замовленням кольору радимо взяти зразок.",
+          },
+        },
+        {
+          heading: "Скільки коштує колір",
+          paragraphs: [
+            "Пігмент і білий цемент дорожчі за звичайні складники, тому кольоровий виріб коштує більше за сірий — особливо на великих формах на кшталт умивальників.",
+            "На серійних виробах це вже враховано: на сторінці товару стандартний сірий іде без доплати, а для іншого відтінку є окремий варіант «Уточнити індивідуальний колір». Для виробів на замовлення вартість кольору рахуємо індивідуально — під конкретну форму, об'єм і відтінок.",
           ],
         },
         {

@@ -3,12 +3,17 @@ import type { Locale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-href";
 import { Section, Container } from "@/components/layout";
 import { TextLink } from "@/components/ui/text-link";
+import { ColourSwatchGrid } from "@/components/info-page/colour-swatch-grid";
 
 /**
  * Presentational shell for the real INFO pages (`/payment-delivery`,
  * `/returns`, `/care`). It renders long-form body prose from
  * `src/content/info-pages.ts` — it invents no copy of its own beyond the
  * passed-in `title`.
+ *
+ * The one non-prose element it can render is a section's optional `palette`
+ * swatch grid (`/colours` only) — still content-driven, still no copy of its
+ * own, and still a server component: see `colour-swatch-grid.tsx`.
  *
  * Typography/spacing mirror `contact-content.tsx` so the info pages read as
  * part of the same site: `type-h1` for the page title, `type-h2` for section
@@ -65,6 +70,13 @@ export function InfoPage({
                     <li key={bulletIndex}>{bullet}</li>
                   ))}
                 </ul>
+              ) : null}
+
+              {section.palette ? (
+                <ColourSwatchGrid
+                  shades={section.palette.shades}
+                  note={section.palette.note}
+                />
               ) : null}
 
               {section.link ? (
