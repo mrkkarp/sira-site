@@ -13,6 +13,7 @@ import { cn } from "@/lib/cn";
 import { catalogTree, primaryNav } from "@/config/navigation";
 import { useDialogBehaviour } from "@/components/ui/use-dialog-behaviour";
 import { BrandEyebrow } from "@/components/brand";
+import { wordmarkClass } from "@/components/logo";
 
 /**
  * The mobile navigation is a *different object* from the desktop bar, not the
@@ -92,13 +93,18 @@ export function MobileMenu({
       className="bg-background fixed inset-0 z-50 flex [animation:menu-reveal_var(--duration-reveal)_var(--ease-nav)_both] flex-col"
     >
       <div className="border-border flex h-14 shrink-0 items-center justify-between border-b pr-(--space-2xs) pl-(--space-sm)">
-        {/* `self-stretch` for the same reason as `Logo` — the glyph box is
-            28px tall, which is under the 44px minimum, and this is the home
-            link on the viewport where that matters most. */}
+        {/* The same wordmark as the header's, off the same class — including
+            the `self-stretch` that keeps the glyph box's 28px up to the 44px
+            hit target, which matters most on exactly this viewport. It is a
+            `Link` of its own rather than `<Logo>` because it needs `onClose`,
+            and because the hover underline `Logo` carries is dead weight on a
+            panel that only opens on touch. Sharing the class is what stops the
+            two copies drifting: the last change to the wordmark's weight would
+            otherwise have landed on the desktop one only. */}
         <Link
           href={localeHref(locale, "/")}
           onClick={onClose}
-          className="flex items-center self-stretch font-serif text-xl tracking-tight"
+          className={wordmarkClass}
           aria-label="ODUDLAB — home"
         >
           ODUDLAB

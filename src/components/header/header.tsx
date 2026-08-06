@@ -371,9 +371,19 @@ export function Header({
           )}
         >
           <div className="mx-auto flex h-14 max-w-[100rem] items-stretch">
+            {/* `px-(--space-md)`, symmetric, for three reasons that happen to
+                agree. It centres the wordmark in its own cell, which it was
+                not: the padding used to be 16px left against 32px right, so
+                the mark sat visibly hard against the border. It matches every
+                other cell in the bar — the nav items and the utility cell are
+                both padded from `--space-md` — so the logo cell stops being
+                the one exception. And it lands the wordmark on the page's own
+                content gutter: measured, `h1` starts at 40px and the wordmark
+                now starts at 41px, the 1px being the bar's own border, where
+                before it started at 25px and lined up with nothing. */}
             <div
               className={cn(
-                "flex items-center border-r pr-(--space-md) pl-(--space-sm)",
+                "flex items-center border-r px-(--space-md)",
                 cellRule,
               )}
             >
