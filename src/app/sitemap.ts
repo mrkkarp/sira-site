@@ -23,23 +23,26 @@ import { indexableLocales } from "@/lib/seo/indexing";
  * - `/cart`, `/checkout`, `/order-status`, `/search` — utility/per-session
  *   pages, explicitly `noindex` (see `src/lib/seo/placeholder-metadata.ts`
  *   and `search/page.tsx`).
- * - `/payment-delivery`, `/returns`, `/care`, `/colours`, `/faq` are now
- *   indexable, but ONLY for the locales that have real body content. Their
- *   Ukrainian versions have real prose (see `src/content/info-pages.ts`), so
- *   `uk` is indexable and listed. There is no English or Polish source for any
- *   of them, so `en`/`pl` fall back to the `noindex` `PlaceholderPage` and must
- *   NOT appear here — hence these five are handled as locale-limited paths
- *   below (emitted only for content-bearing locales) rather than in the
- *   all-locale `staticPaths`.
- * - Every remaining `PlaceholderPage` route (`/careers`,
- *   `/cookies-policy`,
- *   `/privacy-policy`,
- *   `/public-offer`, `/resources`,
- *   `/terms-of-use`) — no real content yet, also explicitly `noindex`. See
- *   `CONTENT_CHECKLIST.md` for what each is waiting on. `/about`, `/contact`,
- *   `/designers`, `/samples` and `/projects[/[slug]]` are NOT in this list:
- *   they now have real content, so they appear in `staticPaths` and
- *   `projectPaths` below.
+ * - `/payment-delivery`, `/returns`, `/care`, `/colours`, `/faq`,
+ *   `/privacy-policy`, `/cookies-policy`, `/terms-of-use` are now indexable,
+ *   but ONLY for the locales that have real body content. Their Ukrainian
+ *   versions have real prose (see `src/content/info-pages.ts` and
+ *   `src/content/legal-pages.ts`), so `uk` is indexable and listed. There is no
+ *   English or Polish source for any of them, so `en`/`pl` fall back to the
+ *   `noindex` `PlaceholderPage` and must NOT appear here — hence these are
+ *   handled as locale-limited paths below (emitted only for content-bearing
+ *   locales) rather than in the all-locale `staticPaths`.
+ * - `/public-offer` is written but has content in NO locale: `legalEntity` in
+ *   `src/config/legal.ts` is still `null`, so `legal-pages.ts` withholds the
+ *   offer entirely and the route stays on the `noindex` placeholder. It is
+ *   nonetheless listed as a locale-limited path below, because that list is
+ *   computed from `getInfoPageContent` — fill the entity in and the URL appears
+ *   here by itself, with no edit to this file.
+ * - Every remaining `PlaceholderPage` route (`/careers`, `/resources`) — no
+ *   real content yet, also explicitly `noindex`. See `CONTENT_CHECKLIST.md`
+ *   for what each is waiting on. `/about`, `/contact`, `/designers`,
+ *   `/samples` and `/projects[/[slug]]` are NOT in this list: they now have
+ *   real content, so they appear in `staticPaths` and `projectPaths` below.
  * - `/admin`, `/design-system` — not part of the public site.
  * - `/<category>` (and `/<category>/<subcategory>`) for anything with no
  *   products yet — a soft 404 to a crawler, and `noindex` in its own
@@ -144,6 +147,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * emitted only for the locales that have real content (today: `uk` only —
    * the `en` bodies are empty and there is no `pl` source), so the `noindex`
    * placeholder versions never leak into the sitemap.
+   *
+   * `/public-offer` is in the list even though it currently resolves to nothing
+   * in every locale: the filter below is the single source of truth, so a path
+   * with no content simply contributes no entries. Listing it means the URL
+   * starts appearing the moment `legalEntity` is filled in — see
+   * `src/config/legal.ts`.
    */
   const localeLimitedPaths = [
     "/payment-delivery",
@@ -151,6 +160,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/care",
     "/colours",
     "/faq",
+    "/privacy-policy",
+    "/cookies-policy",
+    "/terms-of-use",
+    "/public-offer",
   ].map((path) => ({
     path,
     locales: indexableLocales.filter((locale) =>

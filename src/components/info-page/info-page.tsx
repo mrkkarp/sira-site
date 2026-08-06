@@ -34,6 +34,11 @@ export function InfoPage({
       <Container>
         <header className="max-w-2xl">
           <h1 className="type-h1 text-text">{title}</h1>
+          {content.updatedAt ? (
+            <p className="type-caption text-text-muted mt-(--space-xs)">
+              {content.updatedAt}
+            </p>
+          ) : null}
         </header>
 
         <div className="mt-(--space-xl) flex max-w-3xl flex-col gap-(--space-lg)">

@@ -3,6 +3,7 @@ import {
   colourPaletteShades,
   type PaletteShade,
 } from "@/content/colour-palette";
+import { legalPages } from "@/content/legal-pages";
 
 /**
  * Long-form INFO-page body content. `payment-delivery` and `returns` are
@@ -123,7 +124,21 @@ export type InfoPageSection = {
   palette?: { shades: PaletteShade[]; note: string };
 };
 
-export type InfoPageContent = { sections: InfoPageSection[] };
+export type InfoPageContent = {
+  sections: InfoPageSection[];
+  /**
+   * Ready-to-render "last updated" line, e.g. "Оновлено: 6 серпня 2026", shown
+   * under the `h1`. Only the legal pages set it — a document a visitor is asked
+   * to accept has to say when it last changed, whereas dating "Догляд за
+   * бетоном" would just make good advice look stale.
+   *
+   * It carries its own label rather than the component supplying one, because
+   * `InfoPage` deliberately holds no copy of its own and gets no `dictionary`.
+   * Safe while these pages are `uk`-only; if one is ever translated, this moves
+   * to the dictionaries.
+   */
+  updatedAt?: string;
+};
 
 export const infoPages: Record<
   string,
@@ -446,9 +461,25 @@ export const infoPages: Record<
   },
 };
 
+/**
+ * The single lookup every info route uses. It reads two registries: `infoPages`
+ * above, and `legalPages` in `src/content/legal-pages.ts`.
+ *
+ * They are separate FILES but one NAMESPACE, on purpose. The split is editorial
+ * — this module's contract is "nothing here is invented", the legal texts are
+ * drafted, and merging them would quietly retire that rule — but every consumer
+ * (the four route files, `buildInfoPageDescription`, `sitemap.ts`) should keep
+ * asking one question and getting one answer. Slugs must therefore stay unique
+ * across both; they are disjoint today and there is no reason for a page to
+ * exist in both.
+ *
+ * No import cycle despite `legal-pages.ts` naming `InfoPageContent`: that is an
+ * `import type` and is fully erased, so at runtime the dependency only points
+ * one way, from here to there.
+ */
 export function getInfoPageContent(
   slug: string,
   locale: Locale,
 ): InfoPageContent | undefined {
-  return infoPages[slug]?.[locale];
+  return infoPages[slug]?.[locale] ?? legalPages[slug]?.[locale];
 }

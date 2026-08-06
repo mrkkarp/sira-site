@@ -39,12 +39,21 @@ generic copy. Ordered alphabetically by route.
 > not as truth — the authoritative answer is whether a route still renders
 > `PlaceholderPage`.
 >
-> **Only four routes still have no source at all**: `/cookies-policy`,
-> `/privacy-policy`, `/public-offer`, `/terms-of-use`. Neither the Horoshop
-> export nor the archived pre-Horoshop WordPress site ever had these pages, so
-> there is nothing to transcribe — they need owner/legal text and must not be
-> written from a template. `/careers` and `/resources` likewise have no source,
-> but are discretionary rather than legally required.
+> **The four legal routes are now drafted, not transcribed.** Neither the
+> Horoshop export nor the archived pre-Horoshop WordPress site ever had
+> `/cookies-policy`, `/privacy-policy`, `/public-offer` or `/terms-of-use`, so
+> there was nothing to recover. On 2026-08-06 the owner asked for them to be
+> written ("то напиши їх сам"), and they live in their own module,
+> `src/content/legal-pages.ts`, deliberately NOT in `src/content/info-pages.ts`
+> — that module's contract is "nothing here is invented", and these are drafted.
+> They are grounded in the site's own verifiable behaviour (every data claim
+> cites the file it was read off), in commercial terms already published on
+> `/returns`, `/payment-delivery` and `/colours`, and in default Ukrainian law;
+> they are NOT legal advice and should be reviewed by a lawyer. Three are live;
+> `/public-offer` is written but withheld — see the row below.
+>
+> `/careers` and `/resources` still have no source, but are discretionary rather
+> than legally required.
 
 | Route               | Notes                                                                                                                                                                                                                                                                                                                                                                                              |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -52,17 +61,17 @@ generic copy. Ordered alphabetically by route.
 | `/careers`          | —                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `/colours`          | FILLED. Real prose in `src/content/info-pages.ts` (uk), recovered from the archived WordPress colour + Terrazzo posts, plus a nine-shade illustrative palette in `src/content/colour-palette.ts`. That palette is deliberately kept OUT of `src/data/product-colours.json` (whose six entries are all still `demo: true`) — it is editorial imagery for one page, not a set of orderable finishes. |
 | `/contact`          | Contact details need owner confirmation before this can become real (Prompt 9's standing rule — never fabricate a phone/email/address).                                                                                                                                                                                                                                                            |
-| `/cookies-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                                                                                                                                                                             |
+| `/cookies-policy`   | FILLED. Drafted prose in `src/content/legal-pages.ts` (uk). Names the two real storage keys — `odudlab_cart` (60 days, HttpOnly, SameSite=Lax) and `odudlab:cookie-consent` — and states the Consent Mode v2 defaults read off `src/lib/analytics/consent-mode.ts`. If that code changes, this page is wrong and must change with it.                                                              |
 | `/designers`        | —                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `/faq`              | FILLED. Real prose in `src/content/info-pages.ts` (uk). Custom-order answer recovered from the archived WordPress post; the rest are one-paragraph answers that `link` to the full page rather than duplicating it.                                                                                                                                                                                |
 | `/payment-delivery` | Payment/logistics details need owner confirmation before this can become real.                                                                                                                                                                                                                                                                                                                     |
-| `/privacy-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                                                                                                                                                                             |
-| `/public-offer`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                                                                                                                                                                             |
+| `/privacy-policy`   | FILLED. Drafted prose in `src/content/legal-pages.ts` (uk). The data inventory is enumerated field by field from the five lead routes' Zod schemas and `src/collections/{Leads,Orders}.ts`; §4 explains that Enhanced Conversions hash e-mail/phone with SHA-256 in the browser and never send plaintext (`src/lib/analytics/user-data.ts`). Same rule: code changes ⇒ this page changes.          |
+| `/public-offer`     | WRITTEN BUT WITHHELD. Full offer text exists in `src/content/legal-pages.ts`, gated on `legalEntity` in `src/config/legal.ts`, which is `null`. An offer that names no seller must not be published (ст. 7 ЗУ «Про електронну комерцію»). STILL NEEDED FROM OWNER: legal form + registered name (ФОП/ТОВ), ЄДРПОУ or ІПН, registered address, VAT status. Fill those in and the route goes live.   |
 | `/resources`        | —                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `/returns`          | Returns policy needs owner confirmation before this can become real.                                                                                                                                                                                                                                                                                                                               |
 | `/samples`          | —                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `/stockists`        | Stockist list needs owner confirmation before this can become real.                                                                                                                                                                                                                                                                                                                                |
-| `/terms-of-use`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                                                                                                                                                                                                                                             |
+| `/terms-of-use`     | FILLED. Drafted prose in `src/content/legal-pages.ts` (uk). Its §5 is the only section aware of the offer's gate: while `legalEntity` is `null` it neither cites nor links `/public-offer`, and points at `/payment-delivery` instead.                                                                                                                                                             |
 
 ## Real-content pages (13)
 
@@ -98,8 +107,18 @@ generic copy. Ordered alphabetically by route.
 Per Prompt 9's standing constraint (never fabricate contact/financial/legal/
 logistics content — owner confirmation required), the following placeholder
 pages cannot be filled in without real, owner-supplied data or Horoshop
-export data: `/contact`, `/payment-delivery`, `/returns`, `/stockists`,
-`/cookies-policy`, `/privacy-policy`, `/public-offer`, `/terms-of-use`.
+export data: `/contact`, `/payment-delivery`, `/returns`, `/stockists`.
+
+The legal pages have since been dealt with without breaking that rule rather
+than in spite of it. `/privacy-policy`, `/cookies-policy` and `/terms-of-use`
+describe how this site already demonstrably behaves — no fact in them was
+invented, and each claim's source file is cited in the header comment of
+`src/content/legal-pages.ts`. The one input that genuinely could not be
+derived from anything — who the seller legally is — was isolated in
+`src/config/legal.ts` as `null` rather than guessed, and it gates
+`/public-offer` alone. **Outstanding owner input: legal form and registered
+name (ФОП/ТОВ), ЄДРПОУ or ІПН, registered address, VAT status.** All four
+pages are drafts, not legal advice, and warrant a lawyer's review.
 
 The remaining placeholders (`/careers`, `/resources`) are editorial/marketing
 content, not contact/financial/legal data, but still require real copy and
