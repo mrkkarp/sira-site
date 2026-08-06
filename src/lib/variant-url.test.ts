@@ -1,32 +1,41 @@
 import { describe, expect, it } from "vitest";
 import {
-  parseVariantSelectionFromSearchParams,
+  parseVariantSelectionFromQueryString,
   serializeVariantSelection,
   buildVariantHref,
 } from "@/lib/variant-url";
 
-describe("parseVariantSelectionFromSearchParams", () => {
+describe("parseVariantSelectionFromQueryString", () => {
   it("reads only the known option ids", () => {
     expect(
-      parseVariantSelectionFromSearchParams({ colour: "custom", junk: "x" }, [
-        "colour",
-      ]),
+      parseVariantSelectionFromQueryString("?colour=custom&junk=x", ["colour"]),
     ).toEqual({ colour: "custom" });
   });
 
-  it("takes the first value when Next hands back an array", () => {
+  it("takes the first value when a key is repeated", () => {
     expect(
-      parseVariantSelectionFromSearchParams({ colour: ["custom", "base"] }, [
+      parseVariantSelectionFromQueryString("?colour=custom&colour=base", [
         "colour",
       ]),
     ).toEqual({ colour: "custom" });
   });
 
   it("ignores absent/empty values", () => {
-    expect(parseVariantSelectionFromSearchParams({}, ["colour"])).toEqual({});
+    expect(parseVariantSelectionFromQueryString("", ["colour"])).toEqual({});
+    expect(parseVariantSelectionFromQueryString("?", ["colour"])).toEqual({});
+    expect(parseVariantSelectionFromQueryString("?colour=", ["colour"])).toEqual(
+      {},
+    );
+  });
+
+  it("round-trips whatever `buildVariantHref` wrote", () => {
+    const selection = { colour: "custom" };
+    const href = buildVariantHref("/products/odri", selection);
     expect(
-      parseVariantSelectionFromSearchParams({ colour: "" }, ["colour"]),
-    ).toEqual({});
+      parseVariantSelectionFromQueryString(new URL(href, "https://x").search, [
+        "colour",
+      ]),
+    ).toEqual(selection);
   });
 });
 

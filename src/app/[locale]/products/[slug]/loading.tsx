@@ -11,14 +11,17 @@ import { DrawingFrame, TechnicalLine } from "@/components/technical-drawing";
  *
  * ## Why this file exists
  *
- * The product route is rendered per request — it has no `generateStaticParams`
- * and it awaits `searchParams` (to restore a shared `?colour=…` link
- * server-side), so it can only be partially prefetched: the router fetches the
- * Suspense fallback ahead of the click and the page itself after it. Every
- * visit therefore shows a fallback for as long as the render takes, and until
- * now that fallback was the generic one at `src/app/[locale]/loading.tsx` — a
- * centred `max-w-3xl` article column: one narrow heading, a couple of text
- * lines, one grey block.
+ * The product route is prerendered now, so this is seen far less often than it
+ * was when this file was written: a prefetched static route is already in the
+ * router cache when the click lands, and there is nothing to wait for. What is
+ * left is the cases where there was no prefetch to use — a cold or throttled
+ * connection, a link opened from outside the app, and the first request for a
+ * product an admin added after the last deploy, which generates on demand.
+ *
+ * It is kept, and kept accurate, for exactly those. The reasoning below is why
+ * it has this shape rather than the generic one at
+ * `src/app/[locale]/loading.tsx` — a centred `max-w-3xl` article column: one
+ * narrow heading, a couple of text lines, one grey block.
  *
  * The product page is nothing like that. It is a full-width two-column grid
  * with a square photo on the left and the price/colours/CTA panel on the

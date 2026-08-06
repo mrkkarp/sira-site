@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isLocale } from "@/i18n/config";
+import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localeHref } from "@/lib/locale-href";
 import { pageSeo } from "@/lib/seo/page-seo";
 import { missingEntityMetadata } from "@/lib/seo/indexing";
 import {
+  getAllProductsAsync,
   getProductBySlug,
   getProductsByCategory,
   preloadProducts,
@@ -16,8 +17,6 @@ import {
   getCollectionSlugsForProduct,
 } from "@/lib/collections";
 import { popularProductSlugs } from "@/config/homepage";
-import { buildVariantModel, resolveVariant } from "@/lib/variant-model";
-import { parseVariantSelectionFromSearchParams } from "@/lib/variant-url";
 import { buildDescriptionSections } from "@/lib/product-description";
 import { buildEditorialSections } from "@/lib/editorial-sections";
 import { pickRelatedProducts } from "@/lib/related-products";
@@ -35,14 +34,38 @@ import { ProductRelated } from "@/components/product/product-related";
 import { ProductStructuredData } from "@/components/product/product-structured-data";
 
 type PageParams = { locale: string; slug: string };
-type PageSearchParams = Record<string, string | string[] | undefined>;
+
+/**
+ * Every published product, in every locale — which is what turns this route
+ * from `ƒ` into `●` in the build output.
+ *
+ * It was dynamic before, and the cost was not theoretical: `x-vercel-cache`
+ * was `MISS` on every single product view, forever, because a route that reads
+ * the query string is one Vercel is not allowed to cache. Measured from a
+ * European edge that was ~330 ms TTFB against ~135 ms for something the CDN
+ * can answer itself — a transatlantic round trip to the function region in
+ * `iad1` on every visit, plus a cold start on the first.
+ *
+ * The slug is not a localized field in Payload (see `Products.ts`), so one
+ * slug list crosses with the locale list rather than being re-read per locale.
+ *
+ * `dynamicParams` is left at its default (`true`) on purpose: the owner adds
+ * products in the admin, and those must render on first request instead of
+ * 404ing until the next deploy. They generate on demand and are then cached
+ * like the rest — the `loading.tsx` beside this file is what that first
+ * visitor sees.
+ */
+export async function generateStaticParams() {
+  const products = await getAllProductsAsync();
+  return locales.flatMap((locale) =>
+    products.map((product) => ({ locale, slug: product.slug })),
+  );
+}
 
 export async function generateMetadata({
   params,
-  searchParams,
 }: {
   params: Promise<PageParams>;
-  searchParams: Promise<PageSearchParams>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
@@ -55,14 +78,6 @@ export async function generateMetadata({
   if (!product) return missingEntityMetadata;
 
   const dictionary = await getDictionary(locale);
-  const model = buildVariantModel(product);
-  const resolvedSearchParams = await searchParams;
-  const initialSelection = parseVariantSelectionFromSearchParams(
-    resolvedSearchParams,
-    model.options.map((option) => option.id),
-  );
-  const resolved = resolveVariant(model, initialSelection);
-  const variant = resolved.variant ?? product.base;
 
   const title = product.name;
   const [intro] = buildDescriptionSections(product.base.description);
@@ -78,32 +93,39 @@ export async function generateMetadata({
       title,
       description,
       siteName: dictionary.site.name,
-      // The *resolved* variant's photo, not `product.base.photo`: a link shared
-      // from a `?colour=…` URL should preview the colour the sharer was looking
-      // at. This page was the only one that ever set an og image; `pageSeo`
-      // now gives every other page a fallback (see `SHARE_CARD`).
-      image: variant.photo,
+      // The base variant's photo, for every share of this product.
+      //
+      // It used to be the photo of the *resolved* variant, so that a link
+      // shared from a `?colour=…` URL previewed the colour the sharer was
+      // looking at. That is a nicer share card, and it cost a query-string read
+      // in `generateMetadata` — which is enough on its own to make the whole
+      // route dynamic, for every visitor, whether or not they arrived with a
+      // query string. A per-colour preview image is not worth a transatlantic
+      // round trip on every product view.
+      image: product.base.photo,
     }),
   };
 }
 
 /**
  * `/products/[slug]` — the universal product page (Prompt 6). Assembles:
- * breadcrumbs; `ProductExperience` (the gallery+configurator+CTA "island",
- * initialised from the real URL-encoded variant selection so a refresh
- * restores the same variant server-side too — see §5's "restore after
- * refresh"); the structured description; the details accordion; the
- * editorial sections; the related-products rail; and the Product JSON-LD.
+ * breadcrumbs; `ProductExperience` (the gallery+configurator+CTA "island");
+ * the structured description; the details accordion; the editorial sections;
+ * the related-products rail; and the Product JSON-LD.
+ *
+ * Prerendered — see `generateStaticParams`. Nothing here may read the query
+ * string, so the page always renders the product's default variant and §5's
+ * "restore after refresh" for a shared `?colour=…` link happens in the browser
+ * instead (`ProductExperience`). The rendered output is unchanged for everyone
+ * arriving without a query string, which is nearly everyone.
  *
  * An unknown slug 404s via `notFound()`, matching `/[category]`'s
  * existing convention for an invalid dynamic segment.
  */
 export default async function ProductPage({
   params,
-  searchParams,
 }: {
   params: Promise<PageParams>;
-  searchParams: Promise<PageSearchParams>;
 }) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
@@ -112,15 +134,6 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const dictionary = await getDictionary(locale);
-  const resolvedSearchParams = await searchParams;
-
-  const model = buildVariantModel(product);
-  const initialSelection = parseVariantSelectionFromSearchParams(
-    resolvedSearchParams,
-    model.options.map((option) => option.id),
-  );
-  const resolved = resolveVariant(model, initialSelection);
-  const seoVariant = resolved.variant ?? product.base;
 
   const basePath = localeHref(locale, `/products/${product.slug}`);
   const brokenImageLabel = dictionary.shop.states.brokenImageAlt;
@@ -165,7 +178,7 @@ export default async function ProductPage({
     <>
       <ProductStructuredData
         product={product}
-        variant={seoVariant}
+        variant={product.base}
         locale={locale}
         dictionary={dictionary}
       />
@@ -191,7 +204,6 @@ export default async function ProductPage({
             dictionary={dictionary}
             locale={locale}
             basePath={basePath}
-            initialSelection={initialSelection}
             brokenImageLabel={brokenImageLabel}
           />
         </Container>

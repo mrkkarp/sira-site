@@ -6,11 +6,18 @@ import { ToastProvider } from "@/components/ui/toast";
 import { __resetCartStoreForTests } from "@/lib/cart-store";
 import type { Product } from "@/lib/schemas/product";
 
-const push = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
-  usePathname: () => "/uk/products/odri",
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/products/odri",
 }));
+
+/** The page is prerendered, so the variant selection is carried entirely by
+ * the URL and read in the browser. These tests drive the real thing —
+ * `history.pushState`/`replaceState` and `popstate`, which jsdom implements —
+ * rather than a stubbed router. */
+function setUrl(search: string) {
+  window.history.replaceState(null, "", `/products/odri${search}`);
+}
 
 // jsdom has no real IntersectionObserver — a no-op stub is enough since
 // these tests don't scroll; `pastCta` simply stays false, which is exactly
@@ -61,7 +68,7 @@ describe("ProductExperience", () => {
         }),
       } as Response),
     );
-    push.mockClear();
+    setUrl("");
   });
 
   it("shows the base variant's price/photo by default, with a from-prefix since a custom colour exists", async () => {
@@ -72,8 +79,7 @@ describe("ProductExperience", () => {
           product={odriProduct()}
           dictionary={dictionary}
           locale="uk"
-          basePath="/uk/products/odri"
-          initialSelection={{}}
+          basePath="/products/odri"
           brokenImageLabel="broken"
         />
       </ToastProvider>,
@@ -98,8 +104,7 @@ describe("ProductExperience", () => {
           product={odriProduct()}
           dictionary={dictionary}
           locale="uk"
-          basePath="/uk/products/odri"
-          initialSelection={{}}
+          basePath="/products/odri"
           brokenImageLabel="broken"
         />
       </ToastProvider>,
@@ -108,9 +113,12 @@ describe("ProductExperience", () => {
     const radios = screen.getAllByRole("radio");
     fireEvent.click(radios[1]);
 
-    expect(push).toHaveBeenCalledWith("/uk/products/odri?colour=custom", {
-      scroll: false,
-    });
+    // Written straight to the history stack, not pushed through the router:
+    // the page is prerendered and doesn't read the query string, so there is
+    // no server render to ask for.
+    expect(window.location.pathname + window.location.search).toBe(
+      "/products/odri?colour=custom",
+    );
     // The calm consultation CTA replaces add-to-cart for the custom colour —
     // never both at once, and never an auto-appearing quote form/popup.
     expect(
@@ -137,14 +145,14 @@ describe("ProductExperience", () => {
 
   it("reveals the quote form only after an explicit click on the consultation CTA (no popup)", async () => {
     const dictionary = await getDictionary("uk");
+    setUrl("?colour=custom");
     render(
       <ToastProvider>
         <ProductExperience
           product={odriProduct()}
           dictionary={dictionary}
           locale="uk"
-          basePath="/uk/products/odri"
-          initialSelection={{ colour: "custom" }}
+          basePath="/products/odri"
           brokenImageLabel="broken"
         />
       </ToastProvider>,
@@ -175,16 +183,16 @@ describe("ProductExperience", () => {
     ).toBeInTheDocument();
   });
 
-  it("restores the custom-colour selection from the initial (URL-derived) selection after a refresh", async () => {
+  it("restores the custom-colour selection from a shared ?colour= URL", async () => {
     const dictionary = await getDictionary("uk");
+    setUrl("?colour=custom");
     render(
       <ToastProvider>
         <ProductExperience
           product={odriProduct()}
           dictionary={dictionary}
           locale="uk"
-          basePath="/uk/products/odri"
-          initialSelection={{ colour: "custom" }}
+          basePath="/products/odri"
           brokenImageLabel="broken"
         />
       </ToastProvider>,
@@ -197,6 +205,41 @@ describe("ProductExperience", () => {
     });
     expect(selected).toHaveAccessibleName(
       expect.stringContaining(dictionary.product.colourCustomOptionTitle),
+    );
+  });
+
+  it("follows the Back button back to the base colour", async () => {
+    const dictionary = await getDictionary("uk");
+    render(
+      <ToastProvider>
+        <ProductExperience
+          product={odriProduct()}
+          dictionary={dictionary}
+          locale="uk"
+          basePath="/products/odri"
+          brokenImageLabel="broken"
+        />
+      </ToastProvider>,
+    );
+
+    fireEvent.click(screen.getAllByRole("radio")[1]);
+    expect(
+      screen.getByRole("button", { name: dictionary.product.contactColourCta }),
+    ).toBeInTheDocument();
+
+    // Selecting pushes a history entry, so Back has somewhere to go. jsdom
+    // doesn't run the history stack, so the popped state is staged directly —
+    // what is under test is that the component listens to `popstate` at all,
+    // and that it *drops* the colour rather than keeping the last one picked.
+    setUrl("");
+    fireEvent.popState(window);
+
+    expect(
+      screen.getByRole("button", { name: dictionary.product.addToCartCta }),
+    ).toBeInTheDocument();
+    expect(screen.getByAltText("Odri")).toHaveAttribute(
+      "src",
+      expect.stringContaining("odri-base"),
     );
   });
 
@@ -217,8 +260,7 @@ describe("ProductExperience", () => {
           product={single}
           dictionary={dictionary}
           locale="uk"
-          basePath="/uk/products/solo"
-          initialSelection={{}}
+          basePath="/products/solo"
           brokenImageLabel="broken"
         />
       </ToastProvider>,

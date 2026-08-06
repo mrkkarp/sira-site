@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { Product } from "@/lib/schemas/product";
@@ -11,7 +10,10 @@ import {
   resolveVariant,
   type VariantSelection,
 } from "@/lib/variant-model";
-import { buildVariantHref } from "@/lib/variant-url";
+import {
+  buildVariantHref,
+  parseVariantSelectionFromQueryString,
+} from "@/lib/variant-url";
 import { buildGalleryMedia } from "@/lib/gallery-media";
 import { buildQuoteContext } from "@/lib/quote-context";
 import { formatTemplate } from "@/lib/format-template";
@@ -70,7 +72,6 @@ export function ProductExperience({
   dictionary,
   locale,
   basePath,
-  initialSelection,
   brokenImageLabel,
 }: {
   product: Product;
@@ -82,13 +83,15 @@ export function ProductExperience({
    * and "/en/products/odri" for en; "/uk/..." is not a route and 404s.
    */
   basePath: string;
-  initialSelection: VariantSelection;
   brokenImageLabel: string;
 }) {
-  const router = useRouter();
   const model = useMemo(() => buildVariantModel(product), [product]);
-  const [selection, setSelection] =
-    useState<VariantSelection>(initialSelection);
+  // Starts empty, which `resolveVariant` reads as "the product's default
+  // variant" — the same thing the server rendered. It has to start there: the
+  // page is prerendered, so the first client render must match HTML that was
+  // produced without any knowledge of this visitor's URL. The effect below is
+  // where a `?colour=…` link gets applied, one commit later.
+  const [selection, setSelection] = useState<VariantSelection>({});
   const resolved = useMemo(
     () => resolveVariant(model, selection),
     [model, selection],
@@ -130,7 +133,19 @@ export function ProductExperience({
   function handleSelect(optionId: string, choiceId: string) {
     const next = { ...selection, [optionId]: choiceId };
     setSelection(next);
-    router.push(buildVariantHref(basePath, next), { scroll: false });
+    // `history.pushState`, not `router.push`. Next supports the native History
+    // API and keeps its router in sync with it (see "Native History API" in
+    // the linking-and-navigating guide), and that is all this needs: the page
+    // is prerendered and does not read the query string, so there is nothing
+    // on the server to re-render for. `router.push` would ask the router for a
+    // new payload for a URL that produces the identical payload — a request,
+    // and a route-progress bar, for a colour swap that already happened
+    // locally.
+    //
+    // `pushState` rather than `replaceState` so Back steps through the colours
+    // the shopper looked at, which is what the history stack is for. The
+    // `popstate` listener below is the other half of that.
+    window.history.pushState(null, "", buildVariantHref(basePath, next));
   }
 
   function revealQuoteForm() {
@@ -140,6 +155,31 @@ export function ProductExperience({
       block: "center",
     });
   }
+
+  // The URL is the source of truth for the selection, and this is where it is
+  // read — on arrival, and again on every Back/Forward.
+  //
+  // It used to be read on the server, from the page's `searchParams`, and
+  // handed down as an `initialSelection` prop. That one read is what kept
+  // `/products/[slug]` out of the prerender and put a `MISS` on every product
+  // view. Moving it here costs exactly one thing: a visitor who follows a
+  // shared `?colour=custom` link sees the default colour for a moment before
+  // this commits. Nobody arriving without a query string — nearly everyone —
+  // sees any difference at all.
+  //
+  // Assigning the URL's selection wholesale (rather than merging it into the
+  // current one) is what makes Back work: stepping back to a URL with no query
+  // string has to clear the colour, not keep the last one picked.
+  useEffect(() => {
+    const optionIds = model.options.map((option) => option.id);
+    const readFromUrl = () =>
+      setSelection(
+        parseVariantSelectionFromQueryString(window.location.search, optionIds),
+      );
+    readFromUrl();
+    window.addEventListener("popstate", readFromUrl);
+    return () => window.removeEventListener("popstate", readFromUrl);
+  }, [model]);
 
   const ctaSentinelRef = useRef<HTMLDivElement>(null);
   const quoteFormRef = useRef<HTMLDivElement>(null);
