@@ -190,7 +190,7 @@ export function ColourSelector({
                       <ProductImage
                         src={choice.photo}
                         alt=""
-                        sizes="40px"
+                        fixedSize={40}
                         className="object-cover"
                         brokenLabel={brokenImageLabel}
                       />

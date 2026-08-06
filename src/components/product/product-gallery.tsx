@@ -269,7 +269,7 @@ export function ProductGallery({
               <ProductImage
                 src={item.src}
                 alt=""
-                sizes="(min-width: 1024px) 80px, 64px"
+                fixedSize={80}
                 className={
                   item.type === "drawing"
                     ? "bg-white object-contain p-0.5"
