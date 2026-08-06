@@ -69,5 +69,11 @@ export default async function Page({
       />
     );
   }
-  return <InfoPage title={dictionary.pages.paymentDelivery} content={content} />;
+  return (
+    <InfoPage
+      title={dictionary.pages.paymentDelivery}
+      content={content}
+      locale={locale}
+    />
+  );
 }

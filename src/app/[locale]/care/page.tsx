@@ -62,5 +62,7 @@ export default async function Page({
       <PlaceholderPage title={dictionary.pages.care} dictionary={dictionary} />
     );
   }
-  return <InfoPage title={dictionary.pages.care} content={content} />;
+  return (
+    <InfoPage title={dictionary.pages.care} content={content} locale={locale} />
+  );
 }

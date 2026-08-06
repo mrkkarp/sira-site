@@ -63,8 +63,17 @@ export default async function Page({
   const content = getInfoPageContent(SLUG, locale);
   if (!content) {
     return (
-      <PlaceholderPage title={dictionary.pages.returns} dictionary={dictionary} />
+      <PlaceholderPage
+        title={dictionary.pages.returns}
+        dictionary={dictionary}
+      />
     );
   }
-  return <InfoPage title={dictionary.pages.returns} content={content} />;
+  return (
+    <InfoPage
+      title={dictionary.pages.returns}
+      content={content}
+      locale={locale}
+    />
+  );
 }

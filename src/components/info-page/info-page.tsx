@@ -1,5 +1,8 @@
 import type { InfoPageContent } from "@/content/info-pages";
+import type { Locale } from "@/i18n/config";
+import { localeHref } from "@/lib/locale-href";
 import { Section, Container } from "@/components/layout";
+import { TextLink } from "@/components/ui/text-link";
 
 /**
  * Presentational shell for the real INFO pages (`/payment-delivery`,
@@ -15,9 +18,11 @@ import { Section, Container } from "@/components/layout";
 export function InfoPage({
   title,
   content,
+  locale,
 }: {
   title: string;
   content: InfoPageContent;
+  locale: Locale;
 }) {
   return (
     <Section spacing="xl">
@@ -60,6 +65,17 @@ export function InfoPage({
                     <li key={bulletIndex}>{bullet}</li>
                   ))}
                 </ul>
+              ) : null}
+
+              {section.link ? (
+                <p className="mt-(--space-sm)">
+                  <TextLink
+                    href={localeHref(locale, section.link.href)}
+                    variant="underlined"
+                  >
+                    {section.link.label}
+                  </TextLink>
+                </p>
               ) : null}
             </section>
           ))}

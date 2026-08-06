@@ -31,22 +31,30 @@ placeholders.
 All use `PlaceholderPage` + `buildPlaceholderMetadata`, noindex, identical
 generic copy. Ordered alphabetically by route.
 
-> **This table has not kept up with the site.** `/care`, `/contact`,
-> `/designers`, `/payment-delivery`, `/returns` and `/samples` all have real
-> content and are indexable now; they are still listed below. `/about` has
-> been removed from it because that page was filled in the same change that
-> added this note. Treat the rows as a to-do list to verify, not as truth —
-> the authoritative answer is whether a route still renders `PlaceholderPage`.
+> **This table has not kept up with the site.** `/care`, `/colours`,
+> `/contact`, `/designers`, `/faq`, `/payment-delivery`, `/returns` and
+> `/samples` all have real content and are indexable now; they are still listed
+> below. `/about` has been removed from it because that page was filled in the
+> same change that added this note. Treat the rows as a to-do list to verify,
+> not as truth — the authoritative answer is whether a route still renders
+> `PlaceholderPage`.
+>
+> **Only four routes still have no source at all**: `/cookies-policy`,
+> `/privacy-policy`, `/public-offer`, `/terms-of-use`. Neither the Horoshop
+> export nor the archived pre-Horoshop WordPress site ever had these pages, so
+> there is nothing to transcribe — they need owner/legal text and must not be
+> written from a template. `/careers` and `/resources` likewise have no source,
+> but are discretionary rather than legally required.
 
 | Route               | Notes                                                                                                                                                                    |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `/care`             | —                                                                                                                                                                        |
 | `/careers`          | —                                                                                                                                                                        |
-| `/colours`          | Notable: real colour data already exists (`src/data/product-colours.ts`) and is used on the homepage/design-system page, but this dedicated route isn't wired to it yet. |
+| `/colours`          | FILLED. Real prose in `src/content/info-pages.ts` (uk), recovered from the archived WordPress colour + Terrazzo posts. Note it is deliberately NOT built around `src/data/product-colours.json` — all six entries there are still `demo: true`. |
 | `/contact`          | Contact details need owner confirmation before this can become real (Prompt 9's standing rule — never fabricate a phone/email/address).                                  |
 | `/cookies-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
 | `/designers`        | —                                                                                                                                                                        |
-| `/faq`              | Reference/calibration example for the placeholder convention.                                                                                                            |
+| `/faq`              | FILLED. Real prose in `src/content/info-pages.ts` (uk). Custom-order answer recovered from the archived WordPress post; the rest are one-paragraph answers that `link` to the full page rather than duplicating it. |
 | `/payment-delivery` | Payment/logistics details need owner confirmation before this can become real.                                                                                           |
 | `/privacy-policy`   | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
 | `/public-offer`     | Legal text needs owner/legal confirmation before this can become real.                                                                                                   |
@@ -93,8 +101,13 @@ pages cannot be filled in without real, owner-supplied data or Horoshop
 export data: `/contact`, `/payment-delivery`, `/returns`, `/stockists`,
 `/cookies-policy`, `/privacy-policy`, `/public-offer`, `/terms-of-use`.
 
-The remaining placeholders (`/care`, `/careers`, `/colours`,
-`/designers`, `/faq`, `/resources`,
-`/samples`) are editorial/marketing content, not contact/financial/legal
-data, but still require real copy and imagery (see `IMAGE_REQUIREMENTS.md`)
-rather than fabricated placeholder text — none has been invented here.
+The remaining placeholders (`/careers`, `/resources`) are editorial/marketing
+content, not contact/financial/legal data, but still require real copy and
+imagery (see `IMAGE_REQUIREMENTS.md`) rather than fabricated placeholder text —
+none has been invented here.
+
+One commercial detail is pending owner confirmation specifically: the archived
+2016-2019 posts quoted surcharges of +20% for pigment in the mass, +15% for a
+RAL-exact tinted lacquer and +100% for Terrazzo. `/colours` and `/faq` describe
+these qualitatively ("дорожче") on purpose. Restore the numbers only once the
+owner confirms they are still current.

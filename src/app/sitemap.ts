@@ -23,16 +23,16 @@ import { indexableLocales } from "@/lib/seo/indexing";
  * - `/cart`, `/checkout`, `/order-status`, `/search` — utility/per-session
  *   pages, explicitly `noindex` (see `src/lib/seo/placeholder-metadata.ts`
  *   and `search/page.tsx`).
- * - `/payment-delivery`, `/returns`, `/care` are now indexable, but ONLY for
- *   the locales that have real transcribed body content. Their Ukrainian
- *   source pages have real prose (see `src/content/info-pages.ts`), so `uk`
- *   is indexable and listed. Their `en__*` export files have empty bodies and
- *   there is no Polish source at all, so `en`/`pl` fall back to the `noindex`
- *   `PlaceholderPage` and must NOT appear here — hence these three are handled
- *   as locale-limited paths below (emitted only for content-bearing locales)
- *   rather than in the all-locale `staticPaths`.
+ * - `/payment-delivery`, `/returns`, `/care`, `/colours`, `/faq` are now
+ *   indexable, but ONLY for the locales that have real body content. Their
+ *   Ukrainian versions have real prose (see `src/content/info-pages.ts`), so
+ *   `uk` is indexable and listed. There is no English or Polish source for any
+ *   of them, so `en`/`pl` fall back to the `noindex` `PlaceholderPage` and must
+ *   NOT appear here — hence these five are handled as locale-limited paths
+ *   below (emitted only for content-bearing locales) rather than in the
+ *   all-locale `staticPaths`.
  * - Every remaining `PlaceholderPage` route (`/careers`,
- *   `/colours`, `/cookies-policy`, `/faq`,
+ *   `/cookies-policy`,
  *   `/privacy-policy`,
  *   `/public-offer`, `/resources`,
  *   `/terms-of-use`) — no real content yet, also explicitly `noindex`. See
@@ -141,18 +141,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   /**
    * Info-page routes that are indexable for some but not all locales. Each is
-   * emitted only for the locales that have real transcribed content (today:
-   * `uk` only — the `en` bodies are empty and there is no `pl` source), so the
-   * `noindex` placeholder versions never leak into the sitemap.
+   * emitted only for the locales that have real content (today: `uk` only —
+   * the `en` bodies are empty and there is no `pl` source), so the `noindex`
+   * placeholder versions never leak into the sitemap.
    */
-  const localeLimitedPaths = ["/payment-delivery", "/returns", "/care"].map(
-    (path) => ({
-      path,
-      locales: indexableLocales.filter((locale) =>
-        getInfoPageContent(path.slice(1), locale),
-      ),
-    }),
-  );
+  const localeLimitedPaths = [
+    "/payment-delivery",
+    "/returns",
+    "/care",
+    "/colours",
+    "/faq",
+  ].map((path) => ({
+    path,
+    locales: indexableLocales.filter((locale) =>
+      getInfoPageContent(path.slice(1), locale),
+    ),
+  }));
 
   const entries: MetadataRoute.Sitemap = [];
   for (const path of allPaths) {
