@@ -96,6 +96,56 @@ test("PDP defaults to the base-grey CTA, and switches to the quote CTA once the 
   await expect(page.getByLabel("Ім'я", { exact: false })).toBeVisible();
 });
 
+/**
+ * The Back button, for a colour that was never a navigation.
+ *
+ * This exists because of who owns Back now. The colour used to be applied with
+ * `router.push`, and Back came free with it — the router had put the entry on
+ * the stack, so the router took it off again. Then `/products/[slug]` was
+ * prerendered, which means nothing on the server may read the query string, and
+ * `router.push` became the wrong call: it asks for a payload for a URL that
+ * produces the identical payload. It is now `history.pushState`, and the
+ * component listens for `popstate` itself. Back is application code.
+ *
+ * The jsdom test in `product-experience.test.tsx` covers the listener, and can
+ * only cover the listener: it sets `window.location` by hand and dispatches a
+ * synthetic `popstate`, because jsdom does not run a history stack. That proves
+ * "if a popstate arrives, the colour is dropped". It cannot prove "selecting a
+ * colour leaves an entry for Back to return to", which is the other half and the
+ * half a real browser is required for. `page.goBack()` drives the actual stack.
+ *
+ * Asserting on the CTA rather than the URL is deliberate: the URL changing back
+ * is necessary but not sufficient, and it is what would still pass if the
+ * listener were removed entirely.
+ */
+test("the Back button undoes a colour choice", async ({ page }) => {
+  await visit(page, "/products/rakovyna-na-pidlohu-odri");
+  const addToCart = page.getByRole("button", { name: "Додати в кошик" });
+  await expect(addToCart).toBeVisible();
+
+  const customColour = page.getByRole("radio", {
+    name: "Індивідуальний колір",
+  });
+  await waitForHydration(customColour);
+  await customColour.click();
+
+  await expect(page).toHaveURL(/\?colour=custom$/);
+  await expect(
+    page.getByRole("button", { name: "Уточнити індивідуальний колір" }),
+  ).toBeVisible();
+
+  await page.goBack();
+
+  // Back to the base colour: the query string is gone, and — the part that
+  // matters — the orderable SKU's CTA is back, rather than the page being
+  // stranded on the last colour picked with a URL that says otherwise.
+  await expect(page).toHaveURL(/\/products\/rakovyna-na-pidlohu-odri$/);
+  await expect(addToCart).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Уточнити індивідуальний колір" }),
+  ).toHaveCount(0);
+});
+
 test("shop filters narrow the visible product grid", async ({ page }) => {
   await visit(page, "/shop");
   const resultsCount = page.getByText(/^Знайдено виробів: \d+$/);
