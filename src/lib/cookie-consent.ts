@@ -25,21 +25,46 @@ const STORAGE_KEY = "odudlab:cookie-consent";
 // the cross-tab `storage` event.
 const CONSENT_EVENT = "odudlab:consent-changed";
 
+/**
+ * A decision that was made but could NOT be written down, kept so it still
+ * counts for the rest of this page load. Strictly a fallback: it is set only
+ * when `localStorage.setItem` throws, and it is consulted only when storage
+ * yields nothing.
+ *
+ * Storage genuinely fails on phones, and not rarely: with Safari's "Block All
+ * Cookies" enabled, merely *touching* `window.localStorage` throws
+ * `SecurityError`, and a full or partitioned store throws `QuotaExceededError`
+ * on write. Without this the visitor's choice evaporated the instant it was
+ * made and every consumer went on believing the banner was still undecided —
+ * so the banner could not be got rid of, and `BackToTop`, which stands down
+ * while the banner is up, never appeared at all.
+ *
+ * It must NOT double as a cache of successful writes. Doing that would make
+ * this module ignore a store that was legitimately cleared — the visitor
+ * revoking consent by wiping site data would go on being treated as having
+ * agreed until they closed the tab.
+ *
+ * Module-level rather than component state: `readConsent` is called by
+ * `useCookieBannerUndecided`, by `hasConsent` and by the consent-mode adapter,
+ * none of which share a React tree with the banner.
+ */
+let unpersistedConsent: ConsentState | null = null;
+
 export function readConsent(): ConsentState | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
+    if (!raw) return unpersistedConsent;
     const parsed = JSON.parse(raw) as ConsentState;
     if (
       typeof parsed.analytics !== "boolean" ||
       typeof parsed.marketing !== "boolean"
     ) {
-      return null;
+      return unpersistedConsent;
     }
     return parsed;
   } catch {
-    return null;
+    return unpersistedConsent;
   }
 }
 
@@ -54,7 +79,18 @@ export function writeConsent(choice: {
     decidedAt: new Date().toISOString(),
   };
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      unpersistedConsent = null;
+    } catch {
+      // Persistence is best-effort. This used to be unguarded, and the throw
+      // propagated out of the banner's onClick — so React never reached
+      // `setDismissed(true)`, the notice stayed on screen, and tapping
+      // "Прийняти" appeared to do nothing at all. The choice still holds for
+      // this page load; the visitor is simply asked again next time, which is
+      // the correct failure mode for consent.
+      unpersistedConsent = state;
+    }
     // Notify same-tab listeners (`storage` only reaches other tabs).
     window.dispatchEvent(new CustomEvent(CONSENT_EVENT));
   }
