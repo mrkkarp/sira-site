@@ -58,18 +58,39 @@
        --brand-accent-ink  #9d4832  4.78–5.85:1. The same accent darkened
                                     until it is a *text* colour: links, small
                                     labels. This is what body-sized terracotta
-                                    has to be. Also the only fill a *filled*
-                                    button may use: light text measures 5.85:1
-                                    on it, where the same text on --brand-accent
-                                    is 4.32:1 and fails.
+                                    has to be.
        --brand-accent-ink-hover
-                           #8a3c28  The filled button's hover. It goes *down*,
-                                    not up, and that direction is forced: the
-                                    label is light, so lightening the fill walks
-                                    it toward the 4.32:1 that already failed.
-                                    7.23:1 with the label, 5.90–7.23:1 as text
-                                    on the light surfaces — a hover state is not
-                                    allowed to be the moment contrast drops.
+                           #8a3c28  The hover for terracotta *text*. It goes
+                                    *down*, not up: 5.90–7.23:1 on the light
+                                    surfaces — a hover state is not allowed to
+                                    be the moment contrast drops.
+       --brand-accent-fill #b45739  4.57:1 under the light CTA label. The
+                                    filled button's background, and the reason
+                                    it is not --brand-accent-ink: those are two
+                                    different jobs held to two different
+                                    thresholds, and for a while this file ran
+                                    them on one token. Text on a light page has
+                                    to clear 4.5:1 *as ink*, which forces
+                                    #9d4832; a filled button only has to clear
+                                    4.5:1 *under its own label*, which the far
+                                    more terracotta #b45739 already does. Fused
+                                    together, the button paid the text's bill
+                                    and rendered visibly brown — the owner's
+                                    words were "трохи коричневий", and they
+                                    were right.
+
+                                    #b45739 is as close to the logo's #b85b42
+                                    as the label permits: the raw brand accent
+                                    measures 4.32:1 there and fails, and the
+                                    CTA label is 14px/500, so it gets no relief
+                                    from the large-text 3:1 allowance. The gap
+                                    between the two is ~4 points per channel —
+                                    invisible side by side, which is the point.
+       --brand-accent-fill-hover
+                           #9d4832  The filled button's hover, and deliberately
+                                    the same value as --brand-accent-ink: the
+                                    darkening the label needed anyway is
+                                    exactly the darkening a hover wants. 5.85:1.
        --brand-accent-on-dark
                            #d98368  5.75:1 on --color-footer. Light enough to
                                     read on the dark band, where both values
@@ -90,6 +111,8 @@
   --brand-accent: var(--color-terracotta);
   --brand-accent-ink: #9d4832;
   --brand-accent-ink-hover: #8a3c28;
+  --brand-accent-fill: #b45739;
+  --brand-accent-fill-hover: #9d4832;
   --brand-accent-on-dark: #d98368;
   --brand-accent-tint: #eadcd3;
   --brand-accent-soft: #ddbbad;
@@ -322,6 +345,8 @@
   --color-brand-accent: var(--brand-accent);
   --color-brand-accent-ink: var(--brand-accent-ink);
   --color-brand-accent-ink-hover: var(--brand-accent-ink-hover);
+  --color-brand-accent-fill: var(--brand-accent-fill);
+  --color-brand-accent-fill-hover: var(--brand-accent-fill-hover);
   --color-brand-accent-on-dark: var(--brand-accent-on-dark);
   --color-brand-accent-tint: var(--brand-accent-tint);
   --color-brand-accent-soft: var(--brand-accent-soft);

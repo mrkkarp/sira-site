@@ -109,9 +109,9 @@ describe("brand accent contrast", () => {
 
   // ---- the accent used the other way round: as a ground, not a mark ----
 
-  it("the filled CTA's label clears 4.5:1 on --brand-accent-ink", () => {
+  it("the filled CTA's label clears 4.5:1 on --brand-accent-fill", () => {
     expect(
-      contrast(token("--color-surface"), token("--brand-accent-ink")),
+      contrast(token("--color-surface"), token("--brand-accent-fill")),
     ).toBeGreaterThanOrEqual(4.5);
   });
 
@@ -121,14 +121,32 @@ describe("brand accent contrast", () => {
     // the hover token must be darker than the resting one, not brighter.
     const rest = contrast(
       token("--color-surface"),
-      token("--brand-accent-ink"),
+      token("--brand-accent-fill"),
     );
     const hover = contrast(
       token("--color-surface"),
-      token("--brand-accent-ink-hover"),
+      token("--brand-accent-fill-hover"),
     );
     expect(hover).toBeGreaterThanOrEqual(4.5);
     expect(hover).toBeGreaterThan(rest);
+  });
+
+  it("keeps the button's fill closer to the logo than the text ink is", () => {
+    // The regression this guards is the one that produced the complaint. The
+    // fill and the ink were a single token, which meant the button silently
+    // inherited the *text* threshold — 4.5:1 as ink on a light page — and got
+    // darkened until it read brown rather than terracotta.
+    //
+    // Those are two different jobs. A fill only has to clear 4.5:1 under its
+    // own label, which is far cheaper, and the slack is exactly what buys the
+    // brand colour back. So: the fill must sit between the logo's terracotta
+    // and the ink, and must be nearer the logo. If anyone ever collapses the
+    // two tokens again, this fails rather than quietly going brown.
+    const toLogo = (t: string) => contrast(token(t), token("--brand-accent"));
+    expect(toLogo("--brand-accent-fill")).toBeLessThan(
+      toLogo("--brand-accent-ink"),
+    );
+    expect(token("--brand-accent-fill")).not.toBe(token("--brand-accent-ink"));
   });
 
   it("the tinted badge is readable: brand ink on brand wash", () => {

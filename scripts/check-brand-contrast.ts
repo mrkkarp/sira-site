@@ -79,17 +79,17 @@ const checks: Check[] = [
   },
   // ---- the accent as a background ----
   {
-    token: "--color-surface ON --brand-accent-ink",
+    token: "--color-surface ON --brand-accent-fill",
     hex: "#faf9f5",
     role: "the filled CTA's own label",
-    against: { "accent-ink": "#9d4832" },
+    against: { "accent-fill": "#b45739" },
     min: 4.5,
   },
   {
-    token: "--color-surface ON --brand-accent-ink-hover",
+    token: "--color-surface ON --brand-accent-fill-hover",
     hex: "#faf9f5",
     role: "the same label once the pointer is on it",
-    against: { "accent-ink-hover": "#8a3c28" },
+    against: { "accent-fill-hover": "#9d4832" },
     min: 4.5,
   },
   {

@@ -29,13 +29,20 @@ export const buttonVariantClass = {
    * not, the button is a convenience and stays neutral, and the page keeps one
    * accent instead of two a scroll apart.
    *
-   * The fill is `--brand-accent-ink`, not `--brand-accent`, and hover goes
-   * *darker* rather than lighter. Both are forced by the label: light text
-   * measures 5.85:1 on the ink and only 4.32:1 on the raw accent, so the
-   * obvious "brand colour, lighten on hover" button would have shipped a
-   * hover state that fails AA. Down to 7.23:1 instead.
+   * The fill is `--brand-accent-fill`, which exists for this button and
+   * nothing else. It used to be `--brand-accent-ink` — the colour terracotta
+   * has to be darkened to when it is *text* on a light page — and sharing one
+   * token across both roles made the button pay a bill that was never its own.
+   * Ink is held to 4.5:1 against the page; a fill is held to 4.5:1 against its
+   * own label, which is a much cheaper constraint. Fused, the button rendered
+   * visibly brown rather than terracotta.
+   *
+   * Hover still goes *darker* rather than lighter, and that direction is
+   * forced: the label is light, so lightening the fill walks it toward the
+   * 4.32:1 that the raw brand accent already fails at. The obvious "brand
+   * colour, lighten on hover" button would ship a hover state that fails AA.
    */
-  accent: "bg-brand-accent-ink text-surface hover:bg-brand-accent-ink-hover",
+  accent: "bg-brand-accent-fill text-surface hover:bg-brand-accent-fill-hover",
   outline:
     "border border-text text-text hover:bg-text hover:text-background bg-transparent",
   ghost: "text-text-muted hover:text-text bg-transparent",
