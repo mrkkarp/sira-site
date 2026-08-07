@@ -45,7 +45,15 @@ import { DrawingFrame, TechnicalLine } from "@/components/technical-drawing";
  *
  * `min-h-screen`, as on the generic skeleton, so the footer doesn't jump up
  * under the header for the duration of the fetch — the real page is several
- * screens tall.
+ * screens tall. That is only half the footer story: it holds while the visitor
+ * was near the top of the previous page, and does nothing when they were
+ * thousands of pixels down, because the browser clamps a shrinking document to
+ * its *last* pixel. The other half is the scroll reset in
+ * `src/components/page-transition.tsx`.
+ *
+ * `../loading.tsx` re-exports this component, so it is also the fallback one
+ * segment higher — that is what makes it the *first* thing shown when the
+ * `products` segment itself is new. See that file for why.
  */
 export default function Loading() {
   return (

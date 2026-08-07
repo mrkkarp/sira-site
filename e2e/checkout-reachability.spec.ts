@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-import { visit } from "./support";
+import { visit, waitForHydration } from "./support";
 
 /**
  * Prompt 9 §9/§10. Deliberately stops short of submitting a real order —
@@ -25,7 +25,17 @@ test("checkout renders the real customer-details form once the cart has an item"
   page,
 }) => {
   await visit(page, "/products/rakovyna-na-pidlohu-odri");
-  await page.getByRole("button", { name: "Додати в кошик" }).click();
+  // The same guard `cart-flow.spec.ts` puts on the same click, and missing
+  // here since the helper was introduced. Without it this clicks a button that
+  // is rendered, visible and enabled but not yet hydrated, React never sees the
+  // event, no cart write happens, and the count below stays at zero — a failure
+  // that reads exactly like a broken cart. It surfaced when an unrelated
+  // `useLayoutEffect` in the root layout shifted hydration by a few
+  // milliseconds; the race was always here, that only changed which side of it
+  // WebKit landed on.
+  const addToCart = page.getByRole("button", { name: "Додати в кошик" });
+  await waitForHydration(addToCart);
+  await addToCart.click();
   await expect(
     page.getByRole("link", { name: /^Кошик \(\d+\)$/ }),
   ).toHaveAccessibleName("Кошик (1)");
