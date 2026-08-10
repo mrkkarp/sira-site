@@ -22,11 +22,11 @@ import { BrandEyebrow } from "@/components/brand";
  *
  * A grid is the right shape for a catalogue, where the reader is comparing
  * many interchangeable things and wants density. It is the wrong shape here:
- * there is exactly one project today, and a three-column grid holding one
- * small card announces the emptiness louder than anything the copy could say.
- * A full-width card with a large photograph reads as a deliberate editorial
- * choice at n=1 and still reads correctly at n=8, so nothing has to be rebuilt
- * the day a second project lands.
+ * there are two projects today, and a three-column grid holding two small
+ * cards announces the emptiness louder than anything the copy could say. A
+ * full-width card with a large photograph read as a deliberate editorial
+ * choice at n=1, still reads that way at n=2, and still reads correctly at
+ * n=8 — so nothing has to be rebuilt as projects land.
  *
  * ## The card carries the facts, not just the picture
  *
