@@ -93,10 +93,16 @@ export function SampleRequestForm({
     [dictionary, copy],
   );
 
-  const onAccepted = useCallback(async () => {
-    const userData = await hashUserData({ email, phone });
-    trackSampleRequest({ location, product, variant, userData });
-  }, [email, phone, location, product, variant]);
+  const onAccepted = useCallback(
+    async (eventId: string) => {
+      const userData = await hashUserData({ email, phone });
+      // `eventId` is the value the POST body just carried to `/api/sample`;
+      // sharing it is what stops Meta counting this lead once from the pixel
+      // and again from the Conversions API. See `lib/forms/event-id.ts`.
+      trackSampleRequest({ location, product, variant, userData, eventId });
+    },
+    [email, phone, location, product, variant],
+  );
 
   const { status, errors, honeypotRef, submit } = useLeadForm({
     endpoint: "/api/sample",
@@ -113,7 +119,15 @@ export function SampleRequestForm({
       // products carry real Payload ids the relation starts being stored with
       // no change here. The product's name reaches staff via `message`
       // meanwhile.
-      product ? { productIds: [product.slug] } : undefined,
+      // `variantSku` is measurement only and is not stored — it is what lets
+      // the server's copy of this conversion carry the same real price the
+      // pixel is reporting. See the field's note in `/api/sample/route.ts`.
+      product
+        ? {
+            productIds: [product.slug],
+            ...(variant ? { variantSku: variant.sku } : {}),
+          }
+        : undefined,
     );
     if (!accepted) return;
     setName("");

@@ -90,6 +90,10 @@ describe("data-layer", () => {
         "channel",
         "currency",
         "event",
+        // Meta's deduplication key. A stale one here does not merely misreport
+        // a number — it makes Meta discard a genuinely different event as a
+        // duplicate of the lead before it.
+        "event_id",
         "items",
         "location",
         "projectType",

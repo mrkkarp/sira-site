@@ -9,7 +9,10 @@ import { isRateLimited, clientKeyFromRequest } from "@/lib/forms/rate-limit";
 import { isSameOriginRequest } from "@/lib/forms/verify-same-origin";
 import { localeAndSourcePathFromReferer } from "@/lib/forms/request-context";
 import { logFormSubmission } from "@/lib/forms/log-lead-submission";
+import { eventIdFromBody } from "@/lib/forms/event-id";
+import { reportLeadToMetaAfterResponse } from "@/lib/analytics/meta/lead-event";
 import type { Locale } from "@/i18n/config";
+import type { LeadRequest } from "@/domain/leads/lead-request";
 
 /**
  * The pipeline every public lead endpoint runs, in one place.
@@ -39,6 +42,30 @@ export type LeadEndpointResponse =
       detail?: string;
     };
 
+/**
+ * The three fields Meta can match a person on, pulled off whichever kind of
+ * lead this turned out to be.
+ *
+ * `LeadRequest` is a discriminated union and its members disagree about which
+ * of these exist — a quote has no email field at all, a contact's is optional —
+ * so each is probed rather than read. Taken from the *stored* lead rather than
+ * the request body so what gets hashed is exactly what the workshop will call.
+ *
+ * Everything here is plaintext and stays server-side: `buildMetaUserData`
+ * hashes it before it goes anywhere.
+ */
+function leadContactDetails(lead: LeadRequest): {
+  name?: string;
+  email?: string;
+  phone?: string;
+} {
+  const text = (key: "name" | "email" | "phone"): string | undefined => {
+    const value = key in lead ? (lead as Record<string, unknown>)[key] : undefined;
+    return typeof value === "string" && value ? value : undefined;
+  };
+  return { name: text("name"), email: text("email"), phone: text("phone") };
+}
+
 /** Only in development — a Zod message can name submitted values. */
 function devDetail(detail: string): string | undefined {
   return process.env.NODE_ENV === "development" ? detail : undefined;
@@ -60,11 +87,25 @@ export async function handleLeadSubmission<Schema extends z.ZodTypeAny>({
   form,
   schema,
   toLead,
+  metaProduct,
 }: {
   request: NextRequest;
   /** Rate-limit bucket and log label, e.g. `"contact"`. */
   form: string;
   schema: Schema;
+  /**
+   * Which product this lead is about, when the form knows of one, so the Meta
+   * server event can carry that product's real price instead of the flat lead
+   * value.
+   *
+   * Derived from the *validated* input rather than the raw body, and looked up
+   * against the catalogue server-side — the price itself is never taken from
+   * the request. Omit it for forms with no product behind them.
+   */
+  metaProduct?: (input: z.infer<Schema>) => {
+    productSlug?: string;
+    variantSku?: string;
+  };
   /**
    * Turn the validated body into the lead to store. Takes the locale and
    * source path derived from the `Referer` rather than from the body: a
@@ -133,6 +174,18 @@ export async function handleLeadSubmission<Schema extends z.ZodTypeAny>({
         notificationError,
       );
     }
+    // The server copy of this conversion, for Meta's Conversions API. Runs
+    // after the response and cannot fail the request — see
+    // `reportLeadToMetaAfterResponse`. Deliberately last, and never in place of
+    // the notification or the log: measurement is the least important thing
+    // this endpoint does.
+    reportLeadToMetaAfterResponse(request, {
+      form,
+      eventId: eventIdFromBody(body),
+      ...leadContactDetails(lead),
+      ...(metaProduct?.(parsed.data) ?? {}),
+    });
+
     logFormSubmission({ form, outcome: "created", locale, sourcePath });
     return NextResponse.json({ ok: true } satisfies LeadEndpointResponse);
   } catch (error) {

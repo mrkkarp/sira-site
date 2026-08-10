@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { HONEYPOT_FIELD } from "@/lib/forms/honeypot";
+import { EVENT_ID_FIELD, newEventId } from "@/lib/forms/event-id";
 
 export type LeadFormStatus = "idle" | "submitting" | "success" | "error";
 
@@ -28,6 +29,13 @@ export type LeadFormErrors = Record<string, string>;
  *      reader user presses submit and nothing happens (WCAG 3.3.1).
  *   3. **The honeypot travels with every submission.** It is one line, and a
  *      form that forgets it is not broken — it just quietly accepts bots.
+ *   4. **One `event_id` per submission, sent both ways.** Meta receives this
+ *      lead twice on purpose — from the pixel in the browser and from our own
+ *      server via the Conversions API — and collapses the pair back into one
+ *      lead only if both copies carry the same id. The browser is the only
+ *      place that can hand the same value to the request body and to the
+ *      dataLayer push, and a per-form implementation would be four separate
+ *      chances to double-count every lead.
  *
  * `validate` is a plain function rather than a Zod schema on purpose. A schema
  * would read better and would drag zod's ~277 kB runtime into three pages that
@@ -52,12 +60,16 @@ export function useLeadForm({
    * Called once the endpoint accepted the submission. This is where the
    * conversion event goes.
    *
+   * Receives the `event_id` that was just sent to the server with this same
+   * submission; pass it straight through to the `track*` call so the pixel and
+   * the Conversions API agree on which lead this is.
+   *
    * May be async: Enhanced Conversions has to hash the visitor's contact
    * details, and `crypto.subtle.digest` returns a promise. It is awaited so the
    * event cannot be pushed after the visitor has already navigated away, but
    * see below for why its failure is contained.
    */
-  onAccepted?: () => void | Promise<void>;
+  onAccepted?: (eventId: string) => void | Promise<void>;
 }) {
   const [status, setStatus] = useState<LeadFormStatus>("idle");
   const [errors, setErrors] = useState<LeadFormErrors>({});
@@ -84,6 +96,11 @@ export function useLeadForm({
 
       setErrors({});
       setStatus("submitting");
+      // Minted per accepted-for-sending submission, not per mount: a customer
+      // who fixes a validation error and submits again is still one lead, but a
+      // customer who fills the form in twice is two, and reusing an id across
+      // those would make Meta discard the second as a duplicate of the first.
+      const eventId = newEventId();
       try {
         const response = await fetch(endpoint, {
           method: "POST",
@@ -91,6 +108,7 @@ export function useLeadForm({
           body: JSON.stringify({
             ...values,
             ...extraBody,
+            [EVENT_ID_FIELD]: eventId,
             [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
           }),
         });
@@ -108,7 +126,7 @@ export function useLeadForm({
       // error state, and invite a duplicate submission for a lead that arrived
       // perfectly well the first time.
       try {
-        await onAccepted?.();
+        await onAccepted?.(eventId);
       } catch (error) {
         console.error("[forms] the lead was accepted but not measured", error);
       }

@@ -108,6 +108,10 @@ describe("QuoteRequestForm", () => {
       productId: "odri",
       variantId: "Odri color",
       companyWebsite: "",
+      // Meta's deduplication key. This form posts for itself rather than
+      // through `useLeadForm`, so it mints its own — the contract is the same:
+      // one id per submission, sent to the server and to the pixel.
+      event_id: expect.any(String),
     });
 
     expect(

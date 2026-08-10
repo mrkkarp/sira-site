@@ -184,15 +184,41 @@ function identity({ userData }: LeadIdentity): Record<string, unknown> {
 }
 
 /**
+ * The Meta deduplication key, for the four events that are also sent from the
+ * server by the Conversions API.
+ *
+ * The same lead is reported twice on purpose — once by the pixel from the
+ * browser, once by our own server — because the browser copy is the one that
+ * goes missing when a visitor runs an ad blocker, and the server copy is the
+ * one that cannot carry the click cookies. Meta collapses the pair back into
+ * one lead when both copies share an `event_name` and an `event_id`, and counts
+ * them as two leads when they do not.
+ *
+ * So this value is minted exactly once per submission, in `useLeadForm`, and
+ * travels down both paths from there: into the POST body for the server, and
+ * into this event for the pixel. It is only ever absent on a lead event fired
+ * from somewhere that has no server request to pair with — in which case the
+ * Meta tag falls back to generating its own, which is correct, because there is
+ * nothing to deduplicate against.
+ */
+export type LeadDedupe = {
+  eventId?: string;
+};
+
+function dedupe({ eventId }: LeadDedupe): Record<string, unknown> {
+  return eventId ? { event_id: eventId } : {};
+}
+
+/**
  * "Отримати прорахунок" — the main goal. Always raised from a product page, so
  * it always carries that product's real price.
  */
 export function trackQuoteRequest(
   product: Product,
   variant: ProductVariant,
-  params: LeadQualification & LeadIdentity = {},
+  params: LeadQualification & LeadIdentity & LeadDedupe = {},
 ): boolean {
-  const { userData, ...qualification } = params;
+  const { userData, eventId, ...qualification } = params;
   return track({
     event: "quote_request",
     value: variant.price,
@@ -200,6 +226,7 @@ export function trackQuoteRequest(
     items: [itemFor(product, variant)],
     ...qualification,
     ...identity({ userData }),
+    ...dedupe({ eventId }),
   });
 }
 
@@ -214,14 +241,16 @@ export function trackDesignerInquiry(
     /** Which page the form was on, so the two goals can be told apart in GA4. */
     location: string;
   } & LeadQualification &
-    LeadIdentity,
+    LeadIdentity &
+    LeadDedupe,
 ): boolean {
-  const { userData, ...rest } = params;
+  const { userData, eventId, ...rest } = params;
   return track({
     event: "designer_inquiry",
     ...rest,
     ...leadMonetary(),
     ...identity({ userData }),
+    ...dedupe({ eventId }),
   });
 }
 
@@ -231,13 +260,14 @@ export function trackDesignerInquiry(
 
 /** General contact form. */
 export function trackContactSubmit(
-  params: { location: string } & LeadIdentity,
+  params: { location: string } & LeadIdentity & LeadDedupe,
 ): boolean {
   return track({
     event: "contact_submit",
     location: params.location,
     ...leadMonetary(),
     ...identity(params),
+    ...dedupe(params),
   });
 }
 
@@ -252,7 +282,8 @@ export function trackSampleRequest(
     location: string;
     product?: Product;
     variant?: ProductVariant;
-  } & LeadIdentity,
+  } & LeadIdentity &
+    LeadDedupe,
 ): boolean {
   const { product, variant } = params;
   const monetary =
@@ -268,6 +299,7 @@ export function trackSampleRequest(
     location: params.location,
     ...monetary,
     ...identity(params),
+    ...dedupe(params),
   });
 }
 

@@ -100,18 +100,24 @@ export function DesignerInquiryForm({ dictionary }: { dictionary: Dictionary }) 
    * project — and that question can only be asked in GA4 if the answer is a
    * parameter on the event itself.
    */
-  const onAccepted = useCallback(async () => {
-    // Hashed here, from the values still in state, because this is the one
-    // moment both halves exist: the lead is confirmed saved and the fields have
-    // not been cleared yet. See `analytics/user-data.ts` — the plaintext never
-    // reaches the dataLayer.
-    const userData = await hashUserData({ email, phone });
-    trackDesignerInquiry({
-      location: "designers_page",
-      ...qualificationBody(projectType, timeline),
-      userData,
-    });
-  }, [email, phone, projectType, timeline]);
+  const onAccepted = useCallback(
+    async (eventId: string) => {
+      // Hashed here, from the values still in state, because this is the one
+      // moment both halves exist: the lead is confirmed saved and the fields
+      // have not been cleared yet. See `analytics/user-data.ts` — the plaintext
+      // never reaches the dataLayer.
+      const userData = await hashUserData({ email, phone });
+      trackDesignerInquiry({
+        location: "designers_page",
+        ...qualificationBody(projectType, timeline),
+        userData,
+        // Pairs this pixel event with the Conversions API copy the server sends
+        // for the same submission — see `lib/forms/event-id.ts`.
+        eventId,
+      });
+    },
+    [email, phone, projectType, timeline],
+  );
 
   const { status, errors, honeypotRef, submit } = useLeadForm({
     endpoint: "/api/designer",

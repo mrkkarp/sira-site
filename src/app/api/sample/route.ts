@@ -33,6 +33,17 @@ const SampleFormInput = z.object({
    * here, and until then the product name is in `message` anyway.
    */
   productIds: z.array(ProductId).optional(),
+  /**
+   * Measurement only, and not stored.
+   *
+   * A sample asked for from a product page is worth that product's price, and
+   * that is what the pixel already reports from the browser. Meta keeps
+   * whichever copy of a deduplicated event arrives first — usually the server's
+   * — so without the SKU here the server copy would arrive valueless and quietly
+   * discard the real figure. The price itself is never taken from the body: the
+   * SKU is looked up against the catalogue server-side.
+   */
+  variantSku: z.string().trim().min(1).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -51,6 +62,10 @@ export async function POST(request: NextRequest) {
       address: input.address,
       productIds: input.productIds ?? [],
       message: input.message || undefined,
+    }),
+    metaProduct: (input) => ({
+      productSlug: input.productIds?.[0],
+      variantSku: input.variantSku,
     }),
   });
 }

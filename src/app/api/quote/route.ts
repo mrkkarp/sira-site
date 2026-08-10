@@ -10,6 +10,8 @@ import { isRateLimited, clientKeyFromRequest } from "@/lib/forms/rate-limit";
 import { isSameOriginRequest } from "@/lib/forms/verify-same-origin";
 import { localeAndSourcePathFromReferer } from "@/lib/forms/request-context";
 import { logFormSubmission } from "@/lib/forms/log-lead-submission";
+import { eventIdFromBody } from "@/lib/forms/event-id";
+import { reportLeadToMetaAfterResponse } from "@/lib/analytics/meta/lead-event";
 
 export type QuoteRequestResponse =
   | { ok: true }
@@ -134,6 +136,23 @@ export async function POST(request: NextRequest) {
         notificationError,
       );
     }
+    // The server copy of the site's main conversion, for Meta's Conversions
+    // API — sent after the response, unable to fail the request. The other
+    // three lead routes get this from `lead-endpoint.ts`; it is spelled out
+    // here because this route still spells out the whole pipeline.
+    //
+    // `productId`/`variantId` here are the product's slug and the variant's
+    // SKU, which is what the form posts; the price is looked up from the
+    // catalogue server-side, never taken from the body.
+    reportLeadToMetaAfterResponse(request, {
+      form: "quote",
+      eventId: eventIdFromBody(body),
+      name: parsed.data.name,
+      phone: parsed.data.phone,
+      productSlug: parsed.data.productId,
+      variantSku: parsed.data.variantId,
+    });
+
     logFormSubmission({
       form: "quote",
       outcome: "created",

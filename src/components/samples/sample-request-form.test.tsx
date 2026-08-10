@@ -113,6 +113,9 @@ describe("SampleRequestForm", () => {
       address: "Київ, Нова пошта, відділення 12",
       message: "Сірий базовий і графіт",
       companyWebsite: "",
+      // Meta's deduplication key, minted per submission and sent both here and
+      // on the pixel event — see `lib/forms/event-id.ts`.
+      event_id: expect.any(String),
     });
 
     expect(

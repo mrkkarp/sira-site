@@ -75,12 +75,18 @@ export function ContactForm({ dictionary }: { dictionary: Dictionary }) {
     [dictionary, copy],
   );
 
-  const onAccepted = useCallback(async () => {
-    // Email is optional on this form, so many of these carry a phone hash only
-    // — which is still a match key, and still better than nothing.
-    const userData = await hashUserData({ email, phone });
-    trackContactSubmit({ location: "contact_page", userData });
-  }, [email, phone]);
+  const onAccepted = useCallback(
+    async (eventId: string) => {
+      // Email is optional on this form, so many of these carry a phone hash
+      // only — which is still a match key, and still better than nothing.
+      const userData = await hashUserData({ email, phone });
+      // `eventId` is the same value the POST body just carried to the server,
+      // which is what lets Meta collapse the pixel's copy of this lead and the
+      // Conversions API's copy into one. See `lib/forms/event-id.ts`.
+      trackContactSubmit({ location: "contact_page", userData, eventId });
+    },
+    [email, phone],
+  );
 
   const { status, errors, honeypotRef, submit } = useLeadForm({
     endpoint: "/api/contact",

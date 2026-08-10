@@ -18,6 +18,7 @@ import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { HoneypotField } from "@/components/forms/honeypot-field";
 import { SelectField } from "@/components/forms/form-field";
 import { HONEYPOT_FIELD } from "@/lib/forms/honeypot";
+import { EVENT_ID_FIELD, newEventId } from "@/lib/forms/event-id";
 
 type Status = "idle" | "submitting" | "success" | "error";
 type FieldErrors = { name?: string; phone?: string };
@@ -116,6 +117,12 @@ export function QuoteRequestForm({
     setErrors({});
     setStatus("submitting");
 
+    // This form predates `useLeadForm` and still posts for itself, so it has to
+    // mint its own. Same contract either way: one id per submission, sent to
+    // the server in the body and to the pixel on the event below, so Meta sees
+    // the two copies of this lead as one. See `lib/forms/event-id.ts`.
+    const eventId = newEventId();
+
     try {
       const response = await fetch("/api/quote", {
         method: "POST",
@@ -126,6 +133,7 @@ export function QuoteRequestForm({
           productId: product.slug,
           variantId: variant.sku,
           ...qualificationBody(projectType, timeline),
+          [EVENT_ID_FIELD]: eventId,
           [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
         }),
       });
@@ -152,6 +160,7 @@ export function QuoteRequestForm({
       trackQuoteRequest(product, variant, {
         ...qualificationBody(projectType, timeline),
         userData,
+        eventId,
       });
     } catch (error) {
       console.error("[quote] the lead was accepted but not measured", error);

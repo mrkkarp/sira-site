@@ -86,6 +86,9 @@ describe("DesignerInquiryForm", () => {
       portfolioUrl: "behance.net/olena",
       message: "Готель на 40 номерів.",
       companyWebsite: "",
+      // Meta's deduplication key, minted per submission and sent both here and
+      // on the pixel event — see `lib/forms/event-id.ts`.
+      event_id: expect.any(String),
     });
 
     expect(

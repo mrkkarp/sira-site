@@ -75,6 +75,11 @@ describe("ContactForm", () => {
       // The honeypot travels with every submission — a form that forgets it is
       // not visibly broken, it just quietly accepts bots.
       companyWebsite: "",
+      // So does the deduplication key, which is the whole reason Meta can be
+      // told about this lead twice — once by the pixel, once by the server —
+      // without counting it twice. Asserted as "some string" here; that it is
+      // the *same* string the pixel gets is asserted below.
+      event_id: expect.any(String),
     });
 
     expect(
@@ -93,8 +98,16 @@ describe("ContactForm", () => {
       screen.getByRole("button", { name: dictionary.contactForm.submitCta }),
     );
 
+    // `waitFor`, not a bare assertion after the success message: the two are
+    // genuinely separated in time. Status flips to "success" the moment the
+    // response comes back, but the fields are not cleared until `submit`
+    // returns — and that waits on the conversion, which waits on
+    // `crypto.subtle.digest`. Asserting straight after `findByText` races that
+    // gap and fails whenever the machine is busy enough to lose it.
     await screen.findByText(dictionary.contactForm.successMessage);
-    expect(field(dictionary.leadFields.nameLabel)).toHaveValue("");
+    await waitFor(() =>
+      expect(field(dictionary.leadFields.nameLabel)).toHaveValue(""),
+    );
     expect(field(dictionary.contactForm.messageLabel)).toHaveValue("");
     await waitForConversion();
   });
@@ -117,6 +130,36 @@ describe("ContactForm", () => {
       event: "contact_submit",
       location: "contact_page",
     });
+  });
+
+  it("sends the server and the pixel the same event_id", async () => {
+    // The single assertion this whole deduplication mechanism exists for.
+    //
+    // Meta is told about every lead twice on purpose: once by the pixel from
+    // the browser, once by our server through the Conversions API, because the
+    // browser copy is exactly what an ad blocker or a declined consent banner
+    // removes. It collapses the pair back into one lead only when both copies
+    // carry the same `event_name` and `event_id`. When they do not, there is no
+    // error anywhere — the conversion count simply reads double, and a campaign
+    // optimising toward leads spends against a number twice the truth.
+    //
+    // So: the id in the POST body and the id on the dataLayer event must be the
+    // same string, and it must not be empty.
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal("fetch", fetchMock);
+    const dictionary = await setup();
+    fill(dictionary);
+    fireEvent.click(
+      screen.getByRole("button", { name: dictionary.contactForm.submitCta }),
+    );
+
+    await waitForConversion();
+    const [, init] = fetchMock.mock.calls[0];
+    const sentToServer = JSON.parse((init as RequestInit).body as string)
+      .event_id as string;
+
+    expect(sentToServer).toBeTruthy();
+    expect(contactEvents()[0].event_id).toBe(sentToServer);
   });
 
   it("carries the phone hash for a visitor who left the email blank", async () => {

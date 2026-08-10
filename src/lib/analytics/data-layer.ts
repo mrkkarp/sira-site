@@ -72,6 +72,13 @@ const EVENT_PARAMETERS = [
   "projectType",
   "timeline",
   "user_data",
+  // The Meta deduplication key. Belongs on this list more urgently than
+  // anything else on it: a stale `event_id` left in the model does not merely
+  // report a wrong number, it makes Meta treat two genuinely different events
+  // as the same one and throw the second away. A visitor who submits the
+  // contact form and then taps the phone number would have the phone tap
+  // silently discarded as a duplicate of the lead.
+  "event_id",
 ] as const;
 
 /**
