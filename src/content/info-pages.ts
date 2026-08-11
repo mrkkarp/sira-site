@@ -8,8 +8,15 @@ import { legalPages } from "@/content/legal-pages";
 /**
  * Long-form INFO-page body content. `payment-delivery` and `returns` are
  * transcribed VERBATIM from the live ODUDLAB (Horoshop) export in
- * `_horoshop-export/pages-html/`; `care` is the one exception — see its note
- * below. This lives in its own module — deliberately NOT in the i18n
+ * `_horoshop-export/pages-html/`, plus the sections the owner dictated on
+ * 2026-08-11 (see them marked in place: "Строки" on `payment-delivery`,
+ * "Пошкодження та дефекти" on `returns`). Those sections exist because Google's
+ * merchant-listing report demanded `shippingDetails`/`hasMerchantReturnPolicy`
+ * in the product structured data, and a term Google is told must also be a term
+ * a visitor can read — so the same facts are encoded in
+ * `src/lib/product-structured-data.ts` and written out here. Change one, change
+ * the other. `care` is the one fully rewritten page — see its note below.
+ * This lives in its own module — deliberately NOT in the i18n
  * dictionaries — because
  * `src/i18n/get-dictionary.ts` types `Dictionary = typeof uk.json` with no
  * fallback, so any key added to `uk.json` must also exist in `en.json` and
@@ -157,11 +164,22 @@ export const infoPages: Record<
         },
         {
           heading: "Доставка",
-          paragraphs: [],
+          paragraphs: ["Возимо по Україні та в Європу."],
           bullets: [
-            "Самовивіз з нашого магазину — безкоштовно",
+            "Самовивіз з нашого магазину — безкоштовно, у робочі дні з 10:00 до 18:00",
             "«Новою поштою» по Україні — за тарифами перевізника",
             "Кур'єром по Києву — за тарифами перевізника",
+          ],
+        },
+        {
+          // Owner, 2026-08-11: «протягом двох робочих днів після виготовлення»,
+          // виготовлення «зазвичай 2-3 тижні». Ці ж строки закодовані в
+          // `shippingDetails` у структурованих даних товару — якщо міняються
+          // тут, міняються і в `buildProductJsonLd`.
+          heading: "Строки",
+          paragraphs: [
+            "Кожен виріб виготовляється під замовлення — зазвичай це 2–3 тижні.",
+            "Готове замовлення передаємо перевізнику протягом двох робочих днів після виготовлення.",
           ],
         },
       ],
@@ -177,6 +195,19 @@ export const infoPages: Record<
             "Обов'язково оглядайте Ваше замовлення, коли забираєте його з Нової Пошти. Всі наші посилки застраховані на їх повну вартість, тому Ви маєте повне право на відшкодування збитків, якщо виявили сколи або ж виріб приїхало розбитий. Повернути товар у магазин (або обміняти його на інший аналогічний) можна протягом 14 днів із дня покупки. Це правило поширюється на товари належної якості, тобто невикористані та непошкоджені.",
             "Для довговічного збереження експлуатаційних і декоративних характеристик рекомендуємо ознайомитися з ПАМ'ЯТКОЮ ПОВОДЖЕННЯ З БЕТОННИМИ ВИРОБАМИ",
             "Якщо замовлення на виріб із бетону індивідуальне, виготовлене під розміри та/або в кольорі, текстурі визначених покупцем (замовником), то даний товар відноситься до переліку товарів додатку № 3 постанови Кабінету Міністрів України від 19.03.1994 № 172 (Перелік товарів належної якості, що не підлягають обміну ( поверненню)). Передплата за виріб не повертається, передплата йде на перекриття витрат до індивідуального замовлення.",
+          ],
+        },
+        {
+          // Owner, 2026-08-11: «Оглядайте товар одразу на новій пошті на
+          // пошкодження, при виявлені пошкоджень після пошта не виплачує
+          // страховку. При виявлені дефектів зі сторони виробника виробник
+          // оплачує доставку назад або знищення.» Обидва випадки — не
+          // «повернення» в сенсі schema.org (там лише добровільна відмова від
+          // товару), тому вони живуть тут у тексті, а не в структурованих даних.
+          heading: "Пошкодження та дефекти",
+          paragraphs: [
+            "Оглядайте виріб одразу у відділенні «Нової пошти», ще до того, як заберете його. Якщо пошкодження виявлено вже після отримання, пошта страховку не виплачує — і відшкодувати збиток стає неможливо.",
+            "Якщо ж дефект виробничий, це наша відповідальність: зворотну доставку або утилізацію виробу оплачує виробник.",
           ],
         },
         {

@@ -49,6 +49,98 @@ describe("buildProductJsonLd", () => {
     });
   });
 
+  it("states the one shipping rate it actually knows, and links out for the rest", () => {
+    // Google's merchant-listing report wants `shippingDetails`. The only
+    // knowable number is the owner's «самовивіз 0 грн»; Нова пошта and кур'єр
+    // are «за тарифами перевізника» and must NOT be guessed at, so they live on
+    // /payment-delivery behind `shippingSettingsLink` instead of as a second
+    // entry with an invented rate.
+    const p = product();
+    const offers = buildProductJsonLd({
+      product: p,
+      variant: p.base,
+      siteUrl: "http://localhost:3000",
+      path: "/en/products/odri",
+      brandName: "ODUDLAB",
+      pickupLabel: "Free pickup",
+      shippingSettingsPath: "/en/payment-delivery",
+    }).offers as Record<string, unknown>;
+
+    expect(offers.shippingDetails).toEqual({
+      "@type": "OfferShippingDetails",
+      shippingLabel: "Free pickup",
+      shippingSettingsLink: "http://localhost:3000/en/payment-delivery",
+      shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "UAH" },
+      shippingDestination: {
+        "@type": "DefinedRegion",
+        addressCountry: "UA",
+      },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        // 2–3 weeks of manufacturing, and no carrier leg at all for pickup.
+        handlingTime: {
+          "@type": "QuantitativeValue",
+          minValue: 14,
+          maxValue: 21,
+          unitCode: "DAY",
+        },
+        transitTime: {
+          "@type": "QuantitativeValue",
+          minValue: 0,
+          maxValue: 0,
+          unitCode: "DAY",
+        },
+      },
+    });
+  });
+
+  it("omits the shipping label and settings link rather than hardcoding Ukrainian ones", () => {
+    // The label is a translated string that only the caller (which holds the
+    // dictionary) can supply. Absent it, the entry must still carry the rate
+    // and the destination — dropping the whole of `shippingDetails` would put
+    // the merchant-listing warning straight back.
+    const p = product();
+    const offers = buildProductJsonLd({
+      product: p,
+      variant: p.base,
+      siteUrl: "http://localhost:3000",
+      path: "/products/odri",
+      brandName: "ODUDLAB",
+    }).offers as Record<string, unknown>;
+    const shipping = offers.shippingDetails as Record<string, unknown>;
+
+    expect(shipping.shippingLabel).toBeUndefined();
+    expect(shipping.shippingSettingsLink).toBeUndefined();
+    expect(shipping.shippingRate).toEqual({
+      "@type": "MonetaryAmount",
+      value: 0,
+      currency: "UAH",
+    });
+  });
+
+  it("reports returns as not permitted, because everything is made to order", () => {
+    // The owner's answer, verbatim: «немає. бо вироби виготовляються під
+    // замовлення». `MerchantReturnNotPermitted` is the honest schema.org value
+    // and is the one category that needs no `merchantReturnDays`/fee fields —
+    // there is no return window to describe. Carrier-insured transit damage and
+    // manufacturing defects are a different thing entirely and stay in prose on
+    // /returns; schema.org cannot express them without overpromising a window.
+    const p = product();
+    const offers = buildProductJsonLd({
+      product: p,
+      variant: p.base,
+      siteUrl: "http://localhost:3000",
+      path: "/products/odri",
+      brandName: "ODUDLAB",
+    }).offers as Record<string, unknown>;
+
+    expect(offers.hasMerchantReturnPolicy).toEqual({
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: "UA",
+      returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+    });
+  });
+
   it("drops a sku that only repeats the product name, and keeps a real one", () => {
     // Google rejects «sku» when it is the name again, which is how the
     // Horoshop export left roughly half the catalogue. Case and surrounding

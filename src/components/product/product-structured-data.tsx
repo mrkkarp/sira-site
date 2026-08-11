@@ -35,6 +35,11 @@ export function ProductStructuredData({
     // The same helper the breadcrumb uses, so the category Google reads and
     // the category the visitor reads can never drift apart.
     categoryName: shopCategoryLabel(product.shopCategory, dictionary),
+    // The same string the Customer Care block already shows the visitor, so
+    // the shipping option Google reads is worded identically — and translated,
+    // which a hardcoded "Самовивіз" in the generator would not be.
+    pickupLabel: dictionary.customerCare.deliveryPickup,
+    shippingSettingsPath: localeHref(locale, "/payment-delivery"),
   });
 
   return (

@@ -34,6 +34,9 @@ import { buildDescriptionSections } from "@/lib/product-description";
  *   the board. Claiming `"InStock"` would be a fabrication.
  * - `itemCondition`: always `"https://schema.org/NewCondition"` — every
  *   product is newly manufactured concrete, never used/refurbished.
+ * - `offers.shippingDetails` / `offers.hasMerchantReturnPolicy`: see the two
+ *   long notes at their construction below. Both encode facts the owner stated
+ *   directly (2026-08-11); neither is inferred from the old Horoshop copy.
  * - `material`: only included when the product's real `specEntries` has a
  *   "Матеріал" row — never guessed for categories without that field.
  * - `additionalProperty`: only included when the selected variant has a
@@ -49,6 +52,8 @@ export function buildProductJsonLd({
   path,
   brandName,
   categoryName,
+  pickupLabel,
+  shippingSettingsPath,
 }: {
   product: Product;
   variant: ProductVariant;
@@ -56,8 +61,19 @@ export function buildProductJsonLd({
   path: string;
   brandName: string;
   categoryName?: string;
+  /**
+   * Localised name of the one shipping option that has a knowable price —
+   * `customerCare.deliveryPickup` ("Безкоштовний самовивіз" / "Free pickup" /
+   * "Bezpłatny odbiór własny"). Passed in rather than hardcoded because /en and
+   * /pl render the same generator and Google reads structured data in the
+   * page's own language.
+   */
+  pickupLabel?: string;
+  /** Locale-aware path to the full delivery terms, e.g. `/en/payment-delivery`. */
+  shippingSettingsPath?: string;
 }): Record<string, unknown> {
-  const canonicalUrl = `${siteUrl.replace(/\/$/, "")}${path}`;
+  const origin = siteUrl.replace(/\/$/, "");
+  const canonicalUrl = `${origin}${path}`;
 
   const images = Array.from(
     new Set(
@@ -98,6 +114,91 @@ export function buildProductJsonLd({
       ? variant.sku
       : undefined;
 
+  /**
+   * Google's merchant-listing report flags every product for a missing
+   * `shippingDetails`. The facts below come from the owner directly
+   * (2026-08-11), not from the Horoshop copy:
+   *
+   *   «протягом двох робочих днів після виготовлення, возимо по Україні та у
+   *    Європу. самовивіз безкоштовно у робочі дні 10-18» — виготовлення
+   *   «зазвичай 2-3 тижні», вартість «самовивіз 0 грн, решта — за тарифами
+   *    перевізника».
+   *
+   * Only ONE option is expressed here, and deliberately so. `shippingRate` is
+   * a `MonetaryAmount` — a single number — and the only number that exists is
+   * pickup's zero. Нова пошта and кур'єр are «за тарифами перевізника», a
+   * figure the workshop does not set and cannot know per product; emitting a
+   * guessed value would be a fabrication, and emitting the entry with no
+   * `shippingRate` would just trade this warning for another one. Those options
+   * are carried in prose on /payment-delivery, which `shippingSettingsLink`
+   * points at, exactly as schema.org intends for rates that live off-page.
+   *
+   * `handlingTime` 14–21 days is the stated 2–3 week build time, in calendar
+   * days. `transitTime` is 0 for pickup because there is no carrier leg — that
+   * is a fact about pickup, not an estimate. The two-business-day dispatch
+   * window applies only to the carrier options, so it is not folded in here.
+   *
+   * `shippingDestination` is `UA` alone. The owner also ships to Europe, but
+   * "Europe" is not a country and `DefinedRegion` wants real ones — listing a
+   * made-up set of European countries would be inventing coverage. The page
+   * copy says it in words instead.
+   */
+  const shippingDetails: Record<string, unknown> = {
+    "@type": "OfferShippingDetails",
+    shippingRate: {
+      "@type": "MonetaryAmount",
+      value: 0,
+      currency: "UAH",
+    },
+    shippingDestination: {
+      "@type": "DefinedRegion",
+      addressCountry: "UA",
+    },
+    deliveryTime: {
+      "@type": "ShippingDeliveryTime",
+      handlingTime: {
+        "@type": "QuantitativeValue",
+        minValue: 14,
+        maxValue: 21,
+        unitCode: "DAY",
+      },
+      transitTime: {
+        "@type": "QuantitativeValue",
+        minValue: 0,
+        maxValue: 0,
+        unitCode: "DAY",
+      },
+    },
+  };
+  if (pickupLabel) {
+    shippingDetails.shippingLabel = pickupLabel;
+  }
+  if (shippingSettingsPath) {
+    shippingDetails.shippingSettingsLink = `${origin}${shippingSettingsPath}`;
+  }
+
+  /**
+   * The other half of the merchant-listing warning. Asked whether a customer
+   * may return an undamaged product, the owner answered: «немає. бо вироби
+   * виготовляються під замовлення» — which is `MerchantReturnNotPermitted`,
+   * the schema.org value that needs no `merchantReturnDays` or fee fields
+   * precisely because there is no return window to describe.
+   *
+   * This is not the same as having no recourse, and the distinction matters:
+   * transit damage is covered by the carrier's insurance (hence the owner's
+   * «оглядайте товар одразу на новій пошті»), and a genuine manufacturing
+   * defect is the workshop's own cost («виробник оплачує доставку назад або
+   * знищення»). schema.org has no vocabulary for either — `MerchantReturnPolicy`
+   * only models voluntary change-of-mind returns — so both live in prose on
+   * /returns. Encoding them here as if they were a return window would
+   * misstate the policy in the direction of overpromising.
+   */
+  const hasMerchantReturnPolicy = {
+    "@type": "MerchantReturnPolicy",
+    applicableCountry: "UA",
+    returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+  };
+
   const json: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -116,6 +217,8 @@ export function buildProductJsonLd({
       price: variant.price,
       itemCondition: "https://schema.org/NewCondition",
       availability: "https://schema.org/BackOrder",
+      shippingDetails,
+      hasMerchantReturnPolicy,
     },
   };
 
