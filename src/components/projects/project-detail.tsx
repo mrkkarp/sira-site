@@ -74,7 +74,7 @@ export function ProjectDetail({
    */
   const factRows: { label: string; value?: string }[] = [
     { label: copy.factLabels.client, value: content.facts.client },
-    { label: copy.factLabels.location, value: project.place?.label },
+    { label: copy.factLabels.location, value: project.place?.label[locale] },
     { label: copy.factLabels.year, value: project.year },
     { label: copy.factLabels.typology, value: content.facts.typology },
     { label: copy.factLabels.scope, value: content.facts.scope },

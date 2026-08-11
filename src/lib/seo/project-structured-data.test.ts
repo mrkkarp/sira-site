@@ -15,7 +15,11 @@ const project: Project = {
   slug: "demo",
   category: "public",
   year: "2019",
-  place: { label: "Київ, Україна", locality: "Київ", countryCode: "UA" },
+  place: {
+    label: { uk: "Київ, Україна", en: "Kyiv, Ukraine", pl: "Kijów, Ukraina" },
+    locality: { uk: "Київ", en: "Kyiv", pl: "Kijów" },
+    countryCode: "UA",
+  },
   images: [
     { src: "/projects/demo/one.jpg", alt: "Перше фото" },
     { src: "/projects/demo/two.jpg", alt: "Друге фото" },
@@ -29,6 +33,7 @@ describe("buildProjectJsonLd", () => {
     const json = buildProjectJsonLd({
       project,
       content,
+      locale: "uk",
       siteUrl: "https://example.com",
       path: "/projects/demo",
       organizationName: "ODUDLAB",
@@ -69,6 +74,7 @@ describe("buildProjectJsonLd", () => {
     const json = buildProjectJsonLd({
       project,
       content,
+      locale: "uk",
       siteUrl: "https://example.com/",
       path: "/projects/demo",
       organizationName: "ODUDLAB",
@@ -95,6 +101,7 @@ describe("buildProjectJsonLd", () => {
         place: undefined,
       },
       content: { ...content, facts: {} },
+      locale: "uk",
       siteUrl: "https://example.com",
       path: "/projects/demo",
       organizationName: "ODUDLAB",
@@ -104,4 +111,43 @@ describe("buildProjectJsonLd", () => {
     expect(json).not.toHaveProperty("locationCreated");
     expect(json).not.toHaveProperty("about");
   });
+
+  /**
+   * Both fields here shipped wrong, and they shipped wrong together: the
+   * builder had no `locale`, so `inLanguage` was the literal `"uk"` and
+   * `addressLocality` the literal `Київ` on all three routes. The English page
+   * therefore declared its English prose to be Ukrainian — a machine-readable
+   * contradiction of the document it annotates — and named the city in a
+   * script the rest of the page had already translated away from.
+   *
+   * Asserting per locale rather than once: a fix that hardcoded `"en"` instead
+   * of `"uk"` would satisfy a single-locale test just as well as the bug did.
+   */
+  it.each([
+    ["uk", "Київ"],
+    ["en", "Kyiv"],
+    ["pl", "Kijów"],
+  ] as const)(
+    "declares %s and spells the city for that locale",
+    (locale, city) => {
+      const json = buildProjectJsonLd({
+        project,
+        content,
+        locale,
+        siteUrl: "https://example.com",
+        path: `/${locale}/projects/demo`,
+        organizationName: "ODUDLAB",
+      });
+
+      expect(json.inLanguage).toBe(locale);
+      expect(json.locationCreated).toEqual({
+        "@type": "Place",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: city,
+          addressCountry: "UA",
+        },
+      });
+    },
+  );
 });

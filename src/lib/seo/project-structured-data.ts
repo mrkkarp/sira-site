@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 import type { Project, ProjectContent } from "@/content/projects";
 
 /**
@@ -26,20 +27,33 @@ import type { Project, ProjectContent } from "@/content/projects";
  *
  * Every field reads from the project record. `dateCreated` and
  * `locationCreated` come from `project.year` / `project.place`, the same two
- * locale-neutral values the visible fact sheet renders, so the markup and the
- * page cannot disagree. Absent facts emit no key rather than an empty one —
- * `undefined` properties are dropped, because `"dateCreated": ""` is a
- * validation warning and a lie at the same time.
+ * values the visible fact sheet renders, so the markup and the page cannot
+ * disagree. Absent facts emit no key rather than an empty one — `undefined`
+ * properties are dropped, because `"dateCreated": ""` is a validation warning
+ * and a lie at the same time.
+ *
+ * ## `locale` is not decoration
+ *
+ * It decides two fields, and both were wrong before it was threaded through.
+ * `inLanguage` was the string `"uk"` on all three routes, so the English page
+ * shipped an English `name`, `headline` and `description` under a declaration
+ * that they were Ukrainian — a machine-readable contradiction of the very
+ * document it annotates, on a page whose whole job is being believed.
+ * `addressLocality` was `Київ` everywhere for the same reason. Both now follow
+ * the page they describe.
  */
 export function buildProjectJsonLd({
   project,
   content,
+  locale,
   siteUrl,
   path,
   organizationName,
 }: {
   project: Project;
   content: ProjectContent;
+  /** The locale this page is served in — sets `inLanguage` and picks the city spelling. */
+  locale: Locale;
   /** Absolute site origin, e.g. `https://odudlab.com`. */
   siteUrl: string;
   /** Locale-prefixed path this page is served at, e.g. `/projects/ukrsibbank`. */
@@ -57,7 +71,7 @@ export function buildProjectJsonLd({
     name: content.title,
     headline: content.title,
     description: content.summary,
-    inLanguage: "uk",
+    inLanguage: locale,
     image: project.images.map((image) => `${base}${image.src}`),
     creator: {
       "@type": "Organization",
@@ -73,7 +87,7 @@ export function buildProjectJsonLd({
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
-        addressLocality: project.place.locality,
+        addressLocality: project.place.locality[locale],
         addressCountry: project.place.countryCode,
       },
     };

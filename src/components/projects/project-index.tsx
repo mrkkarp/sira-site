@@ -156,9 +156,10 @@ export function ProjectIndex({
                         locale,
                         projectPath(project.slug),
                       );
-                      const meta = [project.place?.label, project.year].filter(
-                        Boolean,
-                      );
+                      const meta = [
+                        project.place?.label[locale],
+                        project.year,
+                      ].filter(Boolean);
 
                       return (
                         <article key={project.slug}>

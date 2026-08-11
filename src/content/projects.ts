@@ -88,17 +88,31 @@ export type ProjectFacts = {
 };
 
 /**
- * Where the project is. Locale-neutral, so it lives on the `Project` and not
- * in `content` — one value feeds the fact sheet, the JSON-LD `locationCreated`
- * and (eventually) any "projects in your city" grouping. Splitting `label`
- * from `countryCode` is what keeps the JSON-LD from having to parse a display
- * string it did not write.
+ * Where the project is. It lives on the `Project` and not in `content` because
+ * it is a *fact about the site*, not prose about it: one value feeds the fact
+ * sheet, the JSON-LD `locationCreated` and (eventually) any "projects in your
+ * city" grouping. Splitting `label` from `countryCode` is what keeps the
+ * JSON-LD from having to parse a display string it did not write.
+ *
+ * The fact is locale-neutral; its *spelling* is not, which is the distinction
+ * the first version of this type got wrong. A city has an established
+ * exonym in each language — Київ / Kyiv / Kijów — and rendering the Ukrainian
+ * one on the English page left a single Cyrillic string sitting in an
+ * otherwise fully translated fact sheet, reading as an untranslated leftover
+ * rather than as a place name. So `label` and `locality` are per-locale and
+ * total, not `Partial`: unlike a case study, which may honestly ship
+ * Ukrainian-only and fall back, there is no excuse for an unwritten city name
+ * — it is three words, not a translation job, and a missing one would fall
+ * back to Cyrillic and reintroduce exactly this bug.
+ *
+ * `countryCode` stays flat: ISO 3166-1 has one spelling per country by
+ * construction.
  */
 export type ProjectPlace = {
-  /** Rendered as-is in the fact sheet, e.g. `Київ, Україна`. */
-  label: string;
+  /** Rendered as-is in the fact sheet and on the index card, e.g. `Київ, Україна`. */
+  label: Record<Locale, string>;
   /** City on its own, for `PostalAddress.addressLocality`. */
-  locality: string;
+  locality: Record<Locale, string>;
   /** ISO 3166-1 alpha-2, for `PostalAddress.addressCountry`. */
   countryCode: string;
 };
@@ -174,7 +188,11 @@ const ukrsibbank: Project = {
   slug: "ukrsibbank",
   category: "public",
   year: "2019",
-  place: { label: "Київ, Україна", locality: "Київ", countryCode: "UA" },
+  place: {
+    label: { uk: "Київ, Україна", en: "Kyiv, Ukraine", pl: "Kijów, Ukraina" },
+    locality: { uk: "Київ", en: "Kyiv", pl: "Kijów" },
+    countryCode: "UA",
+  },
   images: [
     {
       src: "/projects/ukrsibbank/ukrsibbank-lavy-ta-vazony-bilia-vhodu.jpg",
@@ -320,7 +338,11 @@ const metropolis: Project = {
    * That the work continued is said in the prose, where prose belongs.
    */
   year: "2021",
-  place: { label: "Київ, Україна", locality: "Київ", countryCode: "UA" },
+  place: {
+    label: { uk: "Київ, Україна", en: "Kyiv, Ukraine", pl: "Kijów, Ukraina" },
+    locality: { uk: "Київ", en: "Kyiv", pl: "Kijów" },
+    countryCode: "UA",
+  },
   images: [
     {
       src: "/projects/metropolis/metropolis-lavy-vzdovzh-dekoratyvnyh-zlakiv.webp",

@@ -101,6 +101,7 @@ export default async function Page({
       <ProjectStructuredData
         project={project}
         content={content}
+        locale={locale}
         path={path}
         organizationName={dictionary.site.name}
       />

@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 import type { Project, ProjectContent } from "@/content/projects";
 import { getSiteUrl } from "@/lib/site-url";
 import { buildProjectJsonLd } from "@/lib/seo/project-structured-data";
@@ -12,17 +13,20 @@ import { serializeJsonLd } from "@/lib/json-ld";
 export function ProjectStructuredData({
   project,
   content,
+  locale,
   path,
   organizationName,
 }: {
   project: Project;
   content: ProjectContent;
+  locale: Locale;
   path: string;
   organizationName: string;
 }) {
   const json = buildProjectJsonLd({
     project,
     content,
+    locale,
     siteUrl: getSiteUrl().toString(),
     path,
     organizationName,
