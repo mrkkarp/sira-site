@@ -374,6 +374,21 @@ body {
    paint uses, before any JS runs. */
 :root {
   --header-stack-height: 74px;
+
+  /* Distance from a viewport edge to the floating bar's own edge.
+     The bar is `mx-auto max-w-[100rem]` inside the stack's `--space-2xs`
+     gutter, so up to 1600px + gutters it *is* the gutter, and past that the
+     bar stops growing and the surplus splits evenly either side.
+
+     It exists for the header's information dropdown, which is `position:
+     fixed` (inherited from the mega-menu panel it shares) and narrow, so
+     "align my right edge with the bar's" is not something the cascade can
+     work out on its own. Insetting by a flat `--space-2xs` instead would look
+     right on every laptop and then drift hundreds of pixels off the bar on a
+     wide desktop, where the bar is capped and the viewport is not. */
+  --header-bar-inset: calc(
+    var(--space-2xs) + max(0px, (100vw - 2 * var(--space-2xs) - 100rem) / 2)
+  );
 }
 
 /* Tailwind v4 defaults `border-color` to `currentColor`; this restores the v3

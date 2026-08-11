@@ -15,7 +15,7 @@ import { locales, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
 import { cn } from "@/lib/cn";
-import { primaryNav } from "@/config/navigation";
+import { infoMenuSectionPaths, primaryNav } from "@/config/navigation";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import {
@@ -24,6 +24,7 @@ import {
   subscribeHeroBoundary,
 } from "@/components/header/hero-boundary";
 import { CatalogMenuContent } from "@/components/header/catalog-menu-content";
+import { InfoMenuContent } from "@/components/header/info-menu-content";
 import { CartButton } from "@/components/header/cart-button";
 import { RollingLabel } from "@/components/header/rolling-label";
 
@@ -291,17 +292,29 @@ export function Header({
   // hydration. Matching against the built href therefore missed every uk page
   // in the server HTML. Stripping the prefix makes both forms agree.
   const barePath = stripLocaleFromPathname(pathname, locales);
+  function isCurrentPath(href: string) {
+    return barePath === href || barePath.startsWith(`${href}/`);
+  }
   function isCurrent(item: { href: string; alsoCurrentFor?: string[] }) {
-    return [item.href, ...(item.alsoCurrentFor ?? [])].some(
-      (href) => barePath === href || barePath.startsWith(`${href}/`),
-    );
+    return [item.href, ...(item.alsoCurrentFor ?? [])].some(isCurrentPath);
   }
 
-  // The bar is two clusters, not one row with a hole in it. Mega-menu items
-  // lead, hard against the wordmark; plain links trail, next to the utilities.
-  // Splitting on `mega` rather than slicing at a fixed index keeps the rule
-  // declarative — a second mega-menu would join the leading cluster on its
-  // own, and an all-plain nav degrades to "everything right" without a guard.
+  // The information cell has no page of its own, so it is "current" for the
+  // whole set of pages it lists — minus, by construction, any page another
+  // cell already owns. See `infoMenuSectionPaths`.
+  const infoCurrent = infoMenuSectionPaths.some(isCurrentPath);
+
+  // The bar is two clusters, not one row with a hole in it. `primaryNav`'s
+  // mega-menu items lead, hard against the wordmark; its plain links trail,
+  // next to the utilities. Splitting on `mega` rather than slicing at a fixed
+  // index keeps the rule declarative, and an all-plain nav degrades to
+  // "everything right" without needing a guard.
+  //
+  // The information menu is deliberately *not* in `primaryNav` and so is not
+  // sorted by this rule — it is rendered by hand at the end of the trailing
+  // cluster below. It is a mega-menu that belongs on the right, which this
+  // split cannot express, and it is a trigger with no destination, which
+  // `primaryNav` cannot hold (`NoScriptNav` turns every entry into a link).
   const leadNav = primaryNav.filter((item) => item.mega);
   const trailNav = primaryNav.filter((item) => !item.mega);
 
@@ -400,6 +413,44 @@ export function Header({
               {leadNav.map((item, index) => renderNavItem(item, index === 0))}
               <div className="flex-1" />
               {trailNav.map((item) => renderNavItem(item, false))}
+
+              {/* The information disclosure, last in the trailing cluster —
+                  hard against the utilities, one cell right of Контакти,
+                  where the owner asked for it.
+
+                  Desktop-only comes free: this `<nav>` is `hidden lg:flex`,
+                  so below 1024px the trigger, its panel and its backdrop are
+                  never rendered at all. The same links reach a phone through
+                  the mobile menu, which lists them flat rather than behind a
+                  hover affordance a touch screen cannot offer.
+
+                  `--header-bar-inset` is the panel's whole reason for
+                  existing as a variable: it is `position: fixed`, so hanging
+                  its right edge off the *bar's* right edge — not the
+                  viewport's, which is a different place on any screen wider
+                  than 1600px — is not something the cascade can infer. `left`
+                  is set to the same inset and `ml-auto` eats the slack, which
+                  is what pins it right while `max-w` keeps it a card rather
+                  than a plane. */}
+              <MegaMenu
+                menuKey="info"
+                openKey={openMenu}
+                onOpenChange={setOpenMenu}
+                label={dictionary.nav.info}
+                current={infoCurrent}
+                className={cn("border-l", cellRule)}
+                triggerClassName={cn(
+                  navCell,
+                  infoCurrent || openMenu === "info" ? cellActive : cellIdle,
+                )}
+                panelClassName="inset-x-(--header-bar-inset) ml-auto max-w-[46rem]"
+              >
+                <InfoMenuContent
+                  locale={locale}
+                  dictionary={dictionary}
+                  open={openMenu === "info"}
+                />
+              </MegaMenu>
             </nav>
 
             {/* The nav is `display: none` below `lg`, so it cannot carry the

@@ -10,8 +10,12 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { localeHref, stripLocaleFromPathname } from "@/lib/locale-href";
 import { formatTemplate } from "@/lib/format-template";
 import { cn } from "@/lib/cn";
-import { catalogTree, primaryNav } from "@/config/navigation";
+import { catalogTree, infoMenuGroups, primaryNav } from "@/config/navigation";
 import { useDialogBehaviour } from "@/components/ui/use-dialog-behaviour";
+import {
+  infoMenuHeading,
+  infoMenuLabels,
+} from "@/components/header/info-menu-labels";
 import { BrandEyebrow } from "@/components/brand";
 import { wordmarkClass } from "@/components/logo";
 
@@ -238,20 +242,47 @@ export function MobileMenu({
               </li>
             );
           })}
-          <li
-            style={{ "--i": row++ } as CSSProperties}
-            className="nav-row border-border border-b"
-          >
-            <Link
-              href={localeHref(locale, "/contact")}
-              onClick={onClose}
-              aria-current={bare === "/contact" ? "page" : undefined}
-              className="type-nav text-text flex min-h-12 items-center py-(--space-2xs) tracking-[0.06em] uppercase"
-            >
-              {dictionary.nav.contact}
-            </Link>
-          </li>
         </ul>
+
+        {/* The desktop bar's information dropdown, unrolled. A hover
+            disclosure is not an affordance a touch screen has, and burying
+            "Оплата і доставка" behind one more tap on the device most people
+            browse from would be the opposite of the point — so the same
+            `infoMenuGroups` are simply listed here, flat and labelled.
+            Sharing the config is what stops the two from drifting into
+            different answers about delivery or the warranty.
+
+            Lighter type than the section above on purpose: these are the
+            plane's third tier, under the catalogue and the four primary
+            sections, and they should read that way rather than competing
+            with them. */}
+        {infoMenuGroups.map((group) => {
+          const labels = infoMenuLabels(dictionary, group);
+
+          return (
+            <div key={group.headingKey} className="mt-(--space-lg)">
+              <BrandEyebrow>{infoMenuHeading(dictionary, group)}</BrandEyebrow>
+              <ul className="mt-(--space-2xs)">
+                {group.links.map((link) => (
+                  <li
+                    key={link.href}
+                    style={{ "--i": row++ } as CSSProperties}
+                    className="nav-row"
+                  >
+                    <Link
+                      href={localeHref(locale, link.href)}
+                      onClick={onClose}
+                      aria-current={bare === link.href ? "page" : undefined}
+                      className="type-body-lg text-text-muted flex min-h-11 items-center"
+                    >
+                      {labels[link.labelKey]}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
       </div>
 
       <div className="border-border flex shrink-0 items-center justify-between border-t px-(--space-sm) py-(--space-2xs)">

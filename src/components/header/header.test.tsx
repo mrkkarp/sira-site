@@ -158,3 +158,86 @@ describe("Header current-section state", () => {
     ).not.toHaveAttribute("aria-current");
   });
 });
+
+/**
+ * The information disclosure the owner asked for on 2026-08-11: Дизайнерам
+ * left the bar, Контакти took its cell, and the pages a buyer actually looks
+ * for — delivery, care, warranty, trade terms — moved into a dropdown to its
+ * right rather than being left to the footer.
+ */
+describe("Header information menu", () => {
+  afterEach(() => {
+    mockPathname = "/";
+  });
+
+  it("puts Контакти in the bar and the designers' page inside the menu", async () => {
+    const dictionary = await getDictionary("uk");
+    render(<Header locale="uk" dictionary={dictionary} />);
+
+    // Контакти is a top-level cell now — a plain link, not a disclosure.
+    expect(
+      screen.getByRole("link", { name: dictionary.nav.contact }),
+    ).toHaveAttribute("href", "/contact");
+    // …and Дизайнерам is not, which is the half of the swap that would
+    // otherwise silently survive as a fifth cell.
+    expect(
+      screen.queryByRole("link", { name: dictionary.nav.designers }),
+    ).not.toBeInTheDocument();
+
+    const trigger = await screen.findByRole("button", {
+      name: dictionary.nav.info,
+    });
+    const terms = new RegExp(dictionary.megaMenu.designers.terms);
+    expect(screen.queryByRole("link", { name: terms })).not.toBeInTheDocument();
+
+    fireEvent.click(trigger);
+    // The designers' page is one hover from the bar, so removing it from
+    // `primaryNav` did not orphan it.
+    expect(screen.getByRole("link", { name: terms })).toHaveAttribute(
+      "href",
+      "/designers",
+    );
+    // And the three pages the owner named by hand are all in there.
+    for (const label of [
+      dictionary.footerLinks.paymentDelivery,
+      dictionary.footerLinks.care,
+      dictionary.footerNav.production,
+    ]) {
+      expect(
+        screen.getByRole("link", { name: new RegExp(label) }),
+      ).toBeInTheDocument();
+    }
+  });
+
+  /**
+   * The load-bearing one. The information cell has no page of its own, so it
+   * is "current" for everything it lists — and `/about#materials` is one of
+   * the things it lists, which would make it current on `/about` too. Two
+   * cells lit at once is not a cosmetic bug: `aria-current="page"` is a claim
+   * about *which* section you are in, and answering it twice is answering it
+   * wrong. `infoMenuSectionPaths` subtracts every path `primaryNav` already
+   * claims; this is what stops that filter being deleted as redundant config.
+   */
+  it("lights exactly one cell on a page both could claim", async () => {
+    mockPathname = "/about";
+    const dictionary = await getDictionary("uk");
+    render(<Header locale="uk" dictionary={dictionary} />);
+
+    expect(
+      screen.getByRole("link", { name: dictionary.nav.about }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      screen.getByRole("button", { name: dictionary.nav.info }),
+    ).not.toHaveAttribute("aria-current");
+  });
+
+  it("marks the information cell as current on a page only it links", async () => {
+    mockPathname = "/care";
+    const dictionary = await getDictionary("uk");
+    render(<Header locale="uk" dictionary={dictionary} />);
+
+    expect(
+      screen.getByRole("button", { name: dictionary.nav.info }),
+    ).toHaveAttribute("aria-current", "page");
+  });
+});
