@@ -4,7 +4,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { pageSeo } from "@/lib/seo/page-seo";
 import { localeHref } from "@/lib/locale-href";
-import { getPublishedProjects } from "@/content/projects";
+import { getProjectGroups, getPublishedProjects } from "@/content/projects";
 import { BreadcrumbStructuredData } from "@/components/seo/breadcrumb-structured-data";
 import { ProjectIndex } from "@/components/projects/project-index";
 
@@ -24,6 +24,11 @@ export async function generateMetadata({
    * made. The share image is the first project's cover rather than the generic
    * workshop card: this page's whole argument is "here is a finished site",
    * and the photograph makes it before the title is read.
+   *
+   * `getPublishedProjects()` and not `getProjectGroups()[0]` deliberately: the
+   * groups exist to order the *page*, and the first group may legitimately be
+   * empty one day, which would leave the share card with no photograph at all.
+   * The flat list is guaranteed non-empty by `projects.test.ts`.
    */
   const [firstProject] = getPublishedProjects();
 
@@ -49,7 +54,7 @@ export default async function Page({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const dictionary = await getDictionary(locale);
-  const projects = getPublishedProjects();
+  const groups = getProjectGroups();
 
   return (
     <>
@@ -65,11 +70,7 @@ export default async function Page({
           },
         ]}
       />
-      <ProjectIndex
-        locale={locale}
-        dictionary={dictionary}
-        projects={projects}
-      />
+      <ProjectIndex locale={locale} dictionary={dictionary} groups={groups} />
     </>
   );
 }

@@ -532,6 +532,18 @@
       "Miejsca, dla których powstawały nasze wyroby: przestrzenie publiczne, strefy wejściowe, dziedzińce. Projekt to nie tylko to, co widać na zdjęciu, ale też decyzje, które do tego doprowadziły: jaki wymiar, jaki kolor, co pochodzi z katalogu, a co trzeba było wykonać pod konkretne miejsce.",
       "Pokazujemy wyłącznie zdjęcia zrobione na miejscu — żadnych renderów ani zdjęć stockowych. Jeśli projektu nie ma na tej liście, znaczy to, że nie otrzymaliśmy jeszcze z niego dobrych zdjęć."
     ],
+    "categories": {
+      "public": {
+        "heading": "Przestrzenie publiczne i zagospodarowanie terenu",
+        "intro": "Dziedzińce, strefy wejściowe, tereny wokół biur. Te wyroby stoją pod gołym niebem przez cały rok, a w każdej realizacji widać, co pochodzi z katalogu, a co trzeba było wykonać pod wymiar samej działki.",
+        "empty": "Nic tu jeszcze nie pokazujemy. Gdy tylko z realizacji wrócą zdjęcia, pojawi się ona w tej sekcji."
+      },
+      "interior": {
+        "heading": "Realizacje indywidualne we wnętrzach",
+        "intro": "Lady barowe, blaty, umywalki i inne wyroby z betonu architektonicznego wykonane pod konkretne wnętrze — pod jego wymiar, w potrzebnym kolorze i fakturze.",
+        "empty": "Nie mamy tu jeszcze zdjęć gotowych wnętrz. Na tej stronie pokazujemy wyłącznie to, co zostało sfotografowane na miejscu — bez renderów i zdjęć stockowych — więc ta sekcja zapełni się wtedy, gdy pojawią się prawdziwe zdjęcia. Jeśli to właśnie Twoje zadanie, opowiedz o wnętrzu, a my je wycenimy."
+      }
+    },
     "viewProjectCta": "Zobacz projekt",
     "backToAll": "Wszystkie projekty",
     "factsHeading": "O projekcie",

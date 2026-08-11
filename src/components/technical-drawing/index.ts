@@ -30,13 +30,19 @@
  *
  * ## Built but not applied
  *
- * `SectionMarker` and `TechnicalGrid` are part of the system and nothing
- * renders them. Both lost to something the page already had: the site's
- * section marking is the accordion's own index-and-title row, and the
- * mega-menu's construction verticals are `border-l` on the real grid columns,
- * which land on actual column edges and collapse to one column on a phone as
- * an evenly spaced overlay never could. They are kept rather than deleted
- * because applying either is a design call, not a cleanup.
+ * `TechnicalGrid` is part of the system and nothing renders it. It lost to
+ * something the page already had: the mega-menu's construction verticals are
+ * `border-l` on the real grid columns, which land on actual column edges and
+ * collapse to one column on a phone as an evenly spaced overlay never could.
+ * It is kept rather than deleted because applying it is a design call, not a
+ * cleanup.
+ *
+ * `SectionMarker` was on this list until 2026-08-11, when `/projects` was
+ * split into categories and needed to mark where each one begins. That is the
+ * job the mark does on the sheet — it names a cut and says "what follows is a
+ * different view" — and it is why the component was kept: a use eventually
+ * arrived that the accordion's index-and-title row could not serve, because a
+ * category heading is not a disclosure.
  *
  * ## Rules
  *

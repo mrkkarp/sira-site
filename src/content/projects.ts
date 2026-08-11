@@ -27,6 +27,18 @@ import { shopCategoryPath } from "@/lib/schemas/product-categories";
  * the site. `en`/`pl` are `noindex` Ukrainian-fallback routes today, so this
  * changes nothing about what Google sees.
  *
+ * Both projects now carry `en` and `pl` as well, written on the owner's
+ * instruction (2026-08-11: «переклади вже існуючі проєкти на мови»). The type
+ * stays `Partial` regardless: a project may still land Ukrainian-only and be
+ * publishable the same day, rather than waiting on two translations. A
+ * translation is held to the same standard as the Ukrainian — it may render a
+ * fact differently, never add one the Ukrainian does not state.
+ *
+ * ## The two categories
+ *
+ * Every project declares a {@link ProjectCategory}. See the note on that type
+ * for why, and {@link getProjectGroups} for why the empty one still renders.
+ *
  * ## Rules for what may be written here
  *
  * Every fact in a `facts` block comes from the owner or is visible in the
@@ -91,6 +103,26 @@ export type ProjectPlace = {
   countryCode: string;
 };
 
+/**
+ * Which half of the workshop's work a project belongs to — the owner's own
+ * division (2026-08-11).
+ *
+ * - `public` — благоустрій: courtyards, entrances, office grounds. Pieces that
+ *   stand outdoors all year.
+ * - `interior` — commissions made for one room: bar counters, worktops,
+ *   basins.
+ *
+ * These are not tags and a project has exactly one. They exist because the two
+ * halves are read by different people: an architect specifying benches for a
+ * residential block and a restaurateur pricing a concrete bar have nothing to
+ * say to each other, and until now both landed in one undifferentiated scroll.
+ *
+ * Locale-neutral, like {@link ProjectPlace} and `year` — the heading and the
+ * standfirst live in `projectsPage.categories` in the dictionaries, so a
+ * category reads in the visitor's language while the key stays stable.
+ */
+export type ProjectCategory = "public" | "interior";
+
 export type ProjectSection = {
   heading: string;
   paragraphs: string[];
@@ -111,6 +143,8 @@ export type ProjectContent = {
 
 export type Project = {
   slug: string;
+  /** Which group the project is filed under on the index. See {@link ProjectCategory}. */
+  category: ProjectCategory;
   /**
    * Year of completion, as a string so a range ("2019–2020") stays
    * expressible. Locale-neutral, like {@link ProjectPlace} — and, like it,
@@ -138,6 +172,7 @@ export type Project = {
 
 const ukrsibbank: Project = {
   slug: "ukrsibbank",
+  category: "public",
   year: "2019",
   place: { label: "Київ, Україна", locality: "Київ", countryCode: "UA" },
   images: [
@@ -197,11 +232,87 @@ const ukrsibbank: Project = {
         },
       ],
     },
+    en: {
+      title: "Landscaping the grounds of the UKRSIBBANK office",
+      summary:
+        "Planters, benches and litter bins in architectural concrete for the entrance and the courtyard of a bank office building in Kyiv. Some of the pieces are catalogue models; the rest were made to the dimensions of the site itself.",
+      seoTitle: "UKRSIBBANK office grounds, Kyiv",
+      seoDescription:
+        "Planters, benches and litter bins in architectural concrete for the grounds of the UKRSIBBANK office in Kyiv, 2019. Catalogue models and made-to-measure pieces from the ODUDLAB workshop.",
+      facts: {
+        // The bank's own Latin-script name, not a translation of the Ukrainian.
+        client: "UKRSIBBANK",
+        typology: "Office building, adjacent grounds",
+        scope: "Planters, benches, litter bins",
+        production: "Catalogue models and made-to-measure",
+      },
+      sections: [
+        {
+          heading: "What we made",
+          paragraphs: [
+            "Rectangular concrete planters in two heights stand along the façade and around the entrance: the tall ones hold multi-stemmed trees, the low ones shrubs. They do not merely contain the planting, they form the beds themselves — the volumes are set in a line and at an angle, and the geometry of the greenery comes from how the pieces are arranged rather than from a kerb stone.",
+            "Benches are built in between the planters: a timber seat rests on the adjacent concrete volumes, so those double as supports. The litter bins are cast from the same concrete as everything else, which makes them read as part of the composition rather than as street furniture bought separately.",
+          ],
+        },
+        {
+          heading: "Why concrete outdoors",
+          paragraphs: [
+            "The pieces stand in the open all year round. The pigment is mixed into the body of the concrete rather than applied on top, so a chip or a scratch does not expose a different colour beneath the paint — unlike painted metal or timber. The surface is treated with a water repellent, reinforcement holds a thin wall in a large mould, and the sheer weight of volumes like these keeps them in place without anchoring.",
+            "The matte surface with its visible pores is the character of the material, not a defect. The concrete here imitates nothing: neither stone nor wood.",
+          ],
+        },
+        {
+          heading: "Catalogue, and size made for the site",
+          paragraphs: [
+            "Some of the pieces on this site are catalogue models. Others were made to the dimensions the site itself dictated: the length of a run, and the spacing of the supports under a seat, are not the kind of parameter you pick from a list.",
+            "This is how we work on other sites too. If a stock model fits, we use it; if it does not, we build a mould for the particular place. Full-cycle production in Kyiv means a change of size does not mean a change of supplier.",
+          ],
+        },
+      ],
+    },
+    pl: {
+      title: "Zagospodarowanie terenu wokół biura UKRSIBBANK",
+      summary:
+        "Donice, ławki i kosze z betonu architektonicznego dla strefy wejściowej i dziedzińca budynku biurowego banku w Kijowie. Część wyrobów to modele katalogowe, część powstała na wymiar samego terenu.",
+      seoTitle: "Zagospodarowanie terenu biura UKRSIBBANK, Kijów",
+      seoDescription:
+        "Donice, ławki i kosze z betonu architektonicznego na terenie biura UKRSIBBANK w Kijowie, 2019 rok. Modele katalogowe i wyroby na wymiar z pracowni ODUDLAB.",
+      facts: {
+        client: "UKRSIBBANK",
+        typology: "Budynek biurowy, teren przyległy",
+        scope: "Donice, ławki, kosze",
+        production: "Modele katalogowe i wykonanie na wymiar",
+      },
+      sections: [
+        {
+          heading: "Co zrobiliśmy",
+          paragraphs: [
+            "Wzdłuż elewacji i w strefie wejściowej stoją prostokątne betonowe donice w dwóch wysokościach: wysokie — pod drzewa wielopniowe, niskie — pod krzewy. Nie tylko mieszczą rośliny, ale same tworzą rabaty: bryły ustawiono w linii i pod kątem, a geometria zieleni wynika z rozstawienia wyrobów, a nie z krawężnika.",
+            "Pomiędzy donicami wbudowano ławki — drewniane siedzisko opiera się na sąsiednich betonowych bryłach, więc te pracują jednocześnie jako podpory. Kosze wykonano z tego samego betonu co reszta, dlatego czytają się jako część kompozycji, a nie jako osobno kupiony sprzęt miejski.",
+          ],
+        },
+        {
+          heading: "Dlaczego beton na zewnątrz",
+          paragraphs: [
+            "Wyroby stoją pod gołym niebem przez cały rok. Pigment jest wmieszany w masę betonu, a nie naniesiony z wierzchu, więc odprysk czy zarysowanie nie odsłania innego koloru pod warstwą farby — inaczej niż w malowanym metalu czy drewnie. Powierzchnię zabezpieczono hydrofobizatorem, zbrojenie utrzymuje cienką ściankę w dużej formie, a własny ciężar takich brył sprawia, że stoją nieruchomo bez kotwienia.",
+            "Matowa powierzchnia z widocznymi porami to charakter materiału, a nie wada. Beton niczego tu nie udaje: ani kamienia, ani drewna.",
+          ],
+        },
+        {
+          heading: "Katalog i wymiar pod obiekt",
+          paragraphs: [
+            "Część wyrobów na tym obiekcie to modele seryjne z katalogu. Część wykonano na wymiary, które podyktował sam teren: długość odcinka i rozstaw podpór pod siedzisko to nie jest parametr, który wybiera się z listy.",
+            "Tak samo pracujemy przy innych obiektach. Pasuje gotowy model — bierzemy go; nie pasuje — robimy formę pod konkretne miejsce. Produkcja pełnego cyklu w Kijowie oznacza, że zmiana wymiaru nie pociąga za sobą zmiany wykonawcy.",
+          ],
+        },
+      ],
+    },
   },
 };
 
 const metropolis: Project = {
   slug: "metropolis",
+  category: "public",
   /**
    * The year the first pieces went in, not the span of the relationship.
    * `year` feeds `CreativeWork.dateCreated` in the JSON-LD, where a value like
@@ -304,6 +415,89 @@ const metropolis: Project = {
         },
       ],
     },
+    en: {
+      title: "Landscaping the grounds of the Metropolis residential complex",
+      summary:
+        "Benches, litter bins and bollards in architectural concrete for the courtyards, walkways and entrances of a residential complex in Kyiv. We have worked with Metropolis since 2021 — the pieces arrived batch by batch, and alongside the catalogue models there are long seats made to the dimensions of the spaces themselves.",
+      seoTitle: "Metropolis residential complex, Kyiv",
+      seoDescription:
+        "Benches, litter bins and bollards in architectural concrete for the Metropolis residential complex in Kyiv, since 2021. Catalogue models and long made-to-measure seating from the ODUDLAB workshop.",
+      facts: {
+        client: "Metropolis residential complex",
+        typology: "Residential complex, grounds",
+        scope: "Benches, litter bins, bollards, long seating",
+        production: "Catalogue models and made-to-measure",
+      },
+      sections: [
+        {
+          heading: "What we made",
+          paragraphs: [
+            // «Сете» is the owner's word for the model and is not in the
+            // catalogue, so the Latin spelling here is a straight
+            // transliteration of it. Every sibling model the workshop sells
+            // (Urban N, Rock, Hampy, Volcano) carries a Latin name, so this is
+            // near-certainly how it is written — but if the workshop spells it
+            // otherwise, correct it here and in the `pl` block, not by guessing
+            // again.
+            "Along the walkways, in the courtyards and by the entrances stand benches from the catalogue — Sete and Urban N — and Rock concrete bins. Some of the benches have no back: a faceted concrete support, a timber seat, nothing more; those went on the open squares and along the bands of ornamental grasses. Others have a back and armrests, set in rows along the lawns and by the ground-floor shopfronts, where people sit for longer.",
+            "The long seats were made for the complex specifically. They run along parapets and retaining walls, follow the turn of the space and in effect draw its edge. No catalogue holds that length or that line: this is not a model chosen from a list but a form made for one particular site.",
+            "The bollards separate the roadway from the pedestrian part. The complex's monogram is cast into their faces — the mark is not stuck on and not painted on, it is part of the piece itself.",
+          ],
+        },
+        {
+          heading: "A regular partner since 2021",
+          paragraphs: [
+            "The first pieces went in on the grounds in 2021, and the work did not end there: batches kept arriving — for new courtyards, new entrances, new stretches of landscaping.",
+            "For a complex built out in phases, that is the main argument for a single manufacturer. A bench installed this year stands next to a bench from 2021 and has to read with it as one series: the same form, the same colour of concrete, the same choice of timber. Adding to a run of the same model is easier than hunting for a match at a new supplier later.",
+          ],
+        },
+        {
+          heading: "Concrete in a residential courtyard",
+          paragraphs: [
+            "A courtyard works without weekends and without an off-season: snow and de-icing salt, downpours, summer sun, bicycles and scooters. The pigment is mixed into the body of the concrete rather than applied on top, so a scratch or a chip does not expose a different colour under a layer of paint — unlike painted metal. The surface is treated with a water repellent.",
+            "Timber is left only where people touch it — on the seat. Everything else is carried by the concrete: the mass, the durability and the geometry. A concrete support is heavy in itself, so a bench stays where it was put.",
+          ],
+        },
+      ],
+    },
+    pl: {
+      title: "Zagospodarowanie terenu osiedla Metropolis",
+      summary:
+        "Ławki, kosze i słupki z betonu architektonicznego dla dziedzińców, alejek i stref wejściowych osiedla mieszkaniowego w Kijowie. Z Metropolis współpracujemy od 2021 roku — wyroby przyjeżdżały partiami, a obok modeli katalogowych stoją tu długie siedziska wykonane na wymiar samych placów.",
+      seoTitle: "Zagospodarowanie terenu osiedla Metropolis, Kijów",
+      seoDescription:
+        "Ławki, kosze i słupki z betonu architektonicznego dla osiedla Metropolis w Kijowie — od 2021 roku. Modele katalogowe i długie siedziska na wymiar z pracowni ODUDLAB.",
+      facts: {
+        client: "Osiedle Metropolis",
+        typology: "Osiedle mieszkaniowe, teren przyległy",
+        scope: "Ławki, kosze, słupki, długie siedziska",
+        production: "Modele katalogowe i wykonanie na wymiar",
+      },
+      sections: [
+        {
+          heading: "Co zrobiliśmy",
+          paragraphs: [
+            "Na alejkach, na dziedzińcach i przy strefach wejściowych stoją ławki z katalogu — Sete i Urban N — oraz betonowe kosze Rock. Część ławek jest bez oparcia: graniasta betonowa podpora, drewniane siedzisko, nic więcej; takie ustawiano na otwartych placach i wzdłuż pasów traw ozdobnych. Część ma oparcie i podłokietniki — rzędami wzdłuż trawników i przy witrynach parteru, tam gdzie siedzi się dłużej.",
+            "Osobno dla osiedla wykonano długie siedziska. Ciągną się wzdłuż parapetów i murów oporowych, powtarzają załamanie placu i faktycznie rysują jego granicę. Takiej długości i takiej linii nie ma w katalogu: to nie wybór modelu z listy, lecz forma pod konkretny teren.",
+            "Słupki oddzielają jezdnię od części pieszej. Na ich ścianach odlano monogram osiedla — znak nie jest naklejony ani naniesiony farbą, jest częścią samego wyrobu.",
+          ],
+        },
+        {
+          heading: "Stały partner od 2021 roku",
+          paragraphs: [
+            "Pierwsze wyroby stanęły na placach w 2021 roku i na tym praca się nie skończyła: partie przyjeżdżały kolejnymi turami — na nowe dziedzińce, nowe strefy wejściowe, nowe fragmenty zagospodarowania.",
+            "Dla osiedla realizowanego etapami to główny argument za jednym producentem. Ławka postawiona w tym roku stoi obok ławki z 2021 roku i musi czytać się z nią jako jedna seria: ta sama forma, ten sam kolor betonu, ten sam dobór drewna. Dorobić partię tego samego modelu jest łatwiej, niż potem szukać zgodności u nowego dostawcy.",
+          ],
+        },
+        {
+          heading: "Beton na osiedlowym dziedzińcu",
+          paragraphs: [
+            "Dziedziniec pracuje bez weekendów i bez międzysezonu: śnieg i sól drogowa, ulewa, letnie słońce, rowery i hulajnogi. Pigment jest wmieszany w masę betonu, a nie naniesiony z wierzchu, więc zarysowanie czy odprysk nie odsłania innego koloru pod warstwą farby — inaczej niż w malowanym metalu. Powierzchnię zabezpieczono hydrofobizatorem.",
+            "Drewno zostaje tylko tam, gdzie się go dotyka — na siedzisku. Całą resztę bierze na siebie beton: masę, trwałość i geometrię. Betonowa podpora sama w sobie jest ciężka, więc ławka stoi tam, gdzie ją postawiono.",
+          ],
+        },
+      ],
+    },
   },
 };
 
@@ -319,6 +513,40 @@ export function getPublishedProjects(): Project[] {
 
 export function getProjectBySlug(slug: string): Project | undefined {
   return getPublishedProjects().find((project) => project.slug === slug);
+}
+
+/**
+ * The order the groups appear in on `/projects`. `public` first because that is
+ * where the finished work is, and a page whose argument is "we have built this
+ * before" should open with the evidence.
+ */
+export const projectCategoryOrder = ["public", "interior"] as const;
+
+export type ProjectGroup = {
+  category: ProjectCategory;
+  projects: Project[];
+};
+
+/**
+ * Every category, in {@link projectCategoryOrder} — **including the ones that
+ * hold nothing**. That is the point, not an oversight.
+ *
+ * `interior` is empty today, and the owner asked for it to be on the page
+ * anyway (2026-08-11: «поки порожня — зробіть структуру»). A reader who came
+ * looking for a concrete bar counter would otherwise read a page of benches
+ * and conclude the workshop only works outdoors, which is false. `ProjectIndex`
+ * renders an empty group as a short statement of what the workshop makes for
+ * interiors plus the reason there are no photographs yet — never as a case
+ * study, and never with a stand-in image. The moment a real interior project
+ * is added with its photographs, it appears here and the statement is replaced
+ * by the work, with no code change.
+ */
+export function getProjectGroups(): ProjectGroup[] {
+  const published = getPublishedProjects();
+  return projectCategoryOrder.map((category) => ({
+    category,
+    projects: published.filter((project) => project.category === category),
+  }));
 }
 
 /**

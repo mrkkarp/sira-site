@@ -13,6 +13,7 @@ const content: ProjectContent = {
 
 const project: Project = {
   slug: "demo",
+  category: "public",
   year: "2019",
   place: { label: "Київ, Україна", locality: "Київ", countryCode: "UA" },
   images: [

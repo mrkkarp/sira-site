@@ -532,6 +532,18 @@
       "The places our pieces were made for: public spaces, building entrances, courtyards. A project is not only what stands in the photograph — it is also the decisions behind it: what size, what colour, what came from the catalogue and what had to be made for that particular spot.",
       "Everything here was shot on the actual site — no renders, no stock photography. If a project is missing from this list, it means we have not been given usable photographs of it yet."
     ],
+    "categories": {
+      "public": {
+        "heading": "Public spaces and landscaping",
+        "intro": "Courtyards, building entrances, office grounds. These pieces stand outdoors all year, and each project shows what came from the catalogue and what had to be made to the dimensions of the site itself.",
+        "empty": "Nothing is shown here yet. As soon as photographs come back from a site, it appears in this section."
+      },
+      "interior": {
+        "heading": "Interior commissions",
+        "intro": "Bar counters, worktops, basins and other architectural concrete made for one particular room — to its dimensions, in the colour and texture it needs.",
+        "empty": "There are no photographs of finished interiors here yet. This page shows only what was shot on the actual site — no renders, no stock photography — so this section fills up when real photographs exist. If this is your brief, tell us about the room and we will price it."
+      }
+    },
     "viewProjectCta": "View project",
     "backToAll": "All projects",
     "factsHeading": "Project details",
