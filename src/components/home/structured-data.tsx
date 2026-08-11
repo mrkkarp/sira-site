@@ -28,7 +28,11 @@ export function HomeStructuredData({
 
   const organization = {
     "@context": "https://schema.org",
-    ...buildOrganizationJsonLd({ siteUrl, name: dictionary.site.name }),
+    ...buildOrganizationJsonLd({
+      siteUrl,
+      name: dictionary.site.name,
+      locale,
+    }),
   };
 
   const website = {

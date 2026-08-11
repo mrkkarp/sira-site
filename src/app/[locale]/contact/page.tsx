@@ -49,7 +49,7 @@ export default async function Page({
         description={dictionary.contactPage.intro}
         siteName={dictionary.site.name}
       />
-      <ContactContent dictionary={dictionary} />
+      <ContactContent locale={locale} dictionary={dictionary} />
     </>
   );
 }

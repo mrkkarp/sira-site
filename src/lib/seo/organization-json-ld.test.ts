@@ -10,7 +10,7 @@ const SITE = "https://odudlab.com";
 
 describe("buildOrganizationJsonLd", () => {
   it("identifies the business by a stable @id", () => {
-    expect(buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB" })).toMatchObject(
+    expect(buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB", locale: "uk" })).toMatchObject(
       { "@type": "Organization", "@id": `${SITE}/#organization`, url: SITE },
     );
   });
@@ -20,22 +20,22 @@ describe("buildOrganizationJsonLd", () => {
     // every real caller passes.
     expect(organizationId(`${SITE}/`)).toBe(`${SITE}/#organization`);
     expect(
-      buildOrganizationJsonLd({ siteUrl: `${SITE}/`, name: "ODUDLAB" }).url,
+      buildOrganizationJsonLd({ siteUrl: `${SITE}/`, name: "ODUDLAB", locale: "uk" }).url,
     ).toBe(SITE);
   });
 
   it("carries the owner-confirmed contact details verbatim", () => {
-    const org = buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB" });
+    const org = buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB", locale: "uk" });
     expect(org.email).toBe(contact.email);
     expect(org.telephone).toBe(contact.phone.href);
-    expect(org.address.streetAddress).toBe(contact.address.line);
+    expect(org.address.streetAddress).toBe(contact.address.line.uk);
     expect(org.sameAs).toEqual([contact.instagram.url]);
   });
 
   it("pins the showroom with the exact confirmed coordinates", () => {
     // The address alone resolves to somewhere inside a 2 km² exhibition park;
     // the pin is what makes it findable.
-    expect(buildOrganizationJsonLd({ siteUrl: SITE, name: "O" }).location.geo)
+    expect(buildOrganizationJsonLd({ siteUrl: SITE, name: "O", locale: "uk" }).location.geo)
       .toEqual({
         "@type": "GeoCoordinates",
         latitude: contact.address.coords.lat,
@@ -50,9 +50,51 @@ describe("buildOrganizationJsonLd", () => {
    * behaviour under test, not an oversight.
    */
   it("publishes no opening hours, because none are confirmed", () => {
-    const org = buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB" });
+    const org = buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB", locale: "uk" });
     expect(contact.workingHours).toBeNull();
     expect(JSON.stringify(org)).not.toContain("opening");
+  });
+
+  /**
+   * The street address is the only field here that changes with the page's
+   * language, and it must change in *both* places it appears — `address` and
+   * `location.address` — or the same node contradicts itself.
+   *
+   * Asserted against `contact.address.line[locale]` rather than against
+   * literals, so this test states the rule ("follow the page") instead of
+   * freezing a transliteration the owner may yet correct.
+   */
+  it.each(["uk", "en", "pl"] as const)(
+    "spells the street address for %s in both address nodes",
+    (locale) => {
+      const org = buildOrganizationJsonLd({
+        siteUrl: SITE,
+        name: "ODUDLAB",
+        locale,
+      });
+      expect(org.address.streetAddress).toBe(contact.address.line[locale]);
+      expect(org.location.address.streetAddress).toBe(
+        contact.address.line[locale],
+      );
+    },
+  );
+
+  /**
+   * One business, not three. Everything except the address is a number, a URL
+   * or a coordinate — identical in every language — and the `@id` in
+   * particular must not vary, or the English homepage describes a second
+   * company at the same address.
+   */
+  it("keeps one identity and one set of contact details across locales", () => {
+    const [uk, en, pl] = (["uk", "en", "pl"] as const).map((locale) =>
+      buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB", locale }),
+    );
+    for (const org of [en, pl]) {
+      expect(org["@id"]).toBe(uk["@id"]);
+      expect(org.email).toBe(uk.email);
+      expect(org.telephone).toBe(uk.telephone);
+      expect(org.location.geo).toEqual(uk.location.geo);
+    }
   });
 });
 
@@ -92,7 +134,7 @@ describe("buildContactPageJsonLd", () => {
    */
   it("shares one identity with the homepage's Organization node", () => {
     expect(buildContactPageJsonLd(input).mainEntity["@id"]).toBe(
-      buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB" })["@id"],
+      buildOrganizationJsonLd({ siteUrl: SITE, name: "ODUDLAB", locale: "uk" })["@id"],
     );
   });
 });

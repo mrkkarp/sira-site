@@ -65,7 +65,10 @@ import { legalEntity } from "@/config/legal";
  * translating a contract is not a job for a machine.
  */
 
-const CONTACT_LINE = `${contact.address.line}, e-mail ${contact.email}, телефон ${contact.phone.display}`;
+// `.uk` explicitly, not `[locale]`: these documents are Ukrainian-only by
+// design (see above), and the Latin forms of the address exist for the
+// translated marketing pages, not for a contract naming the operator.
+const CONTACT_LINE = `${contact.address.line.uk}, e-mail ${contact.email}, телефон ${contact.phone.display}`;
 
 /** Rendered verbatim under the `h1`. Bump when the substance changes. */
 export const LEGAL_UPDATED_AT = "Оновлено: 6 серпня 2026";
@@ -425,7 +428,7 @@ const publicOffer: InfoPageContent | null = legalEntity
             ...(legalEntity.vatNumber
               ? [`Індивідуальний податковий номер: ${legalEntity.vatNumber}.`]
               : []),
-            `Контакти: e-mail ${contact.email}, телефон ${contact.phone.display}. Шоурум і місце самовивозу: ${contact.address.line}.`,
+            `Контакти: e-mail ${contact.email}, телефон ${contact.phone.display}. Шоурум і місце самовивозу: ${contact.address.line.uk}.`,
             "Далі за текстом — «Продавець». Особа, яка оформлює замовлення, — «Покупець».",
           ],
         },

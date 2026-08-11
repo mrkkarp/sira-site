@@ -155,7 +155,7 @@ export function Footer({
       <dl className="type-body-sm text-background/85 mt-(--space-sm) flex flex-col gap-(--space-2xs)">
         <div>
           <dt className="sr-only">{dictionary.footerNav.addressLabel}</dt>
-          <dd>{contact.address.line}</dd>
+          <dd>{contact.address.line[locale]}</dd>
         </div>
         <div>
           <dt className="sr-only">{dictionary.footerNav.emailLabel}</dt>

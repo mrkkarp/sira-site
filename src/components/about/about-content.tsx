@@ -225,7 +225,7 @@ export function AboutContent({
               <span className="type-eyebrow text-text-muted block">
                 {copy.visitAddressLabel}
               </span>
-              {contact.address.line}
+              {contact.address.line[locale]}
             </p>
           </section>
 

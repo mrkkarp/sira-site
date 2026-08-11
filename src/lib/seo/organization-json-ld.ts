@@ -23,13 +23,22 @@ export function organizationId(siteUrl: string): string {
  * `openingHours`: the owner has not verified a schedule, and publishing
  * invented hours in machine-readable form is how someone ends up standing
  * outside a locked showroom.
+ *
+ * `locale` picks the spelling of the street address and nothing else. The
+ * business is one business in every language — same `@id`, same phone, same
+ * e-mail, same coordinates — but the address is prose, and emitting the
+ * Cyrillic line on `/en` would contradict the Latin one printed a screen
+ * lower. Structured data that disagrees with the page it annotates is worse
+ * than none: it is the half a search engine is told to trust.
  */
 export function buildOrganizationJsonLd({
   siteUrl,
   name,
+  locale,
 }: {
   siteUrl: string;
   name: string;
+  locale: Locale;
 }) {
   const base = siteUrl.replace(/\/$/, "");
 
@@ -42,7 +51,7 @@ export function buildOrganizationJsonLd({
     telephone: contact.phone.href,
     address: {
       "@type": "PostalAddress",
-      streetAddress: contact.address.line,
+      streetAddress: contact.address.line[locale],
       addressCountry: "UA",
     },
     /**
@@ -55,7 +64,7 @@ export function buildOrganizationJsonLd({
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
-        streetAddress: contact.address.line,
+        streetAddress: contact.address.line[locale],
         addressCountry: "UA",
       },
       geo: {
@@ -104,6 +113,10 @@ export function buildContactPageJsonLd({
     name,
     description,
     inLanguage: locale,
-    mainEntity: buildOrganizationJsonLd({ siteUrl: base, name: siteName }),
+    mainEntity: buildOrganizationJsonLd({
+      siteUrl: base,
+      name: siteName,
+      locale,
+    }),
   };
 }

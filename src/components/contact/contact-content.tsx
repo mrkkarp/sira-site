@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { contact } from "@/config/contact";
 import { Section, Container } from "@/components/layout";
@@ -32,7 +33,16 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const valueLinkClass =
   "text-text hover:text-text-muted underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-(--duration-fast)";
 
-export function ContactContent({ dictionary }: { dictionary: Dictionary }) {
+export function ContactContent({
+  locale,
+  dictionary,
+}: {
+  /** Only the address needs this: every other value on this page is a number,
+   *  a URL or a handle, and those read the same in every language. See
+   *  `contact.address.line` for why an address does not. */
+  locale: Locale;
+  dictionary: Dictionary;
+}) {
   const copy = dictionary.contactPage;
   const fields = dictionary.footerNav;
 
@@ -110,7 +120,9 @@ export function ContactContent({ dictionary }: { dictionary: Dictionary }) {
             <h2 className="type-h4 text-text">{copy.visitHeading}</h2>
             <dl className="mt-(--space-sm) flex flex-col gap-(--space-md)">
               <Field label={fields.addressLabel}>
-                <span className="not-italic">{contact.address.line}</span>
+                <span className="not-italic">
+                  {contact.address.line[locale]}
+                </span>
               </Field>
             </dl>
             <p className="type-body-sm text-text-muted mt-(--space-sm)">

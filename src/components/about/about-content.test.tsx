@@ -15,7 +15,7 @@ import { editorialCampaigns } from "@/config/homepage";
  * point at, the two CTAs, and the address that must come from the one
  * confirmed source rather than from a sentence someone retyped.
  */
-async function setup(locale: "uk" | "en" = "uk") {
+async function setup(locale: "uk" | "en" | "pl" = "uk") {
   const dictionary = await getDictionary(locale);
   const { container } = render(
     <AboutContent locale={locale} dictionary={dictionary} />,
@@ -63,12 +63,23 @@ describe("AboutContent", () => {
     ).toHaveAttribute("href", "/designers");
   });
 
-  it("shows the confirmed address rather than one retyped into the copy", async () => {
-    // An address duplicated into prose drifts from the footer the first time
-    // it changes, and a wrong pickup point is worse than none.
-    await setup();
-    expect(screen.getByText(contact.address.line)).toBeInTheDocument();
-  });
+  /**
+   * Two things at once, and the second is the one that regressed: the address
+   * must come from `contact.ts` rather than from a sentence someone retyped
+   * (a duplicate drifts from the footer the first time it changes, and a wrong
+   * pickup point is worse than none), *and* it must be the line for the locale
+   * being rendered. The Cyrillic line used to sit under a translated "Address"
+   * label on `/en` and `/pl`, reading as an untranslated leftover.
+   */
+  it.each(["uk", "en", "pl"] as const)(
+    "shows the confirmed address, spelled for %s",
+    async (locale) => {
+      await setup(locale);
+      expect(
+        screen.getByText(contact.address.line[locale]),
+      ).toBeInTheDocument();
+    },
+  );
 
   it("keeps every internal link inside the locale being rendered", async () => {
     // `/en/about` linking to `/care` drops the visitor back into Ukrainian
