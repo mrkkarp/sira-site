@@ -17,7 +17,16 @@ import { buildDescriptionSections } from "@/lib/product-description";
  *   the raw `fullDesc` (which also contains the "Характеристики" spec list)
  *   into a search-result snippet; falls back to the raw description for the
  *   rare row where the intro split comes back empty.
- * - `sku`: the real per-variant SKU (distinct for base vs custom colour).
+ * - `sku`: the real per-variant SKU (distinct for base vs custom colour), but
+ *   omitted entirely when it is just the product name again — see the note at
+ *   the assignment.
+ * - `category`: the localised shop-category label — the exact same string the
+ *   breadcrumb above the page already shows, resolved by the caller through
+ *   `shopCategoryLabel`. Not a taxonomy code and not a guess: schema.org lets
+ *   `category` be free text, and Google's merchant-listing report was flagging
+ *   its absence while the value sat one component away. Passing the localised
+ *   label rather than the `shopCategory` slug matters because Google reads the
+ *   structured data in the page's own language.
  * - `offers.availability`: every ODUDLAB product is made to order (see the
  *   always-shown "Made to order" badge in `ProductCoreInfo`) — there is no
  *   real "ready to ship" stock signal anywhere in the source data, so
@@ -39,12 +48,14 @@ export function buildProductJsonLd({
   siteUrl,
   path,
   brandName,
+  categoryName,
 }: {
   product: Product;
   variant: ProductVariant;
   siteUrl: string;
   path: string;
   brandName: string;
+  categoryName?: string;
 }): Record<string, unknown> {
   const canonicalUrl = `${siteUrl.replace(/\/$/, "")}${path}`;
 
@@ -67,13 +78,33 @@ export function buildProductJsonLd({
   const [intro] = buildDescriptionSections(variant.description);
   const description = intro?.text || variant.description || undefined;
 
+  /**
+   * A SKU that merely repeats the product name is not an identifier, and
+   * Google rejects it outright — «Недійсне значення в полі "sku"». Roughly
+   * half the catalogue is in that state, because the Horoshop export used the
+   * name as the article code for every single-variant product ("Volcano",
+   * "TOWER", "Monro"). The honest answer is to say nothing rather than to
+   * repeat the name in an identifier field, so the property is dropped when it
+   * carries no information the `name` has not already given. Comparison is
+   * case- and whitespace-insensitive because the export capitalises the two
+   * inconsistently ("Circle" vs "CIRCLE").
+   *
+   * Invent nothing here: if the workshop has real article codes, they belong
+   * in the source data (and then in `mpn` as well), not in this function.
+   */
+  const normalise = (value: string) => value.trim().toLowerCase();
+  const sku =
+    variant.sku && normalise(variant.sku) !== normalise(product.name)
+      ? variant.sku
+      : undefined;
+
   const json: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     description,
     image: images,
-    sku: variant.sku,
+    sku,
     brand: {
       "@type": "Brand",
       name: brandName,
@@ -87,6 +118,10 @@ export function buildProductJsonLd({
       availability: "https://schema.org/BackOrder",
     },
   };
+
+  if (categoryName) {
+    json.category = categoryName;
+  }
 
   if (materialEntry) {
     json.material = materialEntry.value;

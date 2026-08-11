@@ -4,6 +4,7 @@ import type { Product, ProductVariant } from "@/lib/schemas/product";
 import { localeHref } from "@/lib/locale-href";
 import { getSiteUrl } from "@/lib/site-url";
 import { buildProductJsonLd } from "@/lib/product-structured-data";
+import { shopCategoryLabel } from "@/lib/shop-category-label";
 import { serializeJsonLd } from "@/lib/json-ld";
 
 /**
@@ -31,6 +32,9 @@ export function ProductStructuredData({
     siteUrl,
     path,
     brandName: dictionary.site.name,
+    // The same helper the breadcrumb uses, so the category Google reads and
+    // the category the visitor reads can never drift apart.
+    categoryName: shopCategoryLabel(product.shopCategory, dictionary),
   });
 
   return (

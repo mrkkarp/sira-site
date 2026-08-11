@@ -34,7 +34,6 @@ describe("buildProductJsonLd", () => {
     expect(json["@type"]).toBe("Product");
     expect(json.name).toBe("Odri");
     expect(json.description).toBe("Odri opis.");
-    expect(json.sku).toBe("Odri");
     expect(json.image).toEqual(["/odri-base.jpg"]);
     expect(json.material).toBe("Бетон");
     expect(json.aggregateRating).toBeUndefined();
@@ -48,6 +47,66 @@ describe("buildProductJsonLd", () => {
       itemCondition: "https://schema.org/NewCondition",
       availability: "https://schema.org/BackOrder",
     });
+  });
+
+  it("drops a sku that only repeats the product name, and keeps a real one", () => {
+    // Google rejects «sku» when it is the name again, which is how the
+    // Horoshop export left roughly half the catalogue. Case and surrounding
+    // whitespace must not rescue it: "Circle" and "CIRCLE" are the same
+    // non-identifier.
+    const same = product({
+      name: "CIRCLE",
+      base: { ...product().base, sku: " Circle " },
+    });
+    expect(
+      buildProductJsonLd({
+        product: same,
+        variant: same.base,
+        siteUrl: "http://localhost:3000",
+        path: "/products/circle",
+        brandName: "ODUDLAB",
+      }).sku,
+    ).toBeUndefined();
+
+    const distinct = product({
+      name: "ODRI накладна",
+      base: { ...product().base, sku: "Odri n" },
+    });
+    expect(
+      buildProductJsonLd({
+        product: distinct,
+        variant: distinct.base,
+        siteUrl: "http://localhost:3000",
+        path: "/products/odri-nakladna",
+        brandName: "ODUDLAB",
+      }).sku,
+    ).toBe("Odri n");
+  });
+
+  it("carries the localised category through, and omits it when unset", () => {
+    // Google's merchant-listing report flagged a missing `category` on every
+    // product page. The value is the caller's already-localised breadcrumb
+    // label, so it must be emitted verbatim — not slugged, not translated
+    // again here.
+    const p = product();
+    const withCategory = buildProductJsonLd({
+      product: p,
+      variant: p.base,
+      siteUrl: "http://localhost:3000",
+      path: "/products/odri",
+      brandName: "ODUDLAB",
+      categoryName: "Умивальники",
+    });
+    expect(withCategory.category).toBe("Умивальники");
+
+    const withoutCategory = buildProductJsonLd({
+      product: p,
+      variant: p.base,
+      siteUrl: "http://localhost:3000",
+      path: "/products/odri",
+      brandName: "ODUDLAB",
+    });
+    expect(withoutCategory.category).toBeUndefined();
   });
 
   it("dedupes images and omits material/color when the data doesn't have them", () => {

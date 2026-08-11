@@ -66,8 +66,14 @@ function LinkColumn({
         {heading}
       </h2>
       <ul className="type-body-sm mt-(--space-sm) flex flex-col gap-(--space-3xs)">
+        {/* The key is the href alone, never `href + label`. React keys are
+            serialised verbatim into the RSC flight payload, and Googlebot
+            scrapes that inline script for URL-shaped strings — a key like
+            "/coloursКольори" was being crawled as a relative URL and reported
+            as a 404 in Search Console. Hrefs are unique inside every column,
+            so this is also the correct key. */}
         {links.map((link) => (
-          <li key={link.href + link.label}>
+          <li key={link.href}>
             <Link href={localeHref(locale, link.href)} className={linkClass}>
               {link.label}
             </Link>
@@ -131,10 +137,7 @@ export function Footer({
     // tap in the footer apart from one on the contact page. A plain attribute,
     // deliberately: an `onClick` here would turn the footer — which is on every
     // page — into a Client Component and ship its whole markup twice.
-    <div
-      data-analytics-location="footer"
-      className="col-span-2 lg:col-span-1"
-    >
+    <div data-analytics-location="footer" className="col-span-2 lg:col-span-1">
       {/* The one place on the site where the bird appears outside the logo.
           The footer is where a maker signs the sheet, and this column is the
           only block on any page whose subject is ODUDLAB itself — so the crest
@@ -214,8 +217,9 @@ export function Footer({
       trigger: dictionary.footerNav.catalogHeading,
       content: (
         <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
+          {/* Href alone as the key — see `FooterColumn` above. */}
           {catalogLinks.map((link) => (
-            <li key={link.href + link.label}>
+            <li key={link.href}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
                 {link.label}
               </Link>
@@ -229,8 +233,9 @@ export function Footer({
       trigger: dictionary.footerNav.customersHeading,
       content: (
         <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
+          {/* Href alone as the key — see `FooterColumn` above. */}
           {customerLinks.map((link) => (
-            <li key={link.href + link.label}>
+            <li key={link.href}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
                 {link.label}
               </Link>
@@ -244,8 +249,9 @@ export function Footer({
       trigger: dictionary.footerNav.designersHeading,
       content: (
         <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
+          {/* Href alone as the key — see `FooterColumn` above. */}
           {designerLinks.map((link) => (
-            <li key={link.href + link.label}>
+            <li key={link.href}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
                 {link.label}
               </Link>
@@ -259,8 +265,9 @@ export function Footer({
       trigger: dictionary.footerNav.brandHeading,
       content: (
         <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
+          {/* Href alone as the key — see `FooterColumn` above. */}
           {brandLinks.map((link) => (
-            <li key={link.href + link.label}>
+            <li key={link.href}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
                 {link.label}
               </Link>
@@ -274,8 +281,9 @@ export function Footer({
       trigger: dictionary.footerNav.legalHeading,
       content: (
         <ul className="type-body-sm flex flex-col gap-(--space-3xs)">
+          {/* Href alone as the key — see `FooterColumn` above. */}
           {legalLinks.map((link) => (
-            <li key={link.href + link.label}>
+            <li key={link.href}>
               <Link href={localeHref(locale, link.href)} className={linkClass}>
                 {link.label}
               </Link>
