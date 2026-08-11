@@ -17,9 +17,8 @@ import { buildDescriptionSections } from "@/lib/product-description";
  *   the raw `fullDesc` (which also contains the "Характеристики" spec list)
  *   into a search-result snippet; falls back to the raw description for the
  *   rare row where the intro split comes back empty.
- * - `sku`: the real per-variant SKU (distinct for base vs custom colour), but
- *   omitted entirely when it is just the product name again — see the note at
- *   the assignment.
+ * - `sku`: NOT emitted at all — the catalogue has no article codes, only names
+ *   in disguise. See the long note where it used to be assigned.
  * - `category`: the localised shop-category label — the exact same string the
  *   breadcrumb above the page already shows, resolved by the caller through
  *   `shopCategoryLabel`. Not a taxonomy code and not a guess: schema.org lets
@@ -95,24 +94,30 @@ export function buildProductJsonLd({
   const description = intro?.text || variant.description || undefined;
 
   /**
-   * A SKU that merely repeats the product name is not an identifier, and
-   * Google rejects it outright — «Недійсне значення в полі "sku"». Roughly
-   * half the catalogue is in that state, because the Horoshop export used the
-   * name as the article code for every single-variant product ("Volcano",
-   * "TOWER", "Monro"). The honest answer is to say nothing rather than to
-   * repeat the name in an identifier field, so the property is dropped when it
-   * carries no information the `name` has not already given. Comparison is
-   * case- and whitespace-insensitive because the export capitalises the two
-   * inconsistently ("Circle" vs "CIRCLE").
+   * `sku` is deliberately NOT emitted. Google rejected it — «Недійсне значення
+   * в полі "sku"» — and an audit of all 67 rows in the Horoshop export showed
+   * it was right: this catalogue contains no article codes at all.
    *
-   * Invent nothing here: if the workshop has real article codes, they belong
-   * in the source data (and then in `mpn` as well), not in this function.
+   * Half the rows use the product name verbatim as the code ("Volcano",
+   * "TOWER", "Monro"). The other half only look like identifiers and are in
+   * fact the name shortened or transliterated — "Odri n" for «ODRI накладна»,
+   * "Monro k" for «MONRO з канелюрами», "33" for «Циліндр 33», "pivsfera-50"
+   * for «Півсфера 50», "buddha" for «Панно з бетону "BUDDHA"». Google flagged
+   * `/products/odri-nakladna` precisely because "Odri n" is a prefix of the
+   * transliterated name, so tightening the old name-equality rule would only
+   * have moved the boundary, not found a real identifier behind it.
+   *
+   * Several values are not even that — they are import artefacts: "copy_Semi"
+   * on «LITTLE SEMI накладна», "Plink" on a product named «Plyn», and
+   * "Skolot basinc" on the product aliased `vira-u-vashomu-kolori`. A field
+   * that is redundant on its best rows and wrong on its worst is not an
+   * identifier, and saying nothing is the honest answer.
+   *
+   * Invent nothing here. If the workshop does keep real internal article
+   * codes, they belong in the source data — and then here in `sku`, and in
+   * `mpn` alongside it, which would also answer Google's separate «Немає
+   * глобального ідентифікатора» warning.
    */
-  const normalise = (value: string) => value.trim().toLowerCase();
-  const sku =
-    variant.sku && normalise(variant.sku) !== normalise(product.name)
-      ? variant.sku
-      : undefined;
 
   /**
    * Google's merchant-listing report flags every product for a missing
@@ -205,7 +210,6 @@ export function buildProductJsonLd({
     name: product.name,
     description,
     image: images,
-    sku,
     brand: {
       "@type": "Brand",
       name: brandName,

@@ -141,38 +141,31 @@ describe("buildProductJsonLd", () => {
     });
   });
 
-  it("drops a sku that only repeats the product name, and keeps a real one", () => {
-    // Google rejects «sku» when it is the name again, which is how the
-    // Horoshop export left roughly half the catalogue. Case and surrounding
-    // whitespace must not rescue it: "Circle" and "CIRCLE" are the same
-    // non-identifier.
-    const same = product({
-      name: "CIRCLE",
-      base: { ...product().base, sku: " Circle " },
-    });
-    expect(
-      buildProductJsonLd({
-        product: same,
-        variant: same.base,
-        siteUrl: "http://localhost:3000",
-        path: "/products/circle",
-        brandName: "ODUDLAB",
-      }).sku,
-    ).toBeUndefined();
-
-    const distinct = product({
-      name: "ODRI накладна",
-      base: { ...product().base, sku: "Odri n" },
-    });
-    expect(
-      buildProductJsonLd({
-        product: distinct,
-        variant: distinct.base,
-        siteUrl: "http://localhost:3000",
-        path: "/products/odri-nakladna",
-        brandName: "ODUDLAB",
-      }).sku,
-    ).toBe("Odri n");
+  it("never emits a sku, however real the source value looks", () => {
+    // Google rejects every «sku» this catalogue has, and an audit of all 67
+    // export rows showed why: none of them is an article code. Half repeat the
+    // name outright ("CIRCLE"); the rest are the name shortened or
+    // transliterated ("Odri n" for «ODRI накладна»), which is exactly what
+    // Google flagged on /products/odri-nakladna. So the field is dropped
+    // wholesale rather than filtered — a rule that "keeps the real ones" has
+    // nothing left to keep.
+    for (const [name, sku] of [
+      ["CIRCLE", " Circle "],
+      ["ODRI накладна", "Odri n"],
+      ["Горщик з бетону «Циліндр 33»", "33"],
+      ["LITTLE SEMI накладна", "copy_Semi"],
+    ]) {
+      const p = product({ name, base: { ...product().base, sku } });
+      expect(
+        buildProductJsonLd({
+          product: p,
+          variant: p.base,
+          siteUrl: "http://localhost:3000",
+          path: "/products/x",
+          brandName: "ODUDLAB",
+        }).sku,
+      ).toBeUndefined();
+    }
   });
 
   it("carries the localised category through, and omits it when unset", () => {
@@ -270,7 +263,10 @@ describe("buildProductJsonLd", () => {
       brandName: "ODUDLAB",
     });
     expect(json.image).toEqual(["/odri-custom.jpg", "/odri-base.jpg"]);
-    expect(json.sku).toBe("Odri color");
+    // The custom variant carries its own price and photo, but still no sku —
+    // "Odri color" is the name again with a suffix, like every other row.
+    expect(json.sku).toBeUndefined();
+    expect(json.offers).toMatchObject({ price: 18200 });
   });
 
   it("strips the trailing 'Характеристики' spec dump out of the JSON-LD description", () => {
