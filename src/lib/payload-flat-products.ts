@@ -367,6 +367,21 @@ async function loadPayloadFlatProductsUncached(
  * hooks (a direct SQL edit, an importer run outside Next), so the site
  * converges on its own rather than serving a stale catalogue indefinitely.
  *
+ * ## Why an hour and not five minutes
+ *
+ * The window started at 300 seconds, which is also — exactly — how long Neon
+ * waits before suspending an idle compute. Those two numbers meeting is worse
+ * than either alone: the cache expired, the next visitor triggered a refetch,
+ * the refetch woke the database for another five minutes, and any site with a
+ * visitor every few minutes kept its compute billing around the clock. The
+ * catalogue read is not expensive; being the alarm clock for the database is.
+ *
+ * An hour is safe here precisely because the window is a backstop and not the
+ * mechanism: a published edit still appears immediately, by tag. What waits up
+ * to an hour is only a change made behind Next's back — a direct SQL edit or a
+ * `tsx` importer run, both of which are deliberate operations whose operator
+ * can redeploy if they want the storefront to catch up sooner.
+ *
  * Keyed by locale: the query passes `locale` to Payload and merges
  * locale-specific dictionary labels, so `uk`/`en`/`pl` are genuinely different
  * results and must not share an entry.
@@ -374,7 +389,7 @@ async function loadPayloadFlatProductsUncached(
 const loadPayloadFlatProductsCached = unstable_cache(
   loadPayloadFlatProductsUncached,
   ["payload-flat-products"],
-  { tags: [CATALOGUE_CACHE_TAG], revalidate: 300 },
+  { tags: [CATALOGUE_CACHE_TAG], revalidate: 3600 },
 );
 
 export function loadPayloadFlatProducts(
