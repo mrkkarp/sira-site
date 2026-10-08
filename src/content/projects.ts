@@ -525,12 +525,13 @@ const metropolis: Project = {
 
 /**
  * The owner supplied the name, the city, the year and the photographs
- * (2026-10-08) and nothing else, so everything below is what the photographs
- * show. That is why `facts.production` is absent: no one has said which pieces
- * are catalogue models and which were made for the site, and a faceted seat
- * that follows a planting bed *looks* made-to-measure without that being a
- * fact. Likewise no model names — add them, and the production row, when the
- * owner confirms them.
+ * (2026-10-08), then two corrections the photographs could not settle: the
+ * concrete around the planting is a concrete planting bed in its own right,
+ * not an edging (« це просто бетонна клумба »), and the benches and bins are
+ * catalogue models. Everything else is what the photographs show. So
+ * `facts.production` names only the benches and bins as catalogue — nobody has
+ * said which of the rest were made for the site — and no model is named until
+ * the owner names it.
  */
 const svitlopark: Project = {
   slug: "svitlopark",
@@ -555,20 +556,20 @@ const svitlopark: Project = {
       alt: "Гофрований бетонний вазон крупним планом: вертикальні ребра, зубчастий край, мульча з кори, поруч лава з дерев'яним сидінням",
     },
     {
-      src: "/projects/svitlopark/svitlopark-betonni-bortyky-klumb-z-hortenziiamy.webp",
-      alt: "Бетонні бортики ламаної форми навколо підвищеної клумби з гортензіями та деревами на брукованій площі",
+      src: "/projects/svitlopark/svitlopark-betonni-klumby-z-hortenziiamy.webp",
+      alt: "Бетонні клумби ламаної форми з гортензіями та деревами на брукованій площі",
     },
     {
-      src: "/projects/svitlopark/svitlopark-zaokruhlenyi-bortyk-klumby.webp",
-      alt: "Заокруглений кут бетонного бортика клумби з чагарником і мульчею, видно шов між двома сегментами",
+      src: "/projects/svitlopark/svitlopark-zaokruhlenyi-kut-betonnoi-klumby.webp",
+      alt: "Заокруглений кут бетонної клумби з чагарником і мульчею, видно шов між двома сегментами",
     },
     {
-      src: "/projects/svitlopark/svitlopark-poverkhnia-bortyka-zblyzka.webp",
-      alt: "Гладка матова поверхня бетонного бортика з тінню гілок, за ним мульча з кори та паросток чагарника",
+      src: "/projects/svitlopark/svitlopark-poverkhnia-betonnoi-klumby-zblyzka.webp",
+      alt: "Гладка матова поверхня стінки бетонної клумби з тінню гілок, за ним мульча з кори та паросток чагарника",
     },
     {
       src: "/projects/svitlopark/svitlopark-hranchasti-sydinnia-vzdovzh-klumby.webp",
-      alt: "Гранчасті бетонні сидіння з дерев'яним настилом, що ламаною лінією тягнуться вздовж клумби біля паркування",
+      alt: "Гранчасті бетонні сидіння з дерев'яним настилом, що ламаною лінією тягнуться вздовж бетонної клумби біля паркування",
     },
     {
       src: "/projects/svitlopark/svitlopark-sydinnia-z-derevianym-nastylom-zblyzka.webp",
@@ -576,11 +577,11 @@ const svitlopark: Project = {
     },
     {
       src: "/projects/svitlopark/svitlopark-urna-bilia-vhodu-v-budynok.webp",
-      alt: "Бетонна урна з похилою кришкою на тротуарі біля смуги гортензій і входу в житловий будинок",
+      alt: "Серійна бетонна урна з похилою кришкою на тротуарі біля смуги гортензій і входу в житловий будинок",
     },
     {
       src: "/projects/svitlopark/svitlopark-lava-na-dorizhtsi-sered-yalivtsiu.webp",
-      alt: "Лава з бетонними опорами на брукованій доріжці серед ялівцю та декоративних злаків у дворі житлового комплексу",
+      alt: "Серійна лава з бетонними опорами на брукованій доріжці серед ялівцю та декоративних злаків у дворі житлового комплексу",
     },
     {
       src: "/projects/svitlopark/svitlopark-lava-ta-urna-na-dorizhtsi.webp",
@@ -608,30 +609,30 @@ const svitlopark: Project = {
     uk: {
       title: "Благоустрій прибудинкової території ЖК «Світлопарк»",
       summary:
-        "Вазони, бортики клумб, сидіння, лави та урни з архітектурного бетону для дворів, площ і доріжок житлового комплексу в Києві, 2025 рік.",
+        "Вазони, клумби, сидіння, лави та урни з архітектурного бетону для дворів, площ і доріжок житлового комплексу в Києві, 2025 рік.",
       seoTitle: "Благоустрій території ЖК «Світлопарк», Київ",
       seoDescription:
-        "Гофровані вазони, бортики клумб, сидіння з дерев'яним настилом, лави та урни з архітектурного бетону для ЖК «Світлопарк» у Києві, 2025 рік. Майстерня ODUDLAB.",
+        "Гофровані вазони, бетонні клумби, сидіння з дерев'яним настилом, серійні лави та урни з архітектурного бетону для ЖК «Світлопарк» у Києві, 2025 рік. Майстерня ODUDLAB.",
       facts: {
         client: "ЖК «Світлопарк»",
         typology: "Житловий комплекс, прибудинкова територія",
-        scope:
-          "Вазони, бортики клумб, сидіння, лави, урни, пристовбурні конуси",
+        scope: "Вазони, клумби, сидіння, лави, урни, пристовбурні конуси",
+        production: "Лави та урни — серійні моделі з каталогу",
       },
       sections: [
         {
           heading: "Що зробили",
           paragraphs: [
             "Найпомітніше на ділянці — конічні вазони з гофрованими стінками. Вертикальні ребра закінчуються зубчастим краєм, і на сонці кожна грань дає свою тінь, тож об'єм читається навіть здалеку. Вазони стоять поодинці й рядами на площі між будинками та у дворі біля дитячого майданчика, у кожному — дерево.",
-            "Клумби на площах обведені бетонними бортиками. Вони зламуються під кутом, заокруглюються на поворотах і тримають підвищений ґрунт, тож межу озеленення малює сам бетон, а не бордюрний камінь. Уздовж частини клумб бортик переходить у сидіння: гранчасті бетонні сегменти з дерев'яним настилом тягнуться ламаною лінією вздовж краю насаджень.",
-            "На доріжках між газонами й хвойними посадками стоять лави з бетонними опорами-рамками та дерев'яним сидінням, біля входів і вздовж тротуарів — бетонні урни з похилою кришкою. Навколо дерев на одному з майданчиків — бетонні пристовбурні конуси.",
+            "Клумби на площах — самі бетонні вироби: великі підвищені клумби, що зламуються під кутом і заокруглюються на поворотах. Ґрунт тримає бетон, тож форму озеленення малює сама клумба, а не бордюрний камінь. Уздовж частини клумб тягнуться сидіння: гранчасті бетонні сегменти з дерев'яним настилом ідуть ламаною лінією вздовж краю насаджень.",
+            "На доріжках між газонами й хвойними посадками стоять лави з бетонними опорами-рамками та дерев'яним сидінням, біля входів і вздовж тротуарів — бетонні урни з похилою кришкою. І лави, і урни — серійні моделі з нашого каталогу. Навколо дерев на одному з майданчиків — бетонні пристовбурні конуси.",
           ],
         },
         {
-          heading: "Бетон, який тримає межу",
+          heading: "Клумба як виріб",
           paragraphs: [
-            "Бортик клумби зазвичай не помічають, поки він не трісне чи не перекоситься. Тут він — частина композиції: та сама сіра маса, що й у вазонах та опорах лав, ті самі гладкі грані, тому все на ділянці читається як одна серія, а не як набір різних постачальників.",
-            "Там, де бортик стає сидінням, дерево лишається тільки на поверхні, якої торкаються. Усе інше — висоту, кут, лінію повороту — тримає бетон.",
+            "Зазвичай клумбу викладають на місці з бордюру, і її край помічають, лише коли він трісне чи перекоситься. Тут клумба — готовий бетонний виріб і частина композиції: та сама сіра маса, що й у вазонах та опорах лав, ті самі гладкі грані, тому все на ділянці читається як одна серія, а не як набір різних постачальників.",
+            "Там, де вздовж клумби йде сидіння, дерево лишається тільки на поверхні, якої торкаються. Усе інше — висоту, кут, лінію повороту — тримає бетон.",
           ],
         },
         {
@@ -646,30 +647,31 @@ const svitlopark: Project = {
     en: {
       title: "Landscaping the grounds of the Svitlopark residential complex",
       summary:
-        "Planters, planting-bed edging, seating, benches and litter bins in architectural concrete for the courtyards, squares and walkways of a residential complex in Kyiv, 2025.",
+        "Planters, planting beds, seating, benches and litter bins in architectural concrete for the courtyards, squares and walkways of a residential complex in Kyiv, 2025.",
       seoTitle: "Svitlopark residential complex, Kyiv",
       seoDescription:
-        "Fluted planters, planting-bed edging, timber-topped seating, benches and litter bins in architectural concrete for the Svitlopark residential complex in Kyiv, 2025. The ODUDLAB workshop.",
+        "Fluted planters, concrete planting beds, timber-topped seating, catalogue benches and litter bins in architectural concrete for the Svitlopark residential complex in Kyiv, 2025. The ODUDLAB workshop.",
       facts: {
         client: "Svitlopark residential complex",
         typology: "Residential complex, grounds",
         scope:
-          "Planters, planting-bed edging, seating, benches, litter bins, tree-base cones",
+          "Planters, planting beds, seating, benches, litter bins, tree-base cones",
+        production: "Benches and litter bins — catalogue models",
       },
       sections: [
         {
           heading: "What we made",
           paragraphs: [
             "The most visible pieces on the site are conical planters with fluted walls. The vertical ribs end in a serrated rim, and in sunlight every face casts its own shadow, so the volume reads even from a distance. The planters stand singly and in rows on the square between the buildings and in the courtyard by the playground, each holding a tree.",
-            "The planting beds on the squares are edged in concrete. The edging breaks at an angle, rounds off at the turns and retains the raised soil, so the boundary of the planting is drawn by the concrete itself rather than by a kerb stone. Along some of the beds the edging becomes seating: faceted concrete segments with timber decking run in a broken line along the edge of the planting.",
-            "On the walkways between the lawns and the conifer planting stand benches with concrete loop supports and a timber seat; by the entrances and along the pavements, concrete litter bins with a sloping lid. Around the trees on one of the squares are concrete tree-base cones.",
+            "The planting beds on the squares are concrete pieces in their own right: large raised beds that break at an angle and round off at the turns. The concrete retains the soil, so the shape of the planting is drawn by the bed itself rather than by a kerb stone. Along some of the beds runs seating: faceted concrete segments with timber decking follow a broken line along the edge of the planting.",
+            "On the walkways between the lawns and the conifer planting stand benches with concrete loop supports and a timber seat; by the entrances and along the pavements, concrete litter bins with a sloping lid. Both the benches and the bins are catalogue models. Around the trees on one of the squares are concrete tree-base cones.",
           ],
         },
         {
-          heading: "Concrete that holds the edge",
+          heading: "The bed as a piece",
           paragraphs: [
-            "A bed edging usually goes unnoticed until it cracks or tilts. Here it is part of the composition: the same grey mass as the planters and the bench supports, the same smooth faces, so everything on the site reads as one series rather than as an assortment from different suppliers.",
-            "Where the edging becomes a seat, timber is left only on the surface people touch. Everything else — the height, the angle, the line of the turn — is held by the concrete.",
+            "A planting bed is usually laid on site from kerb stones, and its edge is noticed only once it cracks or tilts. Here the bed is a finished concrete piece and part of the composition: the same grey mass as the planters and the bench supports, the same smooth faces, so everything on the site reads as one series rather than as an assortment from different suppliers.",
+            "Where seating runs along a bed, timber is left only on the surface people touch. Everything else — the height, the angle, the line of the turn — is held by the concrete.",
           ],
         },
         {
@@ -684,30 +686,30 @@ const svitlopark: Project = {
     pl: {
       title: "Zagospodarowanie terenu osiedla Svitlopark",
       summary:
-        "Donice, obrzeża rabat, siedziska, ławki i kosze z betonu architektonicznego dla dziedzińców, placów i alejek osiedla mieszkaniowego w Kijowie, 2025 rok.",
+        "Donice, rabaty, siedziska, ławki i kosze z betonu architektonicznego dla dziedzińców, placów i alejek osiedla mieszkaniowego w Kijowie, 2025 rok.",
       seoTitle: "Zagospodarowanie terenu osiedla Svitlopark, Kijów",
       seoDescription:
-        "Karbowane donice, obrzeża rabat, siedziska z drewnianym blatem, ławki i kosze z betonu architektonicznego dla osiedla Svitlopark w Kijowie, 2025 rok. Pracownia ODUDLAB.",
+        "Karbowane donice, betonowe rabaty, siedziska z drewnianym blatem, katalogowe ławki i kosze z betonu architektonicznego dla osiedla Svitlopark w Kijowie, 2025 rok. Pracownia ODUDLAB.",
       facts: {
         client: "Osiedle Svitlopark",
         typology: "Osiedle mieszkaniowe, teren przyległy",
-        scope:
-          "Donice, obrzeża rabat, siedziska, ławki, kosze, stożki przypniowe",
+        scope: "Donice, rabaty, siedziska, ławki, kosze, stożki przypniowe",
+        production: "Ławki i kosze — modele katalogowe",
       },
       sections: [
         {
           heading: "Co zrobiliśmy",
           paragraphs: [
             "Najbardziej widoczne na terenie są stożkowe donice o karbowanych ściankach. Pionowe żebra kończą się ząbkowaną krawędzią, a w słońcu każda ścianka rzuca własny cień, więc bryła czyta się nawet z daleka. Donice stoją pojedynczo i rzędami na placu między budynkami oraz na dziedzińcu przy placu zabaw, w każdej rośnie drzewo.",
-            "Rabaty na placach obramowano betonowymi obrzeżami. Załamują się pod kątem, zaokrąglają na zakrętach i utrzymują podniesiony grunt, więc granicę zieleni rysuje sam beton, a nie krawężnik. Wzdłuż części rabat obrzeże przechodzi w siedzisko: graniaste betonowe segmenty z drewnianym blatem ciągną się łamaną linią wzdłuż krawędzi nasadzeń.",
-            "Na alejkach między trawnikami a nasadzeniami iglastymi stoją ławki z betonowymi podporami w kształcie ramy i drewnianym siedziskiem, przy wejściach i wzdłuż chodników — betonowe kosze z ukośną pokrywą. Wokół drzew na jednym z placów — betonowe stożki przypniowe.",
+            "Rabaty na placach same są wyrobami z betonu: duże podniesione rabaty, które załamują się pod kątem i zaokrąglają na zakrętach. Grunt utrzymuje beton, więc kształt zieleni rysuje sama rabata, a nie krawężnik. Wzdłuż części rabat ciągną się siedziska: graniaste betonowe segmenty z drewnianym blatem biegną łamaną linią wzdłuż krawędzi nasadzeń.",
+            "Na alejkach między trawnikami a nasadzeniami iglastymi stoją ławki z betonowymi podporami w kształcie ramy i drewnianym siedziskiem, przy wejściach i wzdłuż chodników — betonowe kosze z ukośną pokrywą. Zarówno ławki, jak i kosze to modele seryjne z naszego katalogu. Wokół drzew na jednym z placów — betonowe stożki przypniowe.",
           ],
         },
         {
-          heading: "Beton, który trzyma granicę",
+          heading: "Rabata jako wyrób",
           paragraphs: [
-            "Obrzeże rabaty zwykle zauważa się dopiero wtedy, gdy pęknie albo się przechyli. Tutaj jest częścią kompozycji: ta sama szara masa co w donicach i podporach ławek, te same gładkie ściany, dlatego wszystko na terenie czyta się jako jedna seria, a nie zestaw od różnych dostawców.",
-            "Tam, gdzie obrzeże staje się siedziskiem, drewno zostaje tylko na powierzchni, której się dotyka. Całą resztę — wysokość, kąt, linię zakrętu — trzyma beton.",
+            "Rabatę zwykle układa się na miejscu z krawężników, a jej krawędź zauważa się dopiero wtedy, gdy pęknie albo się przechyli. Tutaj rabata to gotowy wyrób z betonu i część kompozycji: ta sama szara masa co w donicach i podporach ławek, te same gładkie ściany, dlatego wszystko na terenie czyta się jako jedna seria, a nie zestaw od różnych dostawców.",
+            "Tam, gdzie wzdłuż rabaty biegnie siedzisko, drewno zostaje tylko na powierzchni, której się dotyka. Całą resztę — wysokość, kąt, linię zakrętu — trzyma beton.",
           ],
         },
         {
