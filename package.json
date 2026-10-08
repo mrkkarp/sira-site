@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/trace-sharp-into-proxy.mjs",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -17,7 +17,7 @@
     "payload": "payload",
     "migrate": "node --env-file-if-exists=.env.local node_modules/.bin/payload migrate",
     "ci:migrate": "echo y | DATABASE_URL=\"${POSTGRES_URL_NON_POOLING:-$DATABASE_URL}\" node_modules/.bin/payload migrate",
-    "ci:build": "bash scripts/diag-sharp.sh && npm run ci:migrate && npm run build && bash scripts/diag-sharp.sh post",
+    "ci:build": "npm run ci:migrate && npm run build",
     "audit:facts": "node_modules/.bin/tsx scripts/audit-product-facts.ts",
     "import:horoshop": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/import-horoshop.ts",
     "import:horoshop:live": "node --env-file-if-exists=.env.local node_modules/.bin/tsx scripts/import-horoshop.ts --live",

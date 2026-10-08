@@ -25,6 +25,11 @@ const nextConfig: NextConfig = {
   // ("libvips-cpp.so.8.18.3: cannot open shared object file") until the
   // deployment was rolled back. Listing both packages makes the trace
   // independent of whatever the build cache happened to hold.
+  //
+  // This covers app routes only: Next never applies it to the proxy, which
+  // loads sharp too (through `findLegacyRedirect`) and is what actually broke.
+  // `scripts/trace-sharp-into-proxy.mjs`, run by `npm run build`, patches the
+  // proxy's trace instead.
   outputFileTracingIncludes: {
     "/**": [
       "./node_modules/@img/sharp-linux-x64/**/*",
