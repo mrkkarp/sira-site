@@ -529,10 +529,6 @@
     "eyebrow": "Zrealizowane projekty",
     "heading": "Projekty",
     "seoDescription": "Zrealizowane projekty ODUDLAB: donice, ławki i kosze na śmieci z betonu architektonicznego dla przestrzeni publicznych, stref wejściowych i dziedzińców. Zdjęcia z realizacji.",
-    "intro": [
-      "Miejsca, dla których powstawały nasze wyroby: przestrzenie publiczne, strefy wejściowe, dziedzińce. Projekt to nie tylko to, co widać na zdjęciu, ale też decyzje, które do tego doprowadziły: jaki wymiar, jaki kolor, co pochodzi z katalogu, a co trzeba było wykonać pod konkretne miejsce.",
-      "Pokazujemy wyłącznie zdjęcia zrobione na miejscu — żadnych renderów ani zdjęć stockowych. Jeśli projektu nie ma na tej liście, znaczy to, że nie otrzymaliśmy jeszcze z niego dobrych zdjęć."
-    ],
     "categories": {
       "public": {
         "heading": "Przestrzenie publiczne i zagospodarowanie terenu",
@@ -545,6 +541,11 @@
         "empty": "Nie mamy tu jeszcze zdjęć gotowych wnętrz. Na tej stronie pokazujemy wyłącznie to, co zostało sfotografowane na miejscu — bez renderów i zdjęć stockowych — więc ta sekcja zapełni się wtedy, gdy pojawią się prawdziwe zdjęcia. Jeśli to właśnie Twoje zadanie, opowiedz o wnętrzu, a my je wycenimy."
       }
     },
+    "aboutHeading": "Jak pracujemy przy realizacjach",
+    "about": [
+      "Wykonujemy donice, ławki, kosze i inne wyroby z betonu architektonicznego dla dziedzińców, stref wejściowych i przestrzeni publicznych. Jeśli do obiektu pasuje model z katalogu — bierzemy go. Jeśli nie — robimy formę pod konkretne miejsce: o potrzebnej długości, wysokości czy linii.",
+      "Produkcja pełnego cyklu w Kijowie, więc zmiana wymiaru nie oznacza zmiany wykonawcy. A gdy osiedle zagospodarowuje się etapami, kolejną partię robimy w tej samej formie i tym samym kolorze co pierwszą."
+    ],
     "viewProjectCta": "Zobacz projekt",
     "backToAll": "Wszystkie projekty",
     "factsHeading": "O projekcie",

@@ -529,10 +529,6 @@
     "eyebrow": "Completed projects",
     "heading": "Projects",
     "seoDescription": "ODUDLAB completed projects: architectural concrete planters, benches and litter bins for public spaces, building entrances and courtyards. Photographed on site.",
-    "intro": [
-      "The places our pieces were made for: public spaces, building entrances, courtyards. A project is not only what stands in the photograph — it is also the decisions behind it: what size, what colour, what came from the catalogue and what had to be made for that particular spot.",
-      "Everything here was shot on the actual site — no renders, no stock photography. If a project is missing from this list, it means we have not been given usable photographs of it yet."
-    ],
     "categories": {
       "public": {
         "heading": "Public spaces and landscaping",
@@ -545,6 +541,11 @@
         "empty": "There are no photographs of finished interiors here yet. This page shows only what was shot on the actual site — no renders, no stock photography — so this section fills up when real photographs exist. If this is your brief, tell us about the room and we will price it."
       }
     },
+    "aboutHeading": "How we work on a site",
+    "about": [
+      "We make planters, benches, litter bins and other pieces in architectural concrete for courtyards, building entrances and public spaces. If a catalogue model fits the site, we use it. If not, we build a mould for that particular place — to the length, height or line it needs.",
+      "Production is full-cycle, in Kyiv, so a change of size does not mean a change of supplier. And when a complex is landscaped in phases, the next batch is made in the same mould and the same colour as the first."
+    ],
     "viewProjectCta": "View project",
     "backToAll": "All projects",
     "factsHeading": "Project details",

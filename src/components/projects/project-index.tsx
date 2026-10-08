@@ -97,14 +97,6 @@ export function ProjectIndex({
         <header className="mt-(--space-md) max-w-3xl">
           <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
           <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
-          {copy.intro.map((paragraph) => (
-            <p
-              key={paragraph}
-              className="type-body text-text-muted mt-(--space-sm)"
-            >
-              {paragraph}
-            </p>
-          ))}
         </header>
 
         <div className="mt-(--space-2xl) flex flex-col gap-(--space-2xl)">
@@ -219,6 +211,28 @@ export function ProjectIndex({
               </section>
             );
           })}
+
+          {/* How the workshop works on a site — after the projects, not
+              before them. Above the fold it was a wall of text between the
+              visitor and the photographs they came for (owner, 2026-10-08:
+              «опис на початку сторінки жахливий … постав його нижче самих
+              проєктів»). Read after the evidence, it answers the question the
+              evidence raises: can they do this for my site? */}
+          <section aria-labelledby="projects-about">
+            <TechnicalLine weight="line" />
+            <div className="mt-(--space-md) grid gap-(--space-sm) lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-(--space-lg)">
+              <h2 id="projects-about" className="type-h2 text-text">
+                {copy.aboutHeading}
+              </h2>
+              <div className="flex max-w-2xl flex-col gap-(--space-sm)">
+                {copy.about.map((paragraph) => (
+                  <p key={paragraph} className="type-body text-text-muted">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </section>
 
           <section>
             <TechnicalLine weight="line" />
