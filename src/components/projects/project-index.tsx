@@ -99,7 +99,7 @@ export function ProjectIndex({
           <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
         </header>
 
-        <div className="mt-(--space-2xl) flex flex-col gap-(--space-2xl)">
+        <div className="mt-(--space-md) flex flex-col gap-(--space-2xl)">
           {groups.map((group, groupIndex) => {
             const groupCopy = copy.categories[group.category];
             const headingId = `projects-${group.category}`;
