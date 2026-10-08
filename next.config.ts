@@ -15,6 +15,23 @@ const nextConfig: NextConfig = {
   // reissues it for live routes (`/shop/` → `308` → `/shop`), which is not
   // optional: without it the site serves every page at two URLs.
   skipTrailingSlashRedirect: true,
+  // Ship sharp's Linux binaries with every app route.
+  //
+  // Payload uses sharp to process images uploaded in the admin. Its `.node`
+  // addon is traced, but the `libvips-cpp.so` it links against lives in a
+  // sibling package reached only through the addon's rpath, which file
+  // tracing does not follow; listing both packages keeps uploads working
+  // whatever the build cache happens to hold.
+  //
+  // This is not what keeps the storefront up — Next never applies it to the
+  // proxy, which is what 500'd every page on 2026-10-08. That fix is the lazy
+  // sharp load in `payload.config.ts`.
+  outputFileTracingIncludes: {
+    "/**": [
+      "./node_modules/@img/sharp-linux-x64/**/*",
+      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+    ],
+  },
   images: {
     // Real product photography, exported from the existing Horoshop catalog
     // (see src/data/products.source.json) — not stock/placeholder imagery.
