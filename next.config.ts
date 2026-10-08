@@ -15,6 +15,22 @@ const nextConfig: NextConfig = {
   // reissues it for live routes (`/shop/` → `308` → `/shop`), which is not
   // optional: without it the site serves every page at two URLs.
   skipTrailingSlashRedirect: true,
+  // Ship sharp's Linux binaries with every server function.
+  //
+  // `payload.config.ts` imports sharp at module scope, so every route loads
+  // it. Its `.node` addon is traced, but the `libvips-cpp.so` it links
+  // against lives in a sibling package and is reached only through the
+  // addon's rpath — invisible to file tracing. On 2026-10-08 a build with no
+  // cache shipped without it, and every page on odudlab.com answered `500`
+  // ("libvips-cpp.so.8.18.3: cannot open shared object file") until the
+  // deployment was rolled back. Listing both packages makes the trace
+  // independent of whatever the build cache happened to hold.
+  outputFileTracingIncludes: {
+    "/**": [
+      "./node_modules/@img/sharp-linux-x64/**/*",
+      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+    ],
+  },
   images: {
     // Real product photography, exported from the existing Horoshop catalog
     // (see src/data/products.source.json) — not stock/placeholder imagery.
