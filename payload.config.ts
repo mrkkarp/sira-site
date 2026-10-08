@@ -1,10 +1,9 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import sharp from "sharp";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { s3Storage } from "@payloadcms/storage-s3";
-import { buildConfig, type Plugin } from "payload";
+import { buildConfig, type Plugin, type SharpDependency } from "payload";
 
 import { Users } from "./src/collections/Users";
 import { Media } from "./src/collections/Media";
@@ -20,6 +19,50 @@ import { Leads } from "./src/collections/Leads";
 import { Redirects } from "./src/collections/Redirects";
 import { ImportBatches } from "./src/collections/ImportBatches";
 import { ImportWarnings } from "./src/collections/ImportWarnings";
+
+/**
+ * sharp, loaded in the background instead of at module scope.
+ *
+ * This config is imported by everything that talks to Payload — including
+ * `src/proxy.ts`, which reaches it through `findLegacyRedirect` on every page
+ * request. A top-level `import sharp` made all of those load sharp's native
+ * addon, so when a deployment shipped without `libvips-cpp.so` (2026-10-08, a
+ * build with no Vercel cache) the import threw at module load and every page
+ * on odudlab.com answered `500` until production was rolled back. Only one
+ * thing here ever calls sharp: Payload, when it processes an uploaded image in
+ * the admin. A missing native library should break that, loudly — not the
+ * storefront.
+ *
+ * Payload only ever calls `sharp(input, options)`, so a wrapper that forwards
+ * to the real module is a complete stand-in. The dynamic `import()` starts as
+ * soon as the config loads, which in practice is long before anyone uploads a
+ * file; its failure is logged rather than thrown, so a proxy that never
+ * resizes anything never notices.
+ */
+let loadedSharp: SharpDependency | undefined;
+let sharpLoadError: unknown;
+void import("sharp").then(
+  (mod) => {
+    loadedSharp = mod.default;
+  },
+  (error: unknown) => {
+    sharpLoadError = error;
+    console.error(
+      "[payload] sharp failed to load; image uploads will fail",
+      error,
+    );
+  },
+);
+const sharp: SharpDependency = (input, options) => {
+  if (!loadedSharp) {
+    throw new Error(
+      sharpLoadError
+        ? `sharp is unavailable on this deployment: ${String(sharpLoadError)}`
+        : "sharp is still loading — retry the upload in a moment",
+    );
+  }
+  return loadedSharp(input, options);
+};
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -40,9 +83,9 @@ const dirname = path.dirname(filename);
  */
 const s3Enabled = Boolean(
   process.env.S3_BUCKET &&
-    process.env.S3_REGION &&
-    process.env.S3_ACCESS_KEY_ID &&
-    process.env.S3_SECRET_ACCESS_KEY,
+  process.env.S3_REGION &&
+  process.env.S3_ACCESS_KEY_ID &&
+  process.env.S3_SECRET_ACCESS_KEY,
 );
 
 const plugins: Plugin[] = [];

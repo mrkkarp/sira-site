@@ -15,21 +15,17 @@ const nextConfig: NextConfig = {
   // reissues it for live routes (`/shop/` → `308` → `/shop`), which is not
   // optional: without it the site serves every page at two URLs.
   skipTrailingSlashRedirect: true,
-  // Ship sharp's Linux binaries with every server function.
+  // Ship sharp's Linux binaries with every app route.
   //
-  // `payload.config.ts` imports sharp at module scope, so every route loads
-  // it. Its `.node` addon is traced, but the `libvips-cpp.so` it links
-  // against lives in a sibling package and is reached only through the
-  // addon's rpath — invisible to file tracing. On 2026-10-08 a build with no
-  // cache shipped without it, and every page on odudlab.com answered `500`
-  // ("libvips-cpp.so.8.18.3: cannot open shared object file") until the
-  // deployment was rolled back. Listing both packages makes the trace
-  // independent of whatever the build cache happened to hold.
+  // Payload uses sharp to process images uploaded in the admin. Its `.node`
+  // addon is traced, but the `libvips-cpp.so` it links against lives in a
+  // sibling package reached only through the addon's rpath, which file
+  // tracing does not follow; listing both packages keeps uploads working
+  // whatever the build cache happens to hold.
   //
-  // This covers app routes only: Next never applies it to the proxy, which
-  // loads sharp too (through `findLegacyRedirect`) and is what actually broke.
-  // `scripts/trace-sharp-into-proxy.mjs`, run by `npm run build`, patches the
-  // proxy's trace instead.
+  // This is not what keeps the storefront up — Next never applies it to the
+  // proxy, which is what 500'd every page on 2026-10-08. That fix is the lazy
+  // sharp load in `payload.config.ts`.
   outputFileTracingIncludes: {
     "/**": [
       "./node_modules/@img/sharp-linux-x64/**/*",
