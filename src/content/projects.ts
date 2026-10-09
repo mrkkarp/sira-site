@@ -1061,11 +1061,178 @@ const kovalskaUnitCity: Project = {
 };
 
 /**
+ * The owner supplied the venue, the city, the year and that every piece is a
+ * catalogue model (2026-10-09: «вазони та раковини серійні»), with ten
+ * photographs. The relief wall and the tiled columns beside the sink are the
+ * venue's, not the workshop's, and the text does not mention them. No model
+ * names yet — add them when the owner names them.
+ *
+ * Filed under `public` rather than `interior`: most of the pieces stand at
+ * the entrance and on the terrace, and `interior` is the made-for-one-room
+ * group, which catalogue models are not.
+ */
+const lunaClaire: Project = {
+  slug: "luna-claire",
+  category: "public",
+  year: "2025",
+  place: {
+    label: { uk: "Київ, Україна", en: "Kyiv, Ukraine", pl: "Kijów, Ukraina" },
+    locality: { uk: "Київ", en: "Kyiv", pl: "Kijów" },
+    countryCode: "UA",
+  },
+  images: [
+    {
+      src: "/projects/luna-claire/luna-claire-kruhlyi-vazon-bilia-vkhodu.webp",
+      alt: "Круглий бетонний вазон із деревом з червоним листям на брукованому майданчику біля входу в заклад Luna Claire у Києві",
+    },
+    {
+      src: "/projects/luna-claire/luna-claire-kruhlyi-vazon-z-barbarysom.webp",
+      alt: "Круглий бетонний вазон з кущем з червоно-помаранчевим листям поруч зі столиком літнього майданчика",
+      afterSection: 1,
+    },
+    {
+      src: "/projects/luna-claire/luna-claire-kruhlyi-vazon-z-sosnoiu.webp",
+      alt: "Круглий бетонний вазон із невисокою сосною біля скляного фасаду закладу",
+      afterSection: 1,
+    },
+    {
+      src: "/projects/luna-claire/luna-claire-priamokutni-vazony-na-terasi.webp",
+      alt: "Прямокутні бетонні вазони з декоративними злаками в ряд уздовж тераси поруч зі столиками",
+      afterSection: 2,
+    },
+    {
+      src: "/projects/luna-claire/luna-claire-riad-vazoniv-uzdovzh-terasy.webp",
+      alt: "Ряд прямокутних бетонних вазонів із злаками вздовж скляного фасаду на терасі закладу",
+      afterSection: 2,
+    },
+    {
+      src: "/projects/luna-claire/luna-claire-pidlohova-rakovyna-u-zali.webp",
+      alt: "Підлогова бетонна раковина з рифленим корпусом біля стіни в залі закладу Luna Claire",
+      afterSection: 3,
+    },
+    {
+      src: "/projects/luna-claire/luna-claire-pidlohova-rakovyna-zblyzka.webp",
+      alt: "Підлогова бетонна раковина з рифленим корпусом і настінним змішувачем крупним планом",
+      afterSection: 3,
+    },
+  ],
+  relatedCategories: ["planters", "sinks"],
+  content: {
+    uk: {
+      title: "Вазони й раковини для Luna Claire",
+      summary:
+        "Серійні вазони та раковини з архітектурного бетону для закладу Luna Claire у Києві, 2025 рік: круглі вазони біля входу, прямокутні — на терасі, підлогова раковина в залі.",
+      seoTitle: "Бетонні вазони й раковини в закладі Luna Claire, Київ",
+      seoDescription:
+        "Вазони та раковини з архітектурного бетону для закладу Luna Claire у Києві, 2025 рік. Серійні моделі з каталогу майстерні ODUDLAB.",
+      facts: {
+        client: "Luna Claire",
+        typology: "Заклад: вхід, тераса, зал",
+        scope: "Вазони, раковини",
+        production: "Серійні моделі з каталогу",
+      },
+      sections: [
+        {
+          heading: "Біля входу",
+          paragraphs: [
+            "Біля входу стоять круглі бетонні вазони. У них ростуть невисокі дерева й кущі.",
+          ],
+        },
+        {
+          heading: "На терасі",
+          paragraphs: [
+            "Уздовж скляного фасаду на терасі в ряд стоять прямокутні вазони з декоративними злаками.",
+          ],
+        },
+        {
+          heading: "Раковина в залі",
+          paragraphs: [
+            "У залі біля стіни стоїть підлогова раковина з рифленим корпусом, змішувач — на стіні.",
+            "Вазони й раковини — серійні моделі з нашого каталогу.",
+          ],
+        },
+      ],
+    },
+    en: {
+      title: "Planters and sinks for Luna Claire",
+      summary:
+        "Catalogue planters and sinks in architectural concrete for the Luna Claire venue in Kyiv, 2025: round planters by the entrance, rectangular ones on the terrace, a freestanding sink in the hall.",
+      seoTitle: "Concrete planters and sinks at Luna Claire, Kyiv",
+      seoDescription:
+        "Planters and sinks in architectural concrete for the Luna Claire venue in Kyiv, 2025. Catalogue models from the ODUDLAB workshop.",
+      facts: {
+        client: "Luna Claire",
+        typology: "Venue: entrance, terrace, hall",
+        scope: "Planters, sinks",
+        production: "Catalogue models",
+      },
+      sections: [
+        {
+          heading: "By the entrance",
+          paragraphs: [
+            "Round concrete planters stand by the entrance. They hold small trees and shrubs.",
+          ],
+        },
+        {
+          heading: "On the terrace",
+          paragraphs: [
+            "Rectangular planters with ornamental grasses stand in a row along the glass façade on the terrace.",
+          ],
+        },
+        {
+          heading: "The sink in the hall",
+          paragraphs: [
+            "In the hall, a freestanding sink with a fluted body stands against the wall; the tap is wall-mounted.",
+            "The planters and sinks are catalogue models.",
+          ],
+        },
+      ],
+    },
+    pl: {
+      title: "Donice i umywalki dla Luna Claire",
+      summary:
+        "Katalogowe donice i umywalki z betonu architektonicznego dla lokalu Luna Claire w Kijowie, 2025 rok: okrągłe donice przy wejściu, prostokątne na tarasie, umywalka wolnostojąca na sali.",
+      seoTitle: "Betonowe donice i umywalki w lokalu Luna Claire, Kijów",
+      seoDescription:
+        "Donice i umywalki z betonu architektonicznego dla lokalu Luna Claire w Kijowie, 2025 rok. Modele katalogowe z pracowni ODUDLAB.",
+      facts: {
+        client: "Luna Claire",
+        typology: "Lokal: wejście, taras, sala",
+        scope: "Donice, umywalki",
+        production: "Modele katalogowe",
+      },
+      sections: [
+        {
+          heading: "Przy wejściu",
+          paragraphs: [
+            "Przy wejściu stoją okrągłe betonowe donice. Rosną w nich niewielkie drzewa i krzewy.",
+          ],
+        },
+        {
+          heading: "Na tarasie",
+          paragraphs: [
+            "Wzdłuż szklanej elewacji na tarasie stoją w rzędzie prostokątne donice z trawami ozdobnymi.",
+          ],
+        },
+        {
+          heading: "Umywalka na sali",
+          paragraphs: [
+            "Na sali przy ścianie stoi wolnostojąca umywalka z żłobkowanym korpusem, bateria jest ścienna.",
+            "Donice i umywalki to modele z naszego katalogu.",
+          ],
+        },
+      ],
+    },
+  },
+};
+
+/**
  * Every project, newest first — the array is the ordering.
  */
 const projects: Project[] = [
   barCounterKremenchuk,
   svitlopark,
+  lunaClaire,
   kovalskaUnitCity,
   metropolis,
   ukrsibbank,
