@@ -923,11 +923,150 @@ const barCounterKremenchuk: Project = {
 };
 
 /**
+ * The owner supplied the client, the place (UNIT.City), the year, that the
+ * panels were made individually for this office, and five photographs
+ * (2026-10-09). Everything else is what the photographs show. The uplight in
+ * the slot along the column corner is described as part of the room, not
+ * claimed as the workshop's work. No dimensions, no panel count.
+ *
+ * No `relatedCategories`: the catalogue's wall panels are not these panels,
+ * and nobody has said they share a model.
+ */
+const kovalskaUnitCity: Project = {
+  slug: "kovalska-unit-city",
+  category: "interior",
+  year: "2022",
+  place: {
+    label: { uk: "Київ, Україна", en: "Kyiv, Ukraine", pl: "Kijów, Ukraina" },
+    locality: { uk: "Київ", en: "Kyiv", pl: "Kijów" },
+    countryCode: "UA",
+  },
+  images: [
+    {
+      src: "/projects/kovalska-unit-city/kovalska-kolona-z-panelyamy-bilia-vikna.webp",
+      alt: "Колона, облицьована рельєфними бетонними панелями, з теплою підсвіткою біля скляної стіни офісу «Ковальської» в UNIT.City",
+    },
+    {
+      src: "/projects/kovalska-unit-city/kovalska-kolona-z-pidsvitkoiu.webp",
+      alt: "Колона з рельєфних бетонних панелей, освітлена вздовж вертикальної щілини, на тлі панорамного вікна",
+      afterSection: 1,
+    },
+    {
+      src: "/projects/kovalska-unit-city/kovalska-kut-kolony-z-svitlovoiu-shchilynoiu.webp",
+      alt: "Кут колони з бетонних панелей із вузькою світловою щілиною та горизонтальними швами між панелями",
+      afterSection: 1,
+    },
+    {
+      src: "/projects/kovalska-unit-city/kovalska-shvy-mizh-panelyamy-zblyzka.webp",
+      alt: "Кут колони крупним планом: вертикальні борозни на поверхні бетонних панелей і тонкий шов між ними",
+      afterSection: 2,
+    },
+    {
+      src: "/projects/kovalska-unit-city/kovalska-reliefna-poverkhnia-paneli.webp",
+      alt: "Рельєфна поверхня бетонних панелей з вертикальними борознами різної глибини, видно шов між двома панелями",
+      afterSection: 2,
+    },
+  ],
+  relatedCategories: [],
+  content: {
+    uk: {
+      title: "Настінні панелі в офісі «Ковальської» в UNIT.City",
+      summary:
+        "Рельєфні бетонні панелі для стін і колон офісу компанії «Ковальська» в UNIT.City, Київ, 2022 рік. Індивідуальне виконання під це приміщення.",
+      seoTitle:
+        "Настінні панелі з бетону в офісі «Ковальської», UNIT.City, Київ",
+      seoDescription:
+        "Рельєфні настінні панелі з архітектурного бетону для офісу компанії «Ковальська» в UNIT.City у Києві, 2022 рік. Індивідуальне виконання від майстерні ODUDLAB.",
+      facts: {
+        client: "Ковальська",
+        typology: "Офіс в UNIT.City",
+        scope: "Настінні панелі, облицювання колон",
+        production: "Індивідуальне виконання",
+      },
+      sections: [
+        {
+          heading: "Що зробили",
+          paragraphs: [
+            "Бетонні панелі для стін в офісі компанії «Ковальська» в UNIT.City. Ними облицьовані колони біля скляних стін. Панелі зробили індивідуально під це приміщення.",
+          ],
+        },
+        {
+          heading: "Фактура",
+          paragraphs: [
+            "Поверхня панелей рельєфна: вертикальні борозни різної глибини. Між панелями — тонкі шви.",
+            "Уздовж кута колони йде вузька щілина з підсвіткою. Світло падає збоку, і рельєф видно краще.",
+          ],
+        },
+      ],
+    },
+    en: {
+      title: "Wall panels in the Kovalska office at UNIT.City",
+      summary:
+        "Textured concrete panels for the walls and columns of the Kovalska office at UNIT.City, Kyiv, 2022. Made individually for this space.",
+      seoTitle: "Concrete wall panels in the Kovalska office, UNIT.City, Kyiv",
+      seoDescription:
+        "Textured wall panels in architectural concrete for the Kovalska office at UNIT.City in Kyiv, 2022. Made individually by the ODUDLAB workshop.",
+      facts: {
+        client: "Kovalska",
+        typology: "Office at UNIT.City",
+        scope: "Wall panels, column cladding",
+        production: "Made individually",
+      },
+      sections: [
+        {
+          heading: "What we made",
+          paragraphs: [
+            "Concrete wall panels for the Kovalska office at UNIT.City. They clad the columns beside the glass walls. The panels were made individually for this space.",
+          ],
+        },
+        {
+          heading: "Texture",
+          paragraphs: [
+            "The surface of the panels is in relief: vertical grooves of varying depth. Thin joints run between the panels.",
+            "A narrow lit slot runs along the corner of a column. The light falls from the side, which makes the relief easier to see.",
+          ],
+        },
+      ],
+    },
+    pl: {
+      title: "Panele ścienne w biurze Kovalska w UNIT.City",
+      summary:
+        "Reliefowe panele betonowe na ściany i kolumny biura firmy Kovalska w UNIT.City w Kijowie, 2022 rok. Wykonane indywidualnie pod to wnętrze.",
+      seoTitle: "Betonowe panele ścienne w biurze Kovalska, UNIT.City, Kijów",
+      seoDescription:
+        "Reliefowe panele ścienne z betonu architektonicznego dla biura firmy Kovalska w UNIT.City w Kijowie, 2022 rok. Wykonanie indywidualne w pracowni ODUDLAB.",
+      facts: {
+        client: "Kovalska",
+        typology: "Biuro w UNIT.City",
+        scope: "Panele ścienne, okładzina kolumn",
+        production: "Wykonanie indywidualne",
+      },
+      sections: [
+        {
+          heading: "Co zrobiliśmy",
+          paragraphs: [
+            "Betonowe panele ścienne do biura firmy Kovalska w UNIT.City. Obłożono nimi kolumny przy szklanych ścianach. Panele wykonaliśmy indywidualnie pod to wnętrze.",
+          ],
+        },
+        {
+          heading: "Faktura",
+          paragraphs: [
+            "Powierzchnia paneli jest reliefowa: pionowe bruzdy o różnej głębokości. Między panelami biegną cienkie spoiny.",
+            "Wzdłuż narożnika kolumny biegnie wąska szczelina z podświetleniem. Światło pada z boku, dzięki czemu relief jest lepiej widoczny.",
+          ],
+        },
+      ],
+    },
+  },
+};
+
+/**
  * Every project, newest first — the array is the ordering.
  */
 const projects: Project[] = [
   barCounterKremenchuk,
   svitlopark,
+  kovalskaUnitCity,
   metropolis,
   ukrsibbank,
 ];
