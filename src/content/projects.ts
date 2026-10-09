@@ -794,9 +794,143 @@ const svitlopark: Project = {
 };
 
 /**
+ * The first `interior` project. The owner supplied four workshop photographs,
+ * the city, that it has just been installed (2026-10-09), and a screenshot of
+ * a finished café counter — which is the client's *reference*, not this job,
+ * so it is deliberately not on the page: every photograph here must be of
+ * work the workshop did. No client name, no dimensions, no count of panels,
+ * and no installed photograph yet — add one when it exists, as the cover.
+ *
+ * No `relatedCategories`: nothing in the catalogue is this piece, and a link
+ * to the nearest category would claim a relationship nobody has checked.
+ */
+const barCounterKremenchuk: Project = {
+  slug: "barna-stiika-kremenchuk",
+  category: "interior",
+  year: "2026",
+  place: {
+    label: {
+      uk: "Кременчук, Україна",
+      en: "Kremenchuk, Ukraine",
+      pl: "Krzemieńczuk, Ukraina",
+    },
+    locality: { uk: "Кременчук", en: "Kremenchuk", pl: "Krzemieńczuk" },
+    countryCode: "UA",
+  },
+  images: [
+    {
+      src: "/projects/barna-stiika-kremenchuk/barna-stiika-paneli-pivtsylindry-u-maisterni.webp",
+      alt: "Світло-сірі бетонні панелі у формі півциліндрів рядами на піддонах у майстерні ODUDLAB",
+    },
+    {
+      src: "/projects/barna-stiika-kremenchuk/barna-stiika-torsti-paneli-z-napivkruhlym-profilem.webp",
+      alt: "Торці бетонних панелей для барної стійки: напівкруглий профіль із тонким бортиком по краях",
+      afterSection: 1,
+    },
+    {
+      src: "/projects/barna-stiika-kremenchuk/barna-stiika-poverkhnia-paneli-zblyzka.webp",
+      alt: "Гладка матова поверхня бетонної панелі-півциліндра крупним планом",
+      afterSection: 2,
+    },
+  ],
+  relatedCategories: [],
+  content: {
+    uk: {
+      title: "Барна стійка в Кременчуці",
+      summary:
+        "Бетонні панелі-півциліндри для фронту барної стійки в Кременчуці, 2026 рік. Зроблені під замовлення за референсом клієнта.",
+      seoTitle: "Барна стійка з бетонних панелей, Кременчук",
+      seoDescription:
+        "Панелі-півциліндри з архітектурного бетону для фронту барної стійки в Кременчуці, 2026 рік. Виготовлення під замовлення за референсом клієнта в майстерні ODUDLAB.",
+      facts: {
+        typology: "Інтер'єр, барна стійка",
+        scope: "Панелі фронту барної стійки",
+        production: "Під замовлення, за референсом клієнта",
+      },
+      sections: [
+        {
+          heading: "Що зробили",
+          paragraphs: [
+            "Бетонні панелі для фронту барної стійки. Кожна панель — половина циліндра. Форму взяли з референсу клієнта: фронт стійки складається з вертикальних напівкруглих ребер.",
+          ],
+        },
+        {
+          heading: "Панелі",
+          paragraphs: [
+            "Панелі світло-сірі, з гладкою матовою поверхнею. На торцях видно профіль — рівне півколо з тонким бортиком по краях.",
+            "На фото — панелі в майстерні перед відправкою на об'єкт.",
+          ],
+        },
+      ],
+    },
+    en: {
+      title: "Bar counter in Kremenchuk",
+      summary:
+        "Half-cylinder concrete panels for the front of a bar counter in Kremenchuk, 2026. Made to order from the client's reference.",
+      seoTitle: "Bar counter in concrete panels, Kremenchuk",
+      seoDescription:
+        "Half-cylinder panels in architectural concrete for the front of a bar counter in Kremenchuk, 2026. Made to order from the client's reference at the ODUDLAB workshop.",
+      facts: {
+        typology: "Interior, bar counter",
+        scope: "Bar counter front panels",
+        production: "Made to order from the client's reference",
+      },
+      sections: [
+        {
+          heading: "What we made",
+          paragraphs: [
+            "Concrete panels for the front of a bar counter. Each panel is half a cylinder. The form came from the client's reference: a counter front made of vertical half-round ribs.",
+          ],
+        },
+        {
+          heading: "The panels",
+          paragraphs: [
+            "The panels are light grey, with a smooth matte surface. The ends show the profile — a clean half-circle with a thin lip along the edges.",
+            "The photographs show the panels in the workshop before they were sent to the site.",
+          ],
+        },
+      ],
+    },
+    pl: {
+      title: "Lada barowa w Krzemieńczuku",
+      summary:
+        "Betonowe panele w kształcie półwalców na front lady barowej w Krzemieńczuku, 2026 rok. Wykonane na zamówienie według referencji klienta.",
+      seoTitle: "Lada barowa z paneli betonowych, Krzemieńczuk",
+      seoDescription:
+        "Panele w kształcie półwalców z betonu architektonicznego na front lady barowej w Krzemieńczuku, 2026 rok. Wykonane na zamówienie według referencji klienta w pracowni ODUDLAB.",
+      facts: {
+        typology: "Wnętrze, lada barowa",
+        scope: "Panele frontu lady barowej",
+        production: "Na zamówienie, według referencji klienta",
+      },
+      sections: [
+        {
+          heading: "Co zrobiliśmy",
+          paragraphs: [
+            "Betonowe panele na front lady barowej. Każdy panel to połowa walca. Kształt wzięliśmy z referencji klienta: front lady składa się z pionowych półokrągłych żeber.",
+          ],
+        },
+        {
+          heading: "Panele",
+          paragraphs: [
+            "Panele są jasnoszare, o gładkiej matowej powierzchni. Na końcach widać profil — równe półkole z cienkim rantem wzdłuż krawędzi.",
+            "Na zdjęciach — panele w pracowni przed wysyłką na obiekt.",
+          ],
+        },
+      ],
+    },
+  },
+};
+
+/**
  * Every project, newest first — the array is the ordering.
  */
-const projects: Project[] = [svitlopark, metropolis, ukrsibbank];
+const projects: Project[] = [
+  barCounterKremenchuk,
+  svitlopark,
+  metropolis,
+  ukrsibbank,
+];
 
 /** A project with no photographs has nothing to show — it is not published. */
 export function getPublishedProjects(): Project[] {
@@ -823,8 +957,8 @@ export type ProjectGroup = {
  * Every category, in {@link projectCategoryOrder} — **including the ones that
  * hold nothing**. That is the point, not an oversight.
  *
- * `interior` is empty today, and the owner asked for it to be on the page
- * anyway (2026-08-11: «поки порожня — зробіть структуру»). A reader who came
+ * `interior` was empty until 2026-10-09, and the owner asked for it to be on
+ * the page anyway (2026-08-11: «поки порожня — зробіть структуру»). A reader who came
  * looking for a concrete bar counter would otherwise read a page of benches
  * and conclude the workshop only works outdoors, which is false. `ProjectIndex`
  * renders an empty group as a short statement of what the workshop makes for

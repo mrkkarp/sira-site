@@ -53,8 +53,9 @@ import { BrandEyebrow } from "@/components/brand";
  *
  * ## The empty group is rendered on purpose
  *
- * `interior` has no projects yet and still gets its heading, its standfirst and
- * a plain sentence about why there are no photographs. See
+ * A group with no projects still gets its heading, its standfirst and a
+ * plain sentence about why there are no photographs (`interior` was empty
+ * until the Kremenchuk bar counter, 2026-10-09). See
  * {@link getProjectGroups}. It must never be given a placeholder image or an
  * invented case study — the whole page's credibility rests on every photograph
  * being a real object on a real site.
