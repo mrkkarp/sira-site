@@ -124,6 +124,24 @@ describe("project registry", () => {
     }
   });
 
+  /**
+   * `afterSection` places a photograph after a section by number. A number
+   * past the end would quietly move the photo to the bottom of the page, next
+   * to text that is not about it — so every one must name a real section. The
+   * cover has its own place at the top and must not name one.
+   */
+  it("places every photograph after a section that exists", () => {
+    for (const project of getPublishedProjects()) {
+      const sections = project.content.uk!.sections.length;
+      const [cover, ...gallery] = project.images;
+      expect(cover.afterSection, `${project.slug} cover`).toBeUndefined();
+      for (const image of gallery) {
+        expect(image.afterSection, image.src).toBeGreaterThanOrEqual(1);
+        expect(image.afterSection, image.src).toBeLessThanOrEqual(sections);
+      }
+    }
+  });
+
   it("looks a project up by slug and misses cleanly", () => {
     const [first] = getPublishedProjects();
     expect(getProjectBySlug(first.slug)).toBe(first);

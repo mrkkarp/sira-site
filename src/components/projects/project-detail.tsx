@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
-import type { Project, ProjectContent } from "@/content/projects";
+import type { Project, ProjectContent, ProjectImage } from "@/content/projects";
 import { localeHref } from "@/lib/locale-href";
 import { shopCategoryPath } from "@/lib/schemas/product-categories";
 import { shopCategoryLabel } from "@/lib/shop-category-label";
@@ -36,13 +36,14 @@ import { BrandEyebrow } from "@/components/brand";
  *      whether anything below it does. Every row is optional and an absent
  *      fact renders no row: a short honest sheet beats a complete invented one
  *      on the one page whose whole job is being believed.
- *   3. **Narrative**, two or three short sections, no adjectives that a
- *      photograph already supplies.
- *   4. **The rest of the photographs**, large and uncropped.
- *   5. **Catalogue links** — the commercial engine. A reader who has just been
+ *   3. **Narrative and photographs, alternating** — short sections in plain
+ *      words, each followed by the photographs of what it describes. The
+ *      first version put every photograph in one gallery after all the
+ *      prose; the owner asked for them mixed in (2026-10-09).
+ *   4. **Catalogue links** — the commercial engine. A reader who has just been
  *      convinced needs somewhere to go, and it must be the category, not the
  *      contact form.
- *   6. **Two CTAs.** A reader here is either specifying (wants the catalogue)
+ *   5. **Two CTAs.** A reader here is either specifying (wants the catalogue)
  *      or has an object no catalogue number answers (wants a conversation).
  *      One button loses whichever of the two it was not written for, and the
  *      second is the more valuable one.
@@ -52,6 +53,22 @@ import { BrandEyebrow } from "@/components/brand";
  * icon — every heading, paragraph, fact and link is in the HTML before any
  * JavaScript runs.
  */
+/**
+ * The photographs shown after section `section` (1-based). One without an
+ * `afterSection` — or with one past the end — goes after the last section, so
+ * a photograph can never silently drop off the page.
+ */
+function photosAfter(
+  gallery: ProjectImage[],
+  section: number,
+  lastSection: number,
+): ProjectImage[] {
+  return gallery.filter(
+    (image) =>
+      Math.min(image.afterSection ?? lastSection, lastSection) === section,
+  );
+}
+
 export function ProjectDetail({
   locale,
   dictionary,
@@ -65,6 +82,7 @@ export function ProjectDetail({
 }) {
   const copy = dictionary.projectsPage;
   const [cover, ...gallery] = project.images;
+  const lastSection = content.sections.length;
 
   /**
    * Rows are built here rather than in the template so an unset fact produces
@@ -156,62 +174,80 @@ export function ProjectDetail({
             </section>
           ) : null}
 
-          {/* One construction line down the numbered sections, the same mark the
-              workshop page uses for its production sequence — a case study is
-              read as one run of reasoning, not as three unrelated facts. */}
-          <div className="relative flex flex-col gap-(--space-xl)">
-            <span
-              aria-hidden="true"
-              className="bg-drawing-line-subtle absolute inset-y-0 left-3 w-(--drawing-stroke)"
-            />
-            {content.sections.map((section, index) => (
-              <section
+          {/* Text and photographs alternate: each section is followed by the
+              photographs of what it describes (`ProjectImage.afterSection`),
+              so a reader never has to hold a paragraph in mind while
+              scrolling to a gallery at the bottom. */}
+          {content.sections.map((section, index) => {
+            const photos = photosAfter(gallery, index + 1, lastSection);
+            return (
+              <div
                 key={section.heading}
-                className="flex items-baseline gap-(--space-sm)"
+                className="flex flex-col gap-(--space-lg)"
               >
-                <CoordinateLabel className="bg-background relative w-6 shrink-0 py-(--space-3xs) text-center">
-                  {drawingIndex(index + 1)}
-                </CoordinateLabel>
-                <div className="max-w-2xl">
-                  <h2 className="type-h2 text-text">{section.heading}</h2>
-                  {section.paragraphs.map((paragraph) => (
-                    <p
-                      key={paragraph}
-                      className="type-body text-text-muted mt-(--space-sm)"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+                <section className="flex items-baseline gap-(--space-sm)">
+                  <CoordinateLabel className="w-6 shrink-0 text-center">
+                    {drawingIndex(index + 1)}
+                  </CoordinateLabel>
+                  <div className="max-w-2xl">
+                    <h2 className="type-h2 text-text">{section.heading}</h2>
+                    {section.paragraphs.map((paragraph) => (
+                      <p
+                        key={paragraph}
+                        className="type-body text-text-muted mt-(--space-sm)"
+                      >
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </section>
 
-          {gallery.length > 0 ? (
-            <section aria-labelledby="project-gallery">
-              <h2
-                id="project-gallery"
-                className="type-eyebrow text-text-muted border-border-strong border-t pt-(--space-sm)"
-              >
-                {copy.galleryHeading}
-              </h2>
-              {/* Two up on desktop, one up on a phone. Deliberately not a
-                  lightbox or a carousel: a specifier scrolls, and every photo
-                  should be in the HTML for Google Images to find. */}
-              <div className="mt-(--space-md) grid grid-cols-1 gap-(--space-md) lg:grid-cols-2">
-                {gallery.map((image) => (
-                  <MediaFrame key={image.src} ratio="project-documentary">
+                {/* One photograph runs full width. Otherwise two up on
+                    desktop, and an odd count opens with a row of three so
+                    every row is full — a lone half-width photo reads as a
+                    gap. One up on a phone. Not a lightbox or a carousel: a
+                    specifier scrolls, and every photo should be in the HTML
+                    for Google Images to find. */}
+                {photos.length === 1 ? (
+                  <MediaFrame
+                    ratio="project-documentary"
+                    maxViewportHeight="72svh"
+                  >
                     <ProductImage
-                      src={image.src}
-                      alt={image.alt}
-                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      src={photos[0].src}
+                      alt={photos[0].alt}
+                      sizes="(min-width: 1600px) 1600px, 100vw"
                       brokenLabel={dictionary.shop.states.brokenImageAlt}
                     />
                   </MediaFrame>
-                ))}
+                ) : photos.length > 1 ? (
+                  <div className="grid grid-cols-1 gap-(--space-md) lg:grid-cols-6">
+                    {photos.map((image, photoIndex) => {
+                      const third = photos.length % 2 === 1 && photoIndex < 3;
+                      return (
+                        <MediaFrame
+                          key={image.src}
+                          ratio="project-documentary"
+                          className={third ? "lg:col-span-2" : "lg:col-span-3"}
+                        >
+                          <ProductImage
+                            src={image.src}
+                            alt={image.alt}
+                            sizes={
+                              third
+                                ? "(min-width: 1024px) 33vw, 100vw"
+                                : "(min-width: 1024px) 50vw, 100vw"
+                            }
+                            brokenLabel={dictionary.shop.states.brokenImageAlt}
+                          />
+                        </MediaFrame>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </div>
-            </section>
-          ) : null}
+            );
+          })}
 
           {project.relatedCategories.length > 0 ? (
             <section aria-labelledby="project-related" className="max-w-3xl">

@@ -68,6 +68,16 @@ export type ProjectImage = {
   /** Path under `public/`, e.g. `/projects/ukrsibbank/….jpg`. */
   src: string;
   alt: string;
+  /**
+   * The section (1-based) this photograph is shown after on the detail page,
+   * so the pictures sit next to the paragraph about them rather than in one
+   * pile at the end (owner, 2026-10-09: «нехай фото ідуть вперемішку з
+   * текстом»). Locale-neutral, like the image itself — which is why every
+   * translation must keep the Ukrainian's section count, as
+   * `projects.test.ts` already asserts. Omitted on the cover; omitted on any
+   * other photograph, it is shown after the last section.
+   */
+  afterSection?: number;
 };
 
 /**
@@ -199,16 +209,19 @@ const ukrsibbank: Project = {
       alt: "Бетонні вазони з чагарниками та лава з дерев'яним сидінням біля скляного фасаду офісу Укрсиббанку в Києві",
     },
     {
-      src: "/projects/ukrsibbank/ukrsibbank-blahoustrii-prybudynkovoi-terytorii.jpg",
-      alt: "Прилегла територія офісу Укрсиббанку: газон в обрамленні бетонних вазонів, лава та молоді дерева",
-    },
-    {
       src: "/projects/ukrsibbank/ukrsibbank-vazony-vzdovzh-fasadu.jpg",
       alt: "Ряд прямокутних бетонних вазонів різної висоти з деревами й чагарниками вздовж гранітного фасаду будівлі",
+      afterSection: 1,
     },
     {
       src: "/projects/ukrsibbank/ukrsibbank-lava-mizh-vazonamy.jpg",
       alt: "Лава з дерев'яним сидінням, вбудована між двома бетонними вазонами, на брукованому майданчику біля офісної будівлі",
+      afterSection: 2,
+    },
+    {
+      src: "/projects/ukrsibbank/ukrsibbank-blahoustrii-prybudynkovoi-terytorii.jpg",
+      alt: "Прилегла територія офісу Укрсиббанку: газон в обрамленні бетонних вазонів, лава та молоді дерева",
+      afterSection: 3,
     },
   ],
   relatedCategories: ["planters", "outdoor"],
@@ -216,7 +229,7 @@ const ukrsibbank: Project = {
     uk: {
       title: "Благоустрій прилеглої території офісу Укрсиббанку",
       summary:
-        "Вазони, лави та урни з архітектурного бетону для вхідної групи й подвір'я офісної будівлі банку в Києві. Частина виробів — серійні моделі з каталогу, частина зроблена за розмірами самої ділянки.",
+        "Вазони, лави та урни з архітектурного бетону для входу й двору офісу Укрсиббанку в Києві. Частина виробів — з каталогу, частина зроблена під розміри ділянки.",
       seoTitle: "Благоустрій території офісу Укрсиббанку, Київ",
       seoDescription:
         "Вазони, лави та урни з архітектурного бетону для прилеглої території офісу Укрсиббанку в Києві, 2019 рік. Каталожні моделі та вироби за індивідуальними розмірами від майстерні ODUDLAB.",
@@ -228,24 +241,22 @@ const ukrsibbank: Project = {
       },
       sections: [
         {
-          heading: "Що зробили",
+          heading: "Вазони",
           paragraphs: [
-            "Уздовж фасаду й у вхідній групі стоять прямокутні бетонні вазони двох висот: високі — під багатостовбурні дерева, низькі — під чагарник. Вони не просто тримають рослини, а самі й утворюють клумби: об'єми ставляться в лінію та під кутом, і геометрія озеленення береться з розстановки виробів, а не з бордюрного каменю.",
-            "Між вазонами вбудовані лави — дерев'яне сидіння лягає на сусідні бетонні об'єми, тож ті працюють водночас як опори. Урни для сміття зроблені з того самого бетону, що й решта, тому читаються як частина композиції, а не як окремо куплений міський інвентар.",
+            "Уздовж фасаду й біля входу стоять прямокутні бетонні вазони двох висот. У високих ростуть дерева, у низьких — кущі. Вазони поставлені в лінію і під кутом, тож вони самі утворюють клумби — бордюр тут не знадобився.",
           ],
         },
         {
-          heading: "Чому бетон надворі",
+          heading: "Лави та урни",
           paragraphs: [
-            "Вироби стоять просто неба цілий рік. Пігмент замішаний у масу бетону, а не нанесений зверху, тому скол чи подряпина не оголюють інший колір під фарбою — на відміну від пофарбованого металу чи дерева. Поверхню оброблено гідрофобізатором, армування тримає тонку стінку у великій формі, а власна вага таких об'ємів робить їх нерухомими без анкерного кріплення.",
-            "Матова поверхня з видимими порами — це характер матеріалу, а не дефект. Бетон тут нічого не імітує: ані камінь, ані дерево.",
+            "Лави вбудовані між вазонами: дерев'яне сидіння лежить на двох сусідніх вазонах, і вони ж служать опорами. Урни відлиті з того самого бетону, тому не виглядають окремо купленими.",
           ],
         },
         {
-          heading: "Каталог і розмір під об'єкт",
+          heading: "Каталог і розміри",
           paragraphs: [
-            "Частина виробів на цьому об'єкті — серійні моделі з каталогу. Частину зробили за розмірами, які диктувала сама ділянка: довжина відрізка й крок опор під сидіння — не той параметр, який обирають зі списку.",
-            "Так ми працюємо і з іншими об'єктами. Підходить готова модель — беремо її; не підходить — робимо форму під конкретне місце. Виробництво повного циклу в Києві означає, що зміна розміру не тягне за собою зміну підрядника.",
+            "Частина виробів — серійні моделі з каталогу. Решту зробили за розмірами самої ділянки: довжину ряду й відстань між опорами під сидінням зі списку не вибереш.",
+            "Колір у цих виробах — не фарба: пігмент додають у бетонну суміш, тому подряпина чи скол не відкривають інший колір. Поверхню покрито гідрофобізатором.",
           ],
         },
       ],
@@ -253,7 +264,7 @@ const ukrsibbank: Project = {
     en: {
       title: "Landscaping the grounds of the UKRSIBBANK office",
       summary:
-        "Planters, benches and litter bins in architectural concrete for the entrance and the courtyard of a bank office building in Kyiv. Some of the pieces are catalogue models; the rest were made to the dimensions of the site itself.",
+        "Planters, benches and litter bins in architectural concrete for the entrance and courtyard of the UKRSIBBANK office in Kyiv. Some pieces come from the catalogue; others were made to the dimensions of the site.",
       seoTitle: "UKRSIBBANK office grounds, Kyiv",
       seoDescription:
         "Planters, benches and litter bins in architectural concrete for the grounds of the UKRSIBBANK office in Kyiv, 2019. Catalogue models and made-to-measure pieces from the ODUDLAB workshop.",
@@ -266,24 +277,22 @@ const ukrsibbank: Project = {
       },
       sections: [
         {
-          heading: "What we made",
+          heading: "Planters",
           paragraphs: [
-            "Rectangular concrete planters in two heights stand along the façade and around the entrance: the tall ones hold multi-stemmed trees, the low ones shrubs. They do not merely contain the planting, they form the beds themselves — the volumes are set in a line and at an angle, and the geometry of the greenery comes from how the pieces are arranged rather than from a kerb stone.",
-            "Benches are built in between the planters: a timber seat rests on the adjacent concrete volumes, so those double as supports. The litter bins are cast from the same concrete as everything else, which makes them read as part of the composition rather than as street furniture bought separately.",
+            "Rectangular concrete planters in two heights stand along the façade and by the entrance. The tall ones hold trees, the low ones shrubs. They are set in a line and at an angle, so the planters form the beds themselves — no kerb was needed.",
           ],
         },
         {
-          heading: "Why concrete outdoors",
+          heading: "Benches and bins",
           paragraphs: [
-            "The pieces stand in the open all year round. The pigment is mixed into the body of the concrete rather than applied on top, so a chip or a scratch does not expose a different colour beneath the paint — unlike painted metal or timber. The surface is treated with a water repellent, reinforcement holds a thin wall in a large mould, and the sheer weight of volumes like these keeps them in place without anchoring.",
-            "The matte surface with its visible pores is the character of the material, not a defect. The concrete here imitates nothing: neither stone nor wood.",
+            "The benches are built in between the planters: a timber seat rests on two neighbouring planters, which act as its supports. The bins are cast from the same concrete, so they do not look bought separately.",
           ],
         },
         {
-          heading: "Catalogue, and size made for the site",
+          heading: "Catalogue and custom sizes",
           paragraphs: [
-            "Some of the pieces on this site are catalogue models. Others were made to the dimensions the site itself dictated: the length of a run, and the spacing of the supports under a seat, are not the kind of parameter you pick from a list.",
-            "This is how we work on other sites too. If a stock model fits, we use it; if it does not, we build a mould for the particular place. Full-cycle production in Kyiv means a change of size does not mean a change of supplier.",
+            "Some of the pieces are catalogue models. The rest were made to the dimensions of the site: the length of a run and the spacing of the supports under a seat are not something you pick from a list.",
+            "The colour is not paint: the pigment is mixed into the concrete, so a scratch or a chip does not show a different colour. The surface is treated with a water repellent.",
           ],
         },
       ],
@@ -291,7 +300,7 @@ const ukrsibbank: Project = {
     pl: {
       title: "Zagospodarowanie terenu wokół biura UKRSIBBANK",
       summary:
-        "Donice, ławki i kosze z betonu architektonicznego dla strefy wejściowej i dziedzińca budynku biurowego banku w Kijowie. Część wyrobów to modele katalogowe, część powstała na wymiar samego terenu.",
+        "Donice, ławki i kosze z betonu architektonicznego dla wejścia i dziedzińca biura UKRSIBBANK w Kijowie. Część wyrobów pochodzi z katalogu, część powstała na wymiar terenu.",
       seoTitle: "Zagospodarowanie terenu biura UKRSIBBANK, Kijów",
       seoDescription:
         "Donice, ławki i kosze z betonu architektonicznego na terenie biura UKRSIBBANK w Kijowie, 2019 rok. Modele katalogowe i wyroby na wymiar z pracowni ODUDLAB.",
@@ -303,24 +312,22 @@ const ukrsibbank: Project = {
       },
       sections: [
         {
-          heading: "Co zrobiliśmy",
+          heading: "Donice",
           paragraphs: [
-            "Wzdłuż elewacji i w strefie wejściowej stoją prostokątne betonowe donice w dwóch wysokościach: wysokie — pod drzewa wielopniowe, niskie — pod krzewy. Nie tylko mieszczą rośliny, ale same tworzą rabaty: bryły ustawiono w linii i pod kątem, a geometria zieleni wynika z rozstawienia wyrobów, a nie z krawężnika.",
-            "Pomiędzy donicami wbudowano ławki — drewniane siedzisko opiera się na sąsiednich betonowych bryłach, więc te pracują jednocześnie jako podpory. Kosze wykonano z tego samego betonu co reszta, dlatego czytają się jako część kompozycji, a nie jako osobno kupiony sprzęt miejski.",
+            "Wzdłuż elewacji i przy wejściu stoją prostokątne betonowe donice w dwóch wysokościach. W wysokich rosną drzewa, w niskich — krzewy. Donice ustawiono w linii i pod kątem, więc same tworzą rabaty — krawężnik nie był potrzebny.",
           ],
         },
         {
-          heading: "Dlaczego beton na zewnątrz",
+          heading: "Ławki i kosze",
           paragraphs: [
-            "Wyroby stoją pod gołym niebem przez cały rok. Pigment jest wmieszany w masę betonu, a nie naniesiony z wierzchu, więc odprysk czy zarysowanie nie odsłania innego koloru pod warstwą farby — inaczej niż w malowanym metalu czy drewnie. Powierzchnię zabezpieczono hydrofobizatorem, zbrojenie utrzymuje cienką ściankę w dużej formie, a własny ciężar takich brył sprawia, że stoją nieruchomo bez kotwienia.",
-            "Matowa powierzchnia z widocznymi porami to charakter materiału, a nie wada. Beton niczego tu nie udaje: ani kamienia, ani drewna.",
+            "Ławki wbudowano między donice: drewniane siedzisko leży na dwóch sąsiednich donicach, które służą mu za podpory. Kosze odlano z tego samego betonu, więc nie wyglądają na kupione osobno.",
           ],
         },
         {
-          heading: "Katalog i wymiar pod obiekt",
+          heading: "Katalog i wymiary",
           paragraphs: [
-            "Część wyrobów na tym obiekcie to modele seryjne z katalogu. Część wykonano na wymiary, które podyktował sam teren: długość odcinka i rozstaw podpór pod siedzisko to nie jest parametr, który wybiera się z listy.",
-            "Tak samo pracujemy przy innych obiektach. Pasuje gotowy model — bierzemy go; nie pasuje — robimy formę pod konkretne miejsce. Produkcja pełnego cyklu w Kijowie oznacza, że zmiana wymiaru nie pociąga za sobą zmiany wykonawcy.",
+            "Część wyrobów to modele z katalogu. Resztę wykonano na wymiar terenu: długości odcinka i rozstawu podpór pod siedziskiem nie wybiera się z listy.",
+            "Kolor to nie farba: pigment dodaje się do mieszanki betonowej, więc zarysowanie czy odprysk nie odsłania innego koloru. Powierzchnię zabezpieczono hydrofobizatorem.",
           ],
         },
       ],
@@ -349,52 +356,64 @@ const metropolis: Project = {
       alt: "Три білі бетонні лави з дерев'яними сидіннями вздовж смуги високих декоративних злаків на брукованій алеї житлового комплексу",
     },
     {
-      src: "/projects/metropolis/metropolis-lava-na-hazoni-bilia-znaka-kompleksu.webp",
-      alt: "Бетонна лава з дерев'яним сидінням на газоні під деревами, за нею фасад житлового комплексу з великою літерою M",
-    },
-    {
       src: "/projects/metropolis/metropolis-lava-bez-spynky-zblyzka.webp",
       alt: "Бетонна лава без спинки з гранчастою опорою та темним дерев'яним сидінням крупним планом на тлі декоративних злаків",
-    },
-    {
-      src: "/projects/metropolis/metropolis-lava-sered-hortenzii.webp",
-      alt: "Біла бетонна лава з дерев'яним сидінням серед кущів гортензії на брукованому майданчику житлового комплексу",
-    },
-    {
-      src: "/projects/metropolis/metropolis-dovhe-sydinnia-ta-urna-rock.webp",
-      alt: "Довге дерев'яне сидіння, що тягнеться вздовж краю майданчика, і бетонна урна Rock на брукованій площині",
-    },
-    {
-      src: "/projects/metropolis/metropolis-dovhi-mistsia-dlia-sydinnia.webp",
-      alt: "Довгі дерев'яні місця для сидіння, що повертають під кутом уздовж парапету, і бетонна лава на передньому плані",
-    },
-    {
-      src: "/projects/metropolis/metropolis-zahalnyi-vyd-maidanchyka.webp",
-      alt: "Загальний вид благоустроєного майданчика: бетонна лава, довге дерев'яне сидіння вздовж стінки, живопліт і молоді дерева",
-    },
-    {
-      src: "/projects/metropolis/metropolis-lavy-na-hazoni-bilia-budynku.webp",
-      alt: "Бетонні лави зі спинками та без спинок на газоні біля фасаду житлового комплексу, поруч сосна й підстрижені кущі",
-    },
-    {
-      src: "/projects/metropolis/metropolis-riad-lav-vzdovzh-hazonu.webp",
-      alt: "Ряд бетонних лав зі спинками та дерев'яними сидіннями вздовж газону у дворі житлового комплексу",
-    },
-    {
-      src: "/projects/metropolis/metropolis-lavy-ta-urna-rock-bilia-fasadu.webp",
-      alt: "Чотири бетонні лави зі спинками та бетонна урна Rock біля фасаду з вітринами на першому поверсі",
+      afterSection: 1,
     },
     {
       src: "/projects/metropolis/metropolis-lava-zi-spynkoiu-zblyzka.webp",
       alt: "Бетонна лава зі спинкою, підлокітниками й темним дерев'яним сидінням на тлі живоплоту",
+      afterSection: 1,
     },
     {
-      src: "/projects/metropolis/metropolis-urna-rock-bilia-vhodu.webp",
-      alt: "Бетонна урна Rock і лава зі спинкою біля скляного фасаду будівлі, оточені живоплотом",
+      src: "/projects/metropolis/metropolis-riad-lav-vzdovzh-hazonu.webp",
+      alt: "Ряд бетонних лав зі спинками та дерев'яними сидіннями вздовж газону у дворі житлового комплексу",
+      afterSection: 1,
+    },
+    {
+      src: "/projects/metropolis/metropolis-dovhi-mistsia-dlia-sydinnia.webp",
+      alt: "Довгі дерев'яні місця для сидіння, що повертають під кутом уздовж парапету, і бетонна лава на передньому плані",
+      afterSection: 2,
+    },
+    {
+      src: "/projects/metropolis/metropolis-dovhe-sydinnia-ta-urna-rock.webp",
+      alt: "Довге дерев'яне сидіння, що тягнеться вздовж краю майданчика, і бетонна урна Rock на брукованій площині",
+      afterSection: 2,
+    },
+    {
+      src: "/projects/metropolis/metropolis-zahalnyi-vyd-maidanchyka.webp",
+      alt: "Загальний вид благоустроєного майданчика: бетонна лава, довге дерев'яне сидіння вздовж стінки, живопліт і молоді дерева",
+      afterSection: 2,
     },
     {
       src: "/projects/metropolis/metropolis-bolardy-z-monohramoiu.webp",
       alt: "Бетонні боларди з рельєфною монограмою комплексу вздовж краю тротуару біля газону",
+      afterSection: 3,
+    },
+    {
+      src: "/projects/metropolis/metropolis-urna-rock-bilia-vhodu.webp",
+      alt: "Бетонна урна Rock і лава зі спинкою біля скляного фасаду будівлі, оточені живоплотом",
+      afterSection: 3,
+    },
+    {
+      src: "/projects/metropolis/metropolis-lavy-ta-urna-rock-bilia-fasadu.webp",
+      alt: "Чотири бетонні лави зі спинками та бетонна урна Rock біля фасаду з вітринами на першому поверсі",
+      afterSection: 3,
+    },
+    {
+      src: "/projects/metropolis/metropolis-lava-na-hazoni-bilia-znaka-kompleksu.webp",
+      alt: "Бетонна лава з дерев'яним сидінням на газоні під деревами, за нею фасад житлового комплексу з великою літерою M",
+      afterSection: 4,
+    },
+    {
+      src: "/projects/metropolis/metropolis-lava-sered-hortenzii.webp",
+      alt: "Біла бетонна лава з дерев'яним сидінням серед кущів гортензії на брукованому майданчику житлового комплексу",
+      afterSection: 4,
+    },
+    {
+      src: "/projects/metropolis/metropolis-lavy-na-hazoni-bilia-budynku.webp",
+      alt: "Бетонні лави зі спинками та без спинок на газоні біля фасаду житлового комплексу, поруч сосна й підстрижені кущі",
+      afterSection: 4,
     },
   ],
   relatedCategories: ["outdoor"],
@@ -402,7 +421,7 @@ const metropolis: Project = {
     uk: {
       title: "Благоустрій прибудинкової території ЖК «Метрополіс»",
       summary:
-        "Лави, урни та боларди з архітектурного бетону для дворів, алей і вхідних груп житлового комплексу в Києві. З «Метрополісом» ми працюємо від 2021 року — вироби доїжджали чергами, і поряд із каталожними моделями тут стоять довгі місця для сидіння, зроблені за розмірами самих майданчиків.",
+        "Лави, урни та боларди з архітектурного бетону для дворів і алей житлового комплексу в Києві. Працюємо з «Метрополісом» з 2021 року: крім моделей із каталогу, зробили для нього довгі сидіння під розміри майданчиків.",
       seoTitle: "Благоустрій території ЖК «Метрополіс», Київ",
       seoDescription:
         "Лави, урни та боларди з архітектурного бетону для ЖК «Метрополіс» у Києві — від 2021 року. Каталожні моделі та довгі місця для сидіння за індивідуальними розмірами від майстерні ODUDLAB.",
@@ -414,25 +433,28 @@ const metropolis: Project = {
       },
       sections: [
         {
-          heading: "Що зробили",
+          heading: "Лави",
           paragraphs: [
-            "На алеях, у дворах і біля вхідних груп стоять лави з каталогу — «Сете» та Urban N — і бетонні урни Rock. Частина лав без спинки: гранчаста бетонна опора, дерев'яне сидіння, нічого зайвого; такі ставили на відкритих майданчиках і вздовж смуг декоративних злаків. Частина — зі спинкою та підлокітниками, рядами вздовж газонів і біля вітрин першого поверху, там, де сидять довше.",
-            "Окремо для комплексу зробили довгі місця для сидіння. Вони тягнуться вздовж парапетів і підпірних стінок, повторюють злам майданчика й фактично малюють його межу. Такої довжини й такої лінії в каталозі немає: це не вибір моделі зі списку, а форма під конкретну ділянку.",
-            "Боларди відділяють проїзд від пішохідної частини. На їхніх гранях відлита монограма комплексу — знак не наклеєний і не нанесений фарбою, він є частиною самого виробу.",
+            "На алеях, у дворах і біля входів стоять лави з каталогу — «Сете» та Urban N. Лави без спинки, з гранчастою бетонною опорою, поставили на відкритих майданчиках і вздовж декоративних злаків. Лави зі спинкою й підлокітниками — рядами біля газонів і вітрин першого поверху, де люди сидять довше.",
           ],
         },
         {
-          heading: "Постійний партнер від 2021 року",
+          heading: "Довгі сидіння",
           paragraphs: [
-            "Перші вироби стали на майданчиках у 2021 році, і на цьому робота не закінчилася: партії доїжджали чергами — на нові двори, нові вхідні групи, нові ділянки благоустрою.",
-            "Для комплексу, який освоюють поетапно, це головний аргумент на користь одного виробника. Лава, поставлена цьогоріч, стоїть поряд із лавою 2021 року й має читатися з нею як одна серія: та сама форма, той самий колір бетону, той самий підбір дерева. Доробити партію тієї ж моделі простіше, ніж потім шукати збіг у нового постачальника.",
+            "Для комплексу окремо зробили довгі сидіння. Вони йдуть уздовж парапетів і підпірних стінок і повторюють форму майданчика. Такої довжини в каталозі немає — їх робили під конкретне місце.",
           ],
         },
         {
-          heading: "Бетон у житловому дворі",
+          heading: "Урни та боларди",
           paragraphs: [
-            "Двір працює без вихідних і без міжсезоння: сніг і реагенти, злива, літнє сонце, велосипеди та самокати. Пігмент замішаний у масу бетону, а не нанесений зверху, тому подряпина чи скол не оголюють інший колір під шаром фарби — на відміну від пофарбованого металу. Поверхню оброблено гідрофобізатором.",
-            "Дерево лишається тільки там, де його торкаються, — на сидінні. Усе інше бере на себе бетон: масу, стійкість і геометрію. Бетонна опора важка сама по собі, тож лава стоїть там, де її поставили.",
+            "Біля входів і лав стоять бетонні урни Rock. Боларди відділяють проїзд від тротуару. На них відлита монограма комплексу — вона не наклеєна і не намальована, а є частиною самого виробу.",
+          ],
+        },
+        {
+          heading: "Поставки з 2021 року",
+          paragraphs: [
+            "Перші вироби привезли у 2021 році, далі партії доїжджали чергами — на нові двори й входи. Нова лава має виглядати так само, як та, що стоїть поруч уже кілька років: та сама форма, колір бетону й дерево. Тому для комплексу, який будують поетапно, зручно мати одного виробника.",
+            "Колір у бетоні — не фарба: пігмент додають у суміш, тому подряпина чи скол не відкривають інший колір. Поверхню покрито гідрофобізатором. Дерево є тільки на сидінні, все інше — бетон.",
           ],
         },
       ],
@@ -440,7 +462,7 @@ const metropolis: Project = {
     en: {
       title: "Landscaping the grounds of the Metropolis residential complex",
       summary:
-        "Benches, litter bins and bollards in architectural concrete for the courtyards, walkways and entrances of a residential complex in Kyiv. We have worked with Metropolis since 2021 — the pieces arrived batch by batch, and alongside the catalogue models there are long seats made to the dimensions of the spaces themselves.",
+        "Benches, litter bins and bollards in architectural concrete for the courtyards and walkways of a residential complex in Kyiv. We have worked with Metropolis since 2021: alongside catalogue models, we made long seats for it to the dimensions of its spaces.",
       seoTitle: "Metropolis residential complex, Kyiv",
       seoDescription:
         "Benches, litter bins and bollards in architectural concrete for the Metropolis residential complex in Kyiv, since 2021. Catalogue models and long made-to-measure seating from the ODUDLAB workshop.",
@@ -452,7 +474,7 @@ const metropolis: Project = {
       },
       sections: [
         {
-          heading: "What we made",
+          heading: "Benches",
           paragraphs: [
             // «Сете» is the owner's word for the model and is not in the
             // catalogue, so the Latin spelling here is a straight
@@ -461,23 +483,26 @@ const metropolis: Project = {
             // near-certainly how it is written — but if the workshop spells it
             // otherwise, correct it here and in the `pl` block, not by guessing
             // again.
-            "Along the walkways, in the courtyards and by the entrances stand benches from the catalogue — Sete and Urban N — and Rock concrete bins. Some of the benches have no back: a faceted concrete support, a timber seat, nothing more; those went on the open squares and along the bands of ornamental grasses. Others have a back and armrests, set in rows along the lawns and by the ground-floor shopfronts, where people sit for longer.",
-            "The long seats were made for the complex specifically. They run along parapets and retaining walls, follow the turn of the space and in effect draw its edge. No catalogue holds that length or that line: this is not a model chosen from a list but a form made for one particular site.",
-            "The bollards separate the roadway from the pedestrian part. The complex's monogram is cast into their faces — the mark is not stuck on and not painted on, it is part of the piece itself.",
+            "Catalogue benches — Sete and Urban N — stand along the walkways, in the courtyards and by the entrances. The backless ones, on a faceted concrete support, went on the open squares and along the ornamental grasses. The ones with a back and armrests stand in rows by the lawns and the ground-floor shopfronts, where people sit for longer.",
           ],
         },
         {
-          heading: "A regular partner since 2021",
+          heading: "Long seats",
           paragraphs: [
-            "The first pieces went in on the grounds in 2021, and the work did not end there: batches kept arriving — for new courtyards, new entrances, new stretches of landscaping.",
-            "For a complex built out in phases, that is the main argument for a single manufacturer. A bench installed this year stands next to a bench from 2021 and has to read with it as one series: the same form, the same colour of concrete, the same choice of timber. Adding to a run of the same model is easier than hunting for a match at a new supplier later.",
+            "Long seats were made for the complex specifically. They run along parapets and retaining walls and follow the shape of each space. No catalogue item comes in that length — they were made for the particular place.",
           ],
         },
         {
-          heading: "Concrete in a residential courtyard",
+          heading: "Bins and bollards",
           paragraphs: [
-            "A courtyard works without weekends and without an off-season: snow and de-icing salt, downpours, summer sun, bicycles and scooters. The pigment is mixed into the body of the concrete rather than applied on top, so a scratch or a chip does not expose a different colour under a layer of paint — unlike painted metal. The surface is treated with a water repellent.",
-            "Timber is left only where people touch it — on the seat. Everything else is carried by the concrete: the mass, the durability and the geometry. A concrete support is heavy in itself, so a bench stays where it was put.",
+            "Rock concrete bins stand by the entrances and the benches. Bollards separate the roadway from the pavement. The complex's monogram is cast into them — not stuck on or painted, but part of the piece itself.",
+          ],
+        },
+        {
+          heading: "Deliveries since 2021",
+          paragraphs: [
+            "The first pieces arrived in 2021, and further batches followed in stages — for new courtyards and entrances. A new bench has to look the same as the one that has stood next to it for years: the same form, the same colour of concrete, the same timber. For a complex built in phases, one manufacturer makes that easy.",
+            "The colour is not paint: the pigment is mixed into the concrete, so a scratch or a chip does not show a different colour. The surface is treated with a water repellent. Timber is used only for the seats; everything else is concrete.",
           ],
         },
       ],
@@ -485,7 +510,7 @@ const metropolis: Project = {
     pl: {
       title: "Zagospodarowanie terenu osiedla Metropolis",
       summary:
-        "Ławki, kosze i słupki z betonu architektonicznego dla dziedzińców, alejek i stref wejściowych osiedla mieszkaniowego w Kijowie. Z Metropolis współpracujemy od 2021 roku — wyroby przyjeżdżały partiami, a obok modeli katalogowych stoją tu długie siedziska wykonane na wymiar samych placów.",
+        "Ławki, kosze i słupki z betonu architektonicznego dla dziedzińców i alejek osiedla mieszkaniowego w Kijowie. Współpracujemy z Metropolis od 2021 roku: oprócz modeli z katalogu wykonaliśmy dla niego długie siedziska na wymiar placów.",
       seoTitle: "Zagospodarowanie terenu osiedla Metropolis, Kijów",
       seoDescription:
         "Ławki, kosze i słupki z betonu architektonicznego dla osiedla Metropolis w Kijowie — od 2021 roku. Modele katalogowe i długie siedziska na wymiar z pracowni ODUDLAB.",
@@ -497,25 +522,28 @@ const metropolis: Project = {
       },
       sections: [
         {
-          heading: "Co zrobiliśmy",
+          heading: "Ławki",
           paragraphs: [
-            "Na alejkach, na dziedzińcach i przy strefach wejściowych stoją ławki z katalogu — Sete i Urban N — oraz betonowe kosze Rock. Część ławek jest bez oparcia: graniasta betonowa podpora, drewniane siedzisko, nic więcej; takie ustawiano na otwartych placach i wzdłuż pasów traw ozdobnych. Część ma oparcie i podłokietniki — rzędami wzdłuż trawników i przy witrynach parteru, tam gdzie siedzi się dłużej.",
-            "Osobno dla osiedla wykonano długie siedziska. Ciągną się wzdłuż parapetów i murów oporowych, powtarzają załamanie placu i faktycznie rysują jego granicę. Takiej długości i takiej linii nie ma w katalogu: to nie wybór modelu z listy, lecz forma pod konkretny teren.",
-            "Słupki oddzielają jezdnię od części pieszej. Na ich ścianach odlano monogram osiedla — znak nie jest naklejony ani naniesiony farbą, jest częścią samego wyrobu.",
+            "Na alejkach, dziedzińcach i przy wejściach stoją ławki z katalogu — Sete i Urban N. Ławki bez oparcia, na graniastej betonowej podporze, ustawiono na otwartych placach i wzdłuż traw ozdobnych. Ławki z oparciem i podłokietnikami stoją rzędami przy trawnikach i witrynach parteru, gdzie siedzi się dłużej.",
           ],
         },
         {
-          heading: "Stały partner od 2021 roku",
+          heading: "Długie siedziska",
           paragraphs: [
-            "Pierwsze wyroby stanęły na placach w 2021 roku i na tym praca się nie skończyła: partie przyjeżdżały kolejnymi turami — na nowe dziedzińce, nowe strefy wejściowe, nowe fragmenty zagospodarowania.",
-            "Dla osiedla realizowanego etapami to główny argument za jednym producentem. Ławka postawiona w tym roku stoi obok ławki z 2021 roku i musi czytać się z nią jako jedna seria: ta sama forma, ten sam kolor betonu, ten sam dobór drewna. Dorobić partię tego samego modelu jest łatwiej, niż potem szukać zgodności u nowego dostawcy.",
+            "Dla osiedla osobno wykonano długie siedziska. Biegną wzdłuż parapetów i murów oporowych i powtarzają kształt placu. Takiej długości nie ma w katalogu — powstały pod konkretne miejsce.",
           ],
         },
         {
-          heading: "Beton na osiedlowym dziedzińcu",
+          heading: "Kosze i słupki",
           paragraphs: [
-            "Dziedziniec pracuje bez weekendów i bez międzysezonu: śnieg i sól drogowa, ulewa, letnie słońce, rowery i hulajnogi. Pigment jest wmieszany w masę betonu, a nie naniesiony z wierzchu, więc zarysowanie czy odprysk nie odsłania innego koloru pod warstwą farby — inaczej niż w malowanym metalu. Powierzchnię zabezpieczono hydrofobizatorem.",
-            "Drewno zostaje tylko tam, gdzie się go dotyka — na siedzisku. Całą resztę bierze na siebie beton: masę, trwałość i geometrię. Betonowa podpora sama w sobie jest ciężka, więc ławka stoi tam, gdzie ją postawiono.",
+            "Przy wejściach i ławkach stoją betonowe kosze Rock. Słupki oddzielają jezdnię od chodnika. Odlano na nich monogram osiedla — nie jest naklejony ani namalowany, tylko stanowi część samego wyrobu.",
+          ],
+        },
+        {
+          heading: "Dostawy od 2021 roku",
+          paragraphs: [
+            "Pierwsze wyroby przyjechały w 2021 roku, a kolejne partie docierały etapami — na nowe dziedzińce i wejścia. Nowa ławka musi wyglądać tak samo jak ta, która stoi obok od kilku lat: ta sama forma, kolor betonu i drewno. Przy osiedlu budowanym etapami jeden producent to ułatwia.",
+            "Kolor to nie farba: pigment dodaje się do mieszanki, więc zarysowanie czy odprysk nie odsłania innego koloru. Powierzchnię zabezpieczono hydrofobizatorem. Drewno jest tylko na siedziskach, cała reszta to beton.",
           ],
         },
       ],
@@ -550,58 +578,72 @@ const svitlopark: Project = {
     {
       src: "/projects/svitlopark/svitlopark-vazony-na-ploshchi-mizh-bashtamy.webp",
       alt: "Ряд гофрованих бетонних вазонів із молодими деревами на площі між висотними будинками житлового комплексу",
+      afterSection: 1,
     },
     {
       src: "/projects/svitlopark/svitlopark-hofrovanyi-vazon-zblyzka.webp",
       alt: "Гофрований бетонний вазон крупним планом: вертикальні ребра, зубчастий край, мульча з кори, поруч лава з дерев'яним сидінням",
+      afterSection: 1,
     },
     {
       src: "/projects/svitlopark/svitlopark-betonni-klumby-z-hortenziiamy.webp",
       alt: "Бетонні клумби ламаної форми з гортензіями та деревами на брукованій площі",
+      afterSection: 2,
     },
     {
       src: "/projects/svitlopark/svitlopark-zaokruhlenyi-kut-betonnoi-klumby.webp",
       alt: "Заокруглений кут бетонної клумби з чагарником і мульчею, видно шов між двома сегментами",
+      afterSection: 2,
     },
     {
       src: "/projects/svitlopark/svitlopark-poverkhnia-betonnoi-klumby-zblyzka.webp",
       alt: "Гладка матова поверхня стінки бетонної клумби з тінню гілок, за ним мульча з кори та паросток чагарника",
+      afterSection: 2,
     },
     {
       src: "/projects/svitlopark/svitlopark-hranchasti-sydinnia-vzdovzh-klumby.webp",
       alt: "Гранчасті бетонні сидіння з дерев'яним настилом, що ламаною лінією тягнуться вздовж бетонної клумби біля паркування",
+      afterSection: 3,
     },
     {
       src: "/projects/svitlopark/svitlopark-sydinnia-z-derevianym-nastylom-zblyzka.webp",
       alt: "Дерев'яний настил сидіння на бетонній основі крупним планом, уздовж клумби з чагарником",
-    },
-    {
-      src: "/projects/svitlopark/svitlopark-urna-bilia-vhodu-v-budynok.webp",
-      alt: "Серійна бетонна урна з похилою кришкою на тротуарі біля смуги гортензій і входу в житловий будинок",
+      afterSection: 3,
     },
     {
       src: "/projects/svitlopark/svitlopark-lava-na-dorizhtsi-sered-yalivtsiu.webp",
       alt: "Серійна лава з бетонними опорами на брукованій доріжці серед ялівцю та декоративних злаків у дворі житлового комплексу",
-    },
-    {
-      src: "/projects/svitlopark/svitlopark-lava-ta-urna-na-dorizhtsi.webp",
-      alt: "Бетонна урна з похилою кришкою на передньому плані, за нею лава на доріжці вздовж хвойних насаджень",
+      afterSection: 4,
     },
     {
       src: "/projects/svitlopark/svitlopark-lava-z-betonnymy-oporamy.webp",
       alt: "Лава з темним дерев'яним сидінням на бетонних опорах-рамках біля клумби з ялівцем",
+      afterSection: 4,
     },
     {
       src: "/projects/svitlopark/svitlopark-lava-bilia-hazonu.webp",
       alt: "Лава з бетонними опорами-рамками на брукованому краї газону під деревами",
+      afterSection: 4,
     },
     {
       src: "/projects/svitlopark/svitlopark-lavy-vzdovzh-zvyvystoi-dorizhky.webp",
       alt: "Лави з бетонними опорами вздовж звивистої брукованої доріжки між газоном і смугою декоративних злаків",
+      afterSection: 4,
+    },
+    {
+      src: "/projects/svitlopark/svitlopark-urna-bilia-vhodu-v-budynok.webp",
+      alt: "Серійна бетонна урна з похилою кришкою на тротуарі біля смуги гортензій і входу в житловий будинок",
+      afterSection: 4,
+    },
+    {
+      src: "/projects/svitlopark/svitlopark-lava-ta-urna-na-dorizhtsi.webp",
+      alt: "Бетонна урна з похилою кришкою на передньому плані, за нею лава на доріжці вздовж хвойних насаджень",
+      afterSection: 4,
     },
     {
       src: "/projects/svitlopark/svitlopark-prystovburni-konusy-dlia-derev.webp",
       alt: "Бетонні пристовбурні конуси навколо дерев на брукованому майданчику біля скляного фасаду",
+      afterSection: 5,
     },
   ],
   relatedCategories: ["planters", "outdoor"],
@@ -609,7 +651,7 @@ const svitlopark: Project = {
     uk: {
       title: "Благоустрій прибудинкової території ЖК «Світлопарк»",
       summary:
-        "Вазони, клумби, сидіння, лави та урни з архітектурного бетону для дворів, площ і доріжок житлового комплексу в Києві, 2025 рік.",
+        "Вазони, клумби, сидіння, лави та урни з архітектурного бетону для дворів і площ житлового комплексу в Києві, 2025 рік.",
       seoTitle: "Благоустрій території ЖК «Світлопарк», Київ",
       seoDescription:
         "Гофровані вазони, бетонні клумби, сидіння з дерев'яним настилом, серійні лави та урни з архітектурного бетону для ЖК «Світлопарк» у Києві, 2025 рік. Майстерня ODUDLAB.",
@@ -621,25 +663,34 @@ const svitlopark: Project = {
       },
       sections: [
         {
-          heading: "Що зробили",
+          heading: "Вазони",
           paragraphs: [
-            "Найпомітніше на ділянці — конічні вазони з гофрованими стінками. Вертикальні ребра закінчуються зубчастим краєм, і на сонці кожна грань дає свою тінь, тож об'єм читається навіть здалеку. Вазони стоять поодинці й рядами на площі між будинками та у дворі біля дитячого майданчика, у кожному — дерево.",
-            "Клумби на площах — самі бетонні вироби: великі підвищені клумби, що зламуються під кутом і заокруглюються на поворотах. Ґрунт тримає бетон, тож форму озеленення малює сама клумба, а не бордюрний камінь. Уздовж частини клумб тягнуться сидіння: гранчасті бетонні сегменти з дерев'яним настилом ідуть ламаною лінією вздовж краю насаджень.",
-            "На доріжках між газонами й хвойними посадками стоять лави з бетонними опорами-рамками та дерев'яним сидінням, біля входів і вздовж тротуарів — бетонні урни з похилою кришкою. І лави, і урни — серійні моделі з нашого каталогу. Навколо дерев на одному з майданчиків — бетонні пристовбурні конуси.",
+            "Конічні вазони з ребристими стінками стоять у дворі біля дитячого майданчика й на площі між будинками. У кожному росте дерево. Ребра вгорі закінчуються зубчастим краєм.",
           ],
         },
         {
-          heading: "Клумба як виріб",
+          heading: "Клумби",
           paragraphs: [
-            "Зазвичай клумбу викладають на місці з бордюру, і її край помічають, лише коли він трісне чи перекоситься. Тут клумба — готовий бетонний виріб і частина композиції: та сама сіра маса, що й у вазонах та опорах лав, ті самі гладкі грані, тому все на ділянці читається як одна серія, а не як набір різних постачальників.",
-            "Там, де вздовж клумби йде сидіння, дерево лишається тільки на поверхні, якої торкаються. Усе інше — висоту, кут, лінію повороту — тримає бетон.",
+            "Клумби на площах теж бетонні. Це великі підняті клумби, які повертають під кутом і заокруглюються на поворотах. Землю тримає сама клумба, тому бордюр не потрібен.",
           ],
         },
         {
-          heading: "Чому бетон надворі",
+          heading: "Сидіння вздовж клумб",
           paragraphs: [
-            "Двір працює цілий рік: сніг і реагенти, злива, літнє сонце. Пігмент замішаний у масу бетону, а не нанесений зверху, тому скол чи подряпина не оголюють інший колір під шаром фарби — на відміну від пофарбованого металу. Поверхню оброблено гідрофобізатором.",
-            "Матова поверхня з видимими порами — це характер матеріалу, а не дефект. Бетон тут нічого не імітує: ані камінь, ані дерево.",
+            "Уздовж частини клумб ідуть сидіння: бетонні сегменти з дерев'яним настилом зверху. Вони тягнуться ламаною лінією по краю клумби. Дерево — лише там, де сидять, усе інше — бетон.",
+          ],
+        },
+        {
+          heading: "Лави та урни",
+          paragraphs: [
+            "На доріжках між газонами й хвойними кущами стоять лави на бетонних опорах з дерев'яним сидінням. Біля входів і вздовж тротуарів — бетонні урни з похилою кришкою. Лави й урни — серійні моделі з нашого каталогу.",
+          ],
+        },
+        {
+          heading: "Конуси біля дерев",
+          paragraphs: [
+            "На одному з майданчиків навколо дерев стоять бетонні пристовбурні конуси.",
+            "Колір в усіх виробах — не фарба: пігмент додають у бетонну суміш, тому подряпина чи скол не відкривають інший колір. Поверхню покрито гідрофобізатором.",
           ],
         },
       ],
@@ -647,7 +698,7 @@ const svitlopark: Project = {
     en: {
       title: "Landscaping the grounds of the Svitlopark residential complex",
       summary:
-        "Planters, planting beds, seating, benches and litter bins in architectural concrete for the courtyards, squares and walkways of a residential complex in Kyiv, 2025.",
+        "Planters, planting beds, seating, benches and litter bins in architectural concrete for the courtyards and squares of a residential complex in Kyiv, 2025.",
       seoTitle: "Svitlopark residential complex, Kyiv",
       seoDescription:
         "Fluted planters, concrete planting beds, timber-topped seating, catalogue benches and litter bins in architectural concrete for the Svitlopark residential complex in Kyiv, 2025. The ODUDLAB workshop.",
@@ -660,25 +711,34 @@ const svitlopark: Project = {
       },
       sections: [
         {
-          heading: "What we made",
+          heading: "Planters",
           paragraphs: [
-            "The most visible pieces on the site are conical planters with fluted walls. The vertical ribs end in a serrated rim, and in sunlight every face casts its own shadow, so the volume reads even from a distance. The planters stand singly and in rows on the square between the buildings and in the courtyard by the playground, each holding a tree.",
-            "The planting beds on the squares are concrete pieces in their own right: large raised beds that break at an angle and round off at the turns. The concrete retains the soil, so the shape of the planting is drawn by the bed itself rather than by a kerb stone. Along some of the beds runs seating: faceted concrete segments with timber decking follow a broken line along the edge of the planting.",
-            "On the walkways between the lawns and the conifer planting stand benches with concrete loop supports and a timber seat; by the entrances and along the pavements, concrete litter bins with a sloping lid. Both the benches and the bins are catalogue models. Around the trees on one of the squares are concrete tree-base cones.",
+            "Conical planters with ribbed walls stand in the courtyard by the playground and on the square between the buildings. Each one holds a tree. At the top, the ribs end in a serrated rim.",
           ],
         },
         {
-          heading: "The bed as a piece",
+          heading: "Planting beds",
           paragraphs: [
-            "A planting bed is usually laid on site from kerb stones, and its edge is noticed only once it cracks or tilts. Here the bed is a finished concrete piece and part of the composition: the same grey mass as the planters and the bench supports, the same smooth faces, so everything on the site reads as one series rather than as an assortment from different suppliers.",
-            "Where seating runs along a bed, timber is left only on the surface people touch. Everything else — the height, the angle, the line of the turn — is held by the concrete.",
+            "The planting beds on the squares are concrete too. They are large raised beds that turn at an angle and round off at the corners. The bed itself holds the soil, so no kerb is needed.",
           ],
         },
         {
-          heading: "Why concrete outdoors",
+          heading: "Seating along the beds",
           paragraphs: [
-            "A courtyard works all year round: snow and de-icing salt, downpours, summer sun. The pigment is mixed into the body of the concrete rather than applied on top, so a chip or a scratch does not expose a different colour under a layer of paint — unlike painted metal. The surface is treated with a water repellent.",
-            "The matte surface with its visible pores is the character of the material, not a defect. The concrete here imitates nothing: neither stone nor wood.",
+            "Along some of the beds runs seating: concrete segments with timber decking on top. They follow the edge of the bed in a broken line. Timber is used only where people sit; everything else is concrete.",
+          ],
+        },
+        {
+          heading: "Benches and bins",
+          paragraphs: [
+            "Benches on concrete supports with a timber seat stand on the walkways between the lawns and the conifers. By the entrances and along the pavements there are concrete bins with a sloping lid. Both the benches and the bins are catalogue models.",
+          ],
+        },
+        {
+          heading: "Cones around the trees",
+          paragraphs: [
+            "On one of the squares, concrete cones stand around the base of the trees.",
+            "In every piece the colour is not paint: the pigment is mixed into the concrete, so a scratch or a chip does not show a different colour. The surface is treated with a water repellent.",
           ],
         },
       ],
@@ -686,7 +746,7 @@ const svitlopark: Project = {
     pl: {
       title: "Zagospodarowanie terenu osiedla Svitlopark",
       summary:
-        "Donice, rabaty, siedziska, ławki i kosze z betonu architektonicznego dla dziedzińców, placów i alejek osiedla mieszkaniowego w Kijowie, 2025 rok.",
+        "Donice, rabaty, siedziska, ławki i kosze z betonu architektonicznego dla dziedzińców i placów osiedla mieszkaniowego w Kijowie, 2025 rok.",
       seoTitle: "Zagospodarowanie terenu osiedla Svitlopark, Kijów",
       seoDescription:
         "Karbowane donice, betonowe rabaty, siedziska z drewnianym blatem, katalogowe ławki i kosze z betonu architektonicznego dla osiedla Svitlopark w Kijowie, 2025 rok. Pracownia ODUDLAB.",
@@ -698,25 +758,34 @@ const svitlopark: Project = {
       },
       sections: [
         {
-          heading: "Co zrobiliśmy",
+          heading: "Donice",
           paragraphs: [
-            "Najbardziej widoczne na terenie są stożkowe donice o karbowanych ściankach. Pionowe żebra kończą się ząbkowaną krawędzią, a w słońcu każda ścianka rzuca własny cień, więc bryła czyta się nawet z daleka. Donice stoją pojedynczo i rzędami na placu między budynkami oraz na dziedzińcu przy placu zabaw, w każdej rośnie drzewo.",
-            "Rabaty na placach same są wyrobami z betonu: duże podniesione rabaty, które załamują się pod kątem i zaokrąglają na zakrętach. Grunt utrzymuje beton, więc kształt zieleni rysuje sama rabata, a nie krawężnik. Wzdłuż części rabat ciągną się siedziska: graniaste betonowe segmenty z drewnianym blatem biegną łamaną linią wzdłuż krawędzi nasadzeń.",
-            "Na alejkach między trawnikami a nasadzeniami iglastymi stoją ławki z betonowymi podporami w kształcie ramy i drewnianym siedziskiem, przy wejściach i wzdłuż chodników — betonowe kosze z ukośną pokrywą. Zarówno ławki, jak i kosze to modele seryjne z naszego katalogu. Wokół drzew na jednym z placów — betonowe stożki przypniowe.",
+            "Stożkowe donice o żebrowanych ściankach stoją na dziedzińcu przy placu zabaw i na placu między budynkami. W każdej rośnie drzewo. U góry żebra kończą się ząbkowaną krawędzią.",
           ],
         },
         {
-          heading: "Rabata jako wyrób",
+          heading: "Rabaty",
           paragraphs: [
-            "Rabatę zwykle układa się na miejscu z krawężników, a jej krawędź zauważa się dopiero wtedy, gdy pęknie albo się przechyli. Tutaj rabata to gotowy wyrób z betonu i część kompozycji: ta sama szara masa co w donicach i podporach ławek, te same gładkie ściany, dlatego wszystko na terenie czyta się jako jedna seria, a nie zestaw od różnych dostawców.",
-            "Tam, gdzie wzdłuż rabaty biegnie siedzisko, drewno zostaje tylko na powierzchni, której się dotyka. Całą resztę — wysokość, kąt, linię zakrętu — trzyma beton.",
+            "Rabaty na placach też są betonowe. To duże podniesione rabaty, które skręcają pod kątem i zaokrąglają się na zakrętach. Ziemię utrzymuje sama rabata, więc krawężnik nie jest potrzebny.",
           ],
         },
         {
-          heading: "Dlaczego beton na zewnątrz",
+          heading: "Siedziska wzdłuż rabat",
           paragraphs: [
-            "Dziedziniec pracuje przez cały rok: śnieg i sól drogowa, ulewa, letnie słońce. Pigment jest wmieszany w masę betonu, a nie naniesiony z wierzchu, więc odprysk czy zarysowanie nie odsłania innego koloru pod warstwą farby — inaczej niż w malowanym metalu. Powierzchnię zabezpieczono hydrofobizatorem.",
-            "Matowa powierzchnia z widocznymi porami to charakter materiału, a nie wada. Beton niczego tu nie udaje: ani kamienia, ani drewna.",
+            "Wzdłuż części rabat biegną siedziska: betonowe segmenty z drewnianym blatem. Ciągną się łamaną linią po krawędzi rabaty. Drewno jest tylko tam, gdzie się siedzi, cała reszta to beton.",
+          ],
+        },
+        {
+          heading: "Ławki i kosze",
+          paragraphs: [
+            "Na alejkach między trawnikami a krzewami iglastymi stoją ławki na betonowych podporach z drewnianym siedziskiem. Przy wejściach i wzdłuż chodników — betonowe kosze z ukośną pokrywą. Ławki i kosze to modele z naszego katalogu.",
+          ],
+        },
+        {
+          heading: "Stożki wokół drzew",
+          paragraphs: [
+            "Na jednym z placów wokół drzew stoją betonowe stożki przypniowe.",
+            "We wszystkich wyrobach kolor to nie farba: pigment dodaje się do mieszanki betonowej, więc zarysowanie czy odprysk nie odsłania innego koloru. Powierzchnię zabezpieczono hydrofobizatorem.",
           ],
         },
       ],
