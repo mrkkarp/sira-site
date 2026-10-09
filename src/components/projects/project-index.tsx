@@ -18,7 +18,6 @@ import {
   TechnicalLine,
   drawingIndex,
 } from "@/components/technical-drawing";
-import { BrandEyebrow } from "@/components/brand";
 
 /**
  * `/projects` — the index of realised projects.
@@ -83,7 +82,7 @@ export function ProjectIndex({
   const copy = dictionary.projectsPage;
 
   return (
-    <Section spacing="xl">
+    <Section spacing="lg">
       <Container>
         <Breadcrumbs
           items={[
@@ -95,10 +94,10 @@ export function ProjectIndex({
           ]}
         />
 
-        <header className="mt-(--space-md) max-w-3xl">
-          <BrandEyebrow>{copy.eyebrow}</BrandEyebrow>
-          <h1 className="type-h1 text-text mt-(--space-2xs)">{copy.heading}</h1>
-        </header>
+        {/* No eyebrow: «Реалізовані проєкти» over «Проєкти» said the same
+            thing twice and pushed the page down (owner, 2026-10-09: «над
+            словом проєкти і шапкою забагато місця»). */}
+        <h1 className="type-h1 text-text mt-(--space-md)">{copy.heading}</h1>
 
         <div className="mt-(--space-md) flex flex-col gap-(--space-2xl)">
           {groups.map((group, groupIndex) => {

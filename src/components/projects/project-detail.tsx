@@ -103,7 +103,7 @@ export function ProjectDetail({
   );
 
   return (
-    <Section spacing="xl">
+    <Section spacing="lg">
       <Container>
         <Breadcrumbs
           items={[
