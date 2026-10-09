@@ -261,6 +261,38 @@ describe("sortProducts", () => {
     expect(result).toEqual(copy);
     expect(result).not.toBe(catalog);
   });
+
+  it("'featured' puts floor-standing sinks before countertop ones", () => {
+    const mixed = [
+      product({ slug: "counter-1", sinkType: "countertop" }),
+      product({ slug: "free-1", sinkType: "freestanding" }),
+      product({ slug: "counter-2", sinkType: "countertop" }),
+      product({ slug: "unknown", sinkType: undefined }),
+      product({ slug: "free-2", sinkType: "freestanding" }),
+    ];
+    expect(sortProducts(mixed, "featured").map((p) => p.slug)).toEqual([
+      "free-1",
+      "free-2",
+      "counter-1",
+      "counter-2",
+      "unknown",
+    ]);
+  });
+
+  it("'featured' leaves every non-sink product exactly where it was", () => {
+    const mixed = [
+      product({ slug: "planter", shopCategory: "planters" }),
+      product({ slug: "counter-1", sinkType: "countertop" }),
+      product({ slug: "table", shopCategory: "tables" }),
+      product({ slug: "free-1", sinkType: "freestanding" }),
+    ];
+    expect(sortProducts(mixed, "featured").map((p) => p.slug)).toEqual([
+      "planter",
+      "free-1",
+      "table",
+      "counter-1",
+    ]);
+  });
 });
 
 describe("faceted counts", () => {

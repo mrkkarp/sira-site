@@ -406,11 +406,42 @@ export function sortProducts(products: Product[], sort: SortOption): Product[] {
       break;
     case "featured":
     default:
-      // Stable, source-file order — no popularity/bestseller data exists to
-      // rank by, so "featured" is simply the catalog's authored order.
-      break;
+      // The catalog's authored order — no popularity/bestseller data exists
+      // to rank by — except that sinks are grouped by mount, floor-standing
+      // first (owner, 2026-10-09: «коли заходиш на вкладку раковини, мають
+      // спочатку іти підлогові»).
+      return sinksFloorStandingFirst(sorted);
   }
   return sorted;
+}
+
+/**
+ * Reorders the sinks among themselves by `sinkTypes` order (floor-standing,
+ * then countertop, then wall-mounted, then sinks with no mount recorded) and
+ * puts them back into the slots sinks already occupied. Every other product
+ * keeps its exact position, so on `/shop`, where sinks sit between planters
+ * and tables, this changes nothing but which sink comes first. Stable: sinks
+ * of one mount keep their authored order.
+ */
+function sinksFloorStandingFirst(products: Product[]): Product[] {
+  const mountRank = (product: Product) => {
+    const index = product.sinkType ? sinkTypes.indexOf(product.sinkType) : -1;
+    return index === -1 ? sinkTypes.length : index;
+  };
+  const slots: number[] = [];
+  const sinks: Product[] = [];
+  products.forEach((product, index) => {
+    if (product.shopCategory === "sinks") {
+      slots.push(index);
+      sinks.push(product);
+    }
+  });
+  sinks.sort((a, b) => mountRank(a) - mountRank(b));
+  const result = [...products];
+  slots.forEach((slot, i) => {
+    result[slot] = sinks[i];
+  });
+  return result;
 }
 
 // --- faceted counts (for the sidebar/drawer: values + counts + disabled) ---
