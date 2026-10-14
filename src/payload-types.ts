@@ -355,9 +355,17 @@ export interface Product {
       value?: number | null;
       unit?: ('mm' | 'cm' | 'm') | null;
     };
+    wallThickness?: {
+      value?: number | null;
+      unit?: ('mm' | 'cm' | 'm') | null;
+    };
     weight?: {
       value?: number | null;
       unit?: 'kg' | null;
+    };
+    volume?: {
+      value?: number | null;
+      unit?: 'l' | null;
     };
     weightPerArea?: {
       value?: number | null;
@@ -1176,7 +1184,19 @@ export interface ProductsSelect<T extends boolean = true> {
               value?: T;
               unit?: T;
             };
+        wallThickness?:
+          | T
+          | {
+              value?: T;
+              unit?: T;
+            };
         weight?:
+          | T
+          | {
+              value?: T;
+              unit?: T;
+            };
+        volume?:
           | T
           | {
               value?: T;

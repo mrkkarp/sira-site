@@ -24,13 +24,40 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 
 /** Localized unit suffixes. The unit vocabularies come from
  * `specFields.ts` (`lengthUnits`, `weightUnits`, `weightPerAreaUnits`,
- * `areaUnits`, `countUnits`); they are stored as stable codes (`cm`, `kg`,
+ * `areaUnits`, `countUnits`, `volumeUnits`); they are stored as stable codes (`cm`, `kg`,
  * `m2`, `pcs`) precisely so they can be rendered per language instead of
  * being frozen as Ukrainian text the way the legacy source block was. */
 const UNIT_LABELS: Record<string, Record<string, string>> = {
-  uk: { mm: "мм", cm: "см", m: "м", kg: "кг", "kg/m2": "кг/м²", m2: "м²", pcs: "шт." },
-  en: { mm: "mm", cm: "cm", m: "m", kg: "kg", "kg/m2": "kg/m²", m2: "m²", pcs: "pcs" },
-  pl: { mm: "mm", cm: "cm", m: "m", kg: "kg", "kg/m2": "kg/m²", m2: "m²", pcs: "szt." },
+  uk: {
+    mm: "мм",
+    cm: "см",
+    m: "м",
+    kg: "кг",
+    "kg/m2": "кг/м²",
+    m2: "м²",
+    pcs: "шт.",
+    l: "л",
+  },
+  en: {
+    mm: "mm",
+    cm: "cm",
+    m: "m",
+    kg: "kg",
+    "kg/m2": "kg/m²",
+    m2: "m²",
+    pcs: "pcs",
+    l: "l",
+  },
+  pl: {
+    mm: "mm",
+    cm: "cm",
+    m: "m",
+    kg: "kg",
+    "kg/m2": "kg/m²",
+    m2: "m²",
+    pcs: "szt.",
+    l: "l",
+  },
 };
 
 type Specs = NonNullable<PayloadProduct["specs"]>;
@@ -66,7 +93,9 @@ const MEASUREMENT_SPEC_KEYS = [
   "height",
   "diameter",
   "thickness",
+  "wallThickness",
   "weight",
+  "volume",
   "weightPerArea",
   "drainDiameter",
   "coverageArea",
@@ -74,7 +103,8 @@ const MEASUREMENT_SPEC_KEYS = [
 ] as const satisfies readonly (keyof Specs)[];
 
 function formatMeasurement(
-  measurement: { value?: number | null; unit?: string | null } | null | undefined,
+  measurement:
+    { value?: number | null; unit?: string | null } | null | undefined,
   locale: string,
 ): string | undefined {
   if (!measurement || measurement.value == null) return undefined;
@@ -111,7 +141,12 @@ export function buildSpecEntriesFromPayload(
 
   const pushMeasurement = (key: string) => {
     const value = formatMeasurement(
-      (specs as Record<string, { value?: number | null; unit?: string | null } | null>)[key],
+      (
+        specs as Record<
+          string,
+          { value?: number | null; unit?: string | null } | null
+        >
+      )[key],
       locale,
     );
     if (!value) return;

@@ -12,6 +12,7 @@ import {
   countUnits,
   dimensionField,
   lengthUnits,
+  volumeUnits,
   weightPerAreaUnits,
   weightUnits,
 } from "./fields/specFields";
@@ -257,7 +258,12 @@ export const Products: CollectionConfig = {
         dimensionField("height", "Висота", lengthUnits),
         dimensionField("diameter", "Діаметр", lengthUnits),
         dimensionField("thickness", "Товщина", lengthUnits),
+        // A planter's wall, as opposed to `thickness` — the thickness of a
+        // flat piece such as a panel. Added for Flute (2026-10-14), whose
+        // data sheet gives both a wall thickness and a volume.
+        dimensionField("wallThickness", "Товщина стінки", lengthUnits),
         dimensionField("weight", "Вага", weightUnits),
+        dimensionField("volume", "Об'єм", volumeUnits),
         dimensionField("weightPerArea", "Вага на м²", weightPerAreaUnits),
         dimensionField("drainDiameter", "Діаметр зливного отвору", lengthUnits),
         dimensionField(

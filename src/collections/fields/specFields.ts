@@ -38,3 +38,4 @@ export const weightUnits = ["kg"] as const;
 export const weightPerAreaUnits = ["kg/m2"] as const;
 export const countUnits = ["pcs"] as const;
 export const areaUnits = ["m2"] as const;
+export const volumeUnits = ["l"] as const;

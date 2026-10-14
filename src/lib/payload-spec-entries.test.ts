@@ -35,6 +35,38 @@ describe("buildSpecEntriesFromPayload", () => {
     ]);
   });
 
+  it("renders a planter's wall thickness and volume in data-sheet order", async () => {
+    // Flute's sheet: height, diameter, wall thickness, weight, volume.
+    const specs = {
+      height: { value: 85, unit: "cm" },
+      diameter: { value: 60, unit: "cm" },
+      wallThickness: { value: 4, unit: "cm" },
+      weight: { value: 100, unit: "kg" },
+      volume: { value: 175, unit: "l" },
+    } as unknown as Specs;
+
+    expect(
+      buildSpecEntriesFromPayload(specs, await getDictionary("uk"), "uk"),
+    ).toEqual([
+      { key: "height", label: "Висота", value: "85 см" },
+      { key: "diameter", label: "Діаметр", value: "60 см" },
+      { key: "wallThickness", label: "Товщина стінки", value: "4 см" },
+      { key: "weight", label: "Вага", value: "100 кг" },
+      { key: "volume", label: "Об'єм", value: "175 л" },
+    ]);
+    expect(
+      buildSpecEntriesFromPayload(specs, await getDictionary("en"), "en").map(
+        (entry) => `${entry.label}: ${entry.value}`,
+      ),
+    ).toEqual([
+      "Height: 85 cm",
+      "Diameter: 60 cm",
+      "Wall thickness: 4 cm",
+      "Weight: 100 kg",
+      "Volume: 175 l",
+    ]);
+  });
+
   it("renders labels and unit suffixes in the requested locale", async () => {
     // The whole point of the migration off the legacy snapshot: the source
     // block was one frozen Ukrainian string, so /en showed Ukrainian.
@@ -60,9 +92,7 @@ describe("buildSpecEntriesFromPayload", () => {
       await getDictionary("pl"),
       "pl",
     );
-    expect(pl).toEqual([
-      { key: "height", label: "Wysokość", value: "85 cm" },
-    ]);
+    expect(pl).toEqual([{ key: "height", label: "Wysokość", value: "85 cm" }]);
   });
 
   it("omits absent, blank and value-less specs instead of rendering empty rows", async () => {
