@@ -46,9 +46,11 @@ const MAX_RESULTS_PER_GROUP = 6;
  * typed without involving us at all.
  *
  * On the numbers:
- *  - `s-maxage=300` matches the `revalidate: 300` on the catalogue's own data
- *    cache (`payload-flat-products.ts`), so the edge is never staler than the
- *    layer underneath it. It cannot be longer *and* honest: the CDN does not
+ *  - `s-maxage=300` bounds how far the edge can lag an admin edit. The
+ *    catalogue's own data cache (`payload-flat-products.ts`) is dropped by
+ *    tag the moment something is published, so it is the edge, not that
+ *    layer, that decides how long an edit takes to reach search. It cannot
+ *    be longer *and* honest: the CDN does not
  *    observe `revalidateTag`, so an admin edit clears our data cache
  *    immediately and the edge keeps its copy until this expires
  *    (`cdn-caching.md:26`). Five minutes of a possibly-old price in a drawer

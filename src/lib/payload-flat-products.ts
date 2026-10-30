@@ -367,6 +367,17 @@ async function loadPayloadFlatProductsUncached(
  * hooks (a direct SQL edit, an importer run outside Next), so the site
  * converges on its own rather than serving a stale catalogue indefinitely.
  *
+ * That backstop is one day, not five minutes, and the length is the point.
+ * The database is on Neon's free plan: 100 CU-hours a month, the compute
+ * suspended after five idle minutes. A five-minute window meant any visitor —
+ * and the crawlers never stop visiting — refetched the catalogue at least
+ * every five minutes, so the compute was almost never allowed to sleep; in
+ * October 2026 it ran out four days early and the admin, search and checkout
+ * went down. Admin edits are unaffected by the longer window — the hooks drop
+ * this cache the moment something is published. Only out-of-band writes (a
+ * script, raw SQL) now take up to a day to show; redeploying, or saving the
+ * product once in the admin, shows them at once.
+ *
  * Keyed by locale: the query passes `locale` to Payload and merges
  * locale-specific dictionary labels, so `uk`/`en`/`pl` are genuinely different
  * results and must not share an entry.
@@ -374,7 +385,7 @@ async function loadPayloadFlatProductsUncached(
 const loadPayloadFlatProductsCached = unstable_cache(
   loadPayloadFlatProductsUncached,
   ["payload-flat-products"],
-  { tags: [CATALOGUE_CACHE_TAG], revalidate: 300 },
+  { tags: [CATALOGUE_CACHE_TAG], revalidate: 60 * 60 * 24 },
 );
 
 export function loadPayloadFlatProducts(

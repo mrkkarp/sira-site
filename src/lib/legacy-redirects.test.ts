@@ -35,7 +35,7 @@ describe("findLegacyRedirect", () => {
       docs: [{ toPath: "/products/monro", statusCode: "302" }],
     });
 
-    const result = await findLegacyRedirect("/monro");
+    const result = await findLegacyRedirect("/monro-302");
 
     expect(result).toEqual({ toPath: "/products/monro", statusCode: 302 });
   });
@@ -51,8 +51,50 @@ describe("findLegacyRedirect", () => {
   it("fails safe (returns null) if the lookup throws", async () => {
     findMock.mockRejectedValueOnce(new Error("db unavailable"));
 
-    const result = await findLegacyRedirect("/monro");
+    const result = await findLegacyRedirect("/monro-down");
 
     expect(result).toBeNull();
+  });
+
+  /**
+   * The database is on a capped free plan and wakes for every query, so the
+   * paths bots probe for — none of which can be an old-site page — must
+   * never reach it.
+   */
+  it.each([
+    "/wp-login.php",
+    "/xmlrpc.php",
+    "/.env",
+    "/.well-known/security.txt",
+    "/wp-content/plugins/x/readme.txt",
+    "/wordpress",
+    "/cgi-bin/luci",
+    "/sitemap.xml",
+  ])("answers %s without querying the database", async (path) => {
+    expect(await findLegacyRedirect(path)).toBeNull();
+    expect(findMock).not.toHaveBeenCalled();
+  });
+
+  it("asks the database once for a path asked about twice", async () => {
+    findMock.mockResolvedValueOnce({ docs: [] });
+
+    expect(await findLegacyRedirect("/asked-twice")).toBeNull();
+    expect(await findLegacyRedirect("/asked-twice")).toBeNull();
+
+    expect(findMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not remember a failed lookup", async () => {
+    findMock.mockRejectedValueOnce(new Error("db unavailable"));
+    expect(await findLegacyRedirect("/riflo-retry")).toBeNull();
+
+    findMock.mockResolvedValueOnce({
+      docs: [{ toPath: "/products/riflo", statusCode: "301" }],
+    });
+    expect(await findLegacyRedirect("/riflo-retry")).toEqual({
+      toPath: "/products/riflo",
+      statusCode: 301,
+    });
+    expect(findMock).toHaveBeenCalledTimes(2);
   });
 });
