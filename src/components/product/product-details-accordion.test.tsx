@@ -53,7 +53,7 @@ describe("ProductDetailsAccordion", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows Характеристики and Монтаж when the product has real spec/installation entries, and the honest no-documents message", async () => {
+  it("leaves specs to the open spec sheet, and shows the honest no-documents message", async () => {
     const dictionary = await getDictionary("uk");
     render(
       <ProductDetailsAccordion
@@ -74,17 +74,17 @@ describe("ProductDetailsAccordion", () => {
         dictionary={dictionary}
       />,
     );
-    fireEvent.click(
-      screen.getByRole("button", { name: dictionary.product.accordionSpecs }),
-    );
-    expect(screen.getByText("архітектурний бетон")).toBeInTheDocument();
-
-    fireEvent.click(
-      screen.getByRole("button", {
+    // Specs, dimensions and installation are rendered open above the fold
+    // by ProductSpecSheet now; repeating them in a panel would print every
+    // number twice.
+    expect(
+      screen.queryByRole("button", { name: dictionary.product.accordionSpecs }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
         name: dictionary.product.accordionInstallation,
       }),
-    );
-    expect(screen.getByText("накладний на стільницю")).toBeInTheDocument();
+    ).not.toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole("button", {

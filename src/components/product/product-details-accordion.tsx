@@ -1,29 +1,22 @@
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { Product } from "@/lib/schemas/product";
-import { getInstallationSpecEntries } from "@/lib/product-installation";
-import {
-  getDimensionSpecEntries,
-  withoutDimensionSpecEntries,
-} from "@/lib/product-dimensions";
 import { getProductDocuments } from "@/lib/product-documents";
 import { Accordion, type AccordionItemData } from "@/components/ui/accordion";
-import { ProductSpecs } from "@/components/product/product-specs";
-import { ProductDimensions } from "@/components/product/product-dimensions";
 
 /**
  * Product page accordion — Prompt 6 §11 (Характеристики / Доставка / Монтаж
  * / Догляд / Документи / Гарантія / Запитання).
  *
+ * Характеристики, Розміри and Монтаж used to be panels here too. They now
+ * sit open directly under the product (`ProductSpecSheet`), because a buyer
+ * should not have to find and open a panel to learn whether a piece fits
+ * (owner, 2026-11-06). What remains is the reference material read after
+ * deciding.
+ *
  * Every section here is backed by real data:
- * - Характеристики: the product's own parsed spec entries (omitted when empty).
- * - Розміри: the measured axes, lifted out of Характеристики so the same
- *   number is not printed twice on one page (omitted when there are none —
- *   most of the catalogue was published without measurements).
  * - Доставка / Гарантія / Догляд: the same real, confirmed company-wide
  *   payment/delivery/warranty/care copy already used on the footer and
  *   customer-care pages (`dictionary.customerCare`) — not re-invented here.
- * - Монтаж: only the real installation/connection spec entries that exist
- *   for this specific product (omitted when there are none).
  * - Документи: real per-product files if any exist (none do today — see
  *   `getProductDocuments`), otherwise the honest "not uploaded yet" message.
  *
@@ -44,24 +37,6 @@ export function ProductDetailsAccordion({
 
   const items: AccordionItemData[] = [];
 
-  const remainingSpecEntries = withoutDimensionSpecEntries(product.specEntries);
-  if (remainingSpecEntries.length > 0) {
-    items.push({
-      id: "specs",
-      trigger: copy.accordionSpecs,
-      content: <ProductSpecs specEntries={remainingSpecEntries} />,
-    });
-  }
-
-  const dimensionEntries = getDimensionSpecEntries(product.specEntries);
-  if (dimensionEntries.length > 0) {
-    items.push({
-      id: "dimensions",
-      trigger: copy.accordionDimensions,
-      content: <ProductDimensions entries={dimensionEntries} />,
-    });
-  }
-
   items.push({
     id: "delivery",
     trigger: copy.accordionDelivery,
@@ -74,15 +49,6 @@ export function ProductDetailsAccordion({
       </ul>
     ),
   });
-
-  const installationEntries = getInstallationSpecEntries(product.specEntries);
-  if (installationEntries.length > 0) {
-    items.push({
-      id: "installation",
-      trigger: copy.accordionInstallation,
-      content: <ProductSpecs specEntries={installationEntries} />,
-    });
-  }
 
   items.push({
     id: "care",

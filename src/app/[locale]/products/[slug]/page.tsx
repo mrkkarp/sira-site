@@ -29,6 +29,7 @@ import { BreadcrumbStructuredData } from "@/components/seo/breadcrumb-structured
 import { ProductExperience } from "@/components/product/product-experience";
 import { ProductDescription } from "@/components/product/product-description";
 import { ProductDetailsAccordion } from "@/components/product/product-details-accordion";
+import { ProductSpecSheet } from "@/components/product/product-spec-sheet";
 import { ProductEditorial } from "@/components/product/product-editorial";
 import { ProductRelated } from "@/components/product/product-related";
 import { ProductStructuredData } from "@/components/product/product-structured-data";
@@ -208,6 +209,17 @@ export default async function ProductPage({
           />
         </Container>
       </Section>
+
+      {product.specEntries.length > 0 ? (
+        <Section spacing="lg">
+          <Container>
+            <ProductSpecSheet
+              specEntries={product.specEntries}
+              dictionary={dictionary}
+            />
+          </Container>
+        </Section>
+      ) : null}
 
       {descriptionSections.length > 0 ? (
         <Section spacing="lg">

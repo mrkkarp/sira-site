@@ -111,7 +111,13 @@ function formatMeasurement(
   const unit = measurement.unit
     ? (UNIT_LABELS[locale]?.[measurement.unit] ?? measurement.unit)
     : undefined;
-  return unit ? `${measurement.value} ${unit}` : String(measurement.value);
+  // Decimal separator per language: "2,5 см" / "2,5 cm" in uk and pl,
+  // "2.5 cm" in en. String(2.5) printed a full stop on every locale.
+  const amount = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 2,
+    useGrouping: false,
+  }).format(measurement.value);
+  return unit ? `${amount} ${unit}` : amount;
 }
 
 export function buildSpecEntriesFromPayload(

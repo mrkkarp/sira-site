@@ -67,6 +67,16 @@ describe("buildSpecEntriesFromPayload", () => {
     ]);
   });
 
+  it("writes a fractional value with the language's decimal separator", async () => {
+    const specs = { thickness: { value: 2.5, unit: "cm" } } as unknown as Specs;
+    const value = async (locale: "uk" | "en" | "pl") =>
+      buildSpecEntriesFromPayload(specs, await getDictionary(locale), locale)[0]
+        .value;
+    expect(await value("uk")).toBe("2,5 см");
+    expect(await value("pl")).toBe("2,5 cm");
+    expect(await value("en")).toBe("2.5 cm");
+  });
+
   it("renders labels and unit suffixes in the requested locale", async () => {
     // The whole point of the migration off the legacy snapshot: the source
     // block was one frozen Ukrainian string, so /en showed Ukrainian.
